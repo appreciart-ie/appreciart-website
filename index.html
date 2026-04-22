@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Appreciart IE — Private Tattoo Studio & Gallery in Dublin. Resident and guest artists creating authentic, conceptual, contemporary artworks.">
+  <title>Appreciart IE — Private Tattoo Studio & Gallery</title>
+  <meta property="og:title" content="Appreciart IE — Private Tattoo Studio & Gallery">
+  <meta property="og:description" content="A curated creative space in Dublin where international artists create authentic, conceptual, contemporary artworks.">
+  <meta property="og:url" content="https://appreciart.ie">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://appreciart.ie/images/logos/black-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-logo" aria-label="Appreciart IE"><img src="images/logos/black-logo.png" alt="Appreciart IE"></a>
+    <ul class="nav-links">
+      <li><a href="#artists">Artists</a></li>
+      <li><a href="bookings.html">Bookings</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="exhibitions.html">Exhibitions</a></li>
+      <li><a href="guest-artist.html">Be a Guest</a></li>
+    </ul>
+    <a href="bookings.html" class="nav-book">Book Now</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE NAV -->
+  <div class="nav-mobile" id="mobileNav" aria-hidden="true">
+    <a href="#artists"         onclick="closeMobile()">Artists</a>
+    <a href="bookings.html"    onclick="closeMobile()">Bookings</a>
+    <a href="gallery.html"     onclick="closeMobile()">Gallery</a>
+    <a href="exhibitions.html" onclick="closeMobile()">Exhibitions</a>
+    <a href="guest-artist.html" onclick="closeMobile()">Be a Guest</a>
+    <a href="bookings.html" onclick="closeMobile()" class="btn btn-primary nav-mobile-book">Book Now</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img class="hero-symbol" src="images/logos/black-logo.png" alt="Appreciart IE">
+    <h1 class="hero-title">Appreciart IE</h1>
+    <p class="hero-sub">Private Tattoo Studio &amp; Gallery · Dublin</p>
+    <div class="hero-divider"></div>
+    <div class="hero-actions">
+      <a href="bookings.html" class="btn btn-primary">Book Your Session</a>
+      <a href="gallery.html"  class="btn btn-secondary">Explore Gallery</a>
+    </div>
+  </section>
+
+  <!-- WE DO APPRECIART -->
+  <section class="section reveal">
+    <div class="about-grid">
+      <div>
+        <span class="section-label">The Studio</span>
+        <h2 class="section-title">We Do<br>Appreciart</h2>
+        <p class="section-body">
+          <strong>Appreciart IE</strong> transcends the traditional tattoo studio concept.
+          We're a <strong>curated creative space</strong> where international artists create
+          <strong>authentic, conceptual,</strong> and <strong>contemporary artworks.</strong>
+        </p>
+        <p class="section-body about-body-second">
+          Our <strong>private studio-gallery</strong> in Ballsbridge hosts
+          <strong>resident and guest artists</strong> from around the world —
+          each bringing their unique vision to life on skin and canvas.
+        </p>
+      </div>
+      <!-- VIDEO: replace placeholder with <video> or <iframe> when ready -->
+      <div class="about-video">
+        <!-- <video src="videos/studio.mp4" autoplay muted loop playsinline></video> -->
+        <div class="about-video-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+          <span>Studio Video</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESIDENT ARTISTS -->
+  <section class="section section-flush-top" id="artists">
+    <div class="reveal">
+      <span class="section-label">Resident Artists</span>
+      <h2 class="section-title">The Residents</h2>
+    </div>
+
+    <!-- IMAGES: images/resident-artists/ — swap filenames to update -->
+    <div class="residents-grid reveal">
+
+      <div class="resident-card">
+        <img class="resident-photo" src="images/resident-artists/moreirart-profile.webp" alt="Moreirart">
+        <div class="resident-content">
+          <h3 class="resident-name">Moreirart</h3>
+          <p class="resident-styles">Palleting · Abstract · Figurative</p>
+          <div class="resident-actions">
+            <a class="resident-insta" href="https://instagram.com/moreirarttt" target="_blank" rel="noopener" aria-label="Moreirart Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+              @moreirarttt
+            </a>
+            <a href="moreirart.html" class="btn btn-primary btn-sm">Portfolio</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="resident-card">
+        <img class="resident-photo" src="images/resident-artists/marina-profile.webp" alt="Marina Sadra">
+        <div class="resident-content">
+          <h3 class="resident-name">Marina Sadra</h3>
+          <p class="resident-styles">Suminagashi · Abstract · Fluid Art</p>
+          <div class="resident-actions">
+            <a class="resident-insta" href="https://instagram.com/marina_sadra" target="_blank" rel="noopener" aria-label="Marina Sadra Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+              @marina_sadra
+            </a>
+            <a href="marina.html" class="btn btn-primary btn-sm">Portfolio</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="resident-card">
+        <img class="resident-photo" src="images/resident-artists/renan-profile.webp" alt="Renan Organicjoy">
+        <div class="resident-content">
+          <h3 class="resident-name">Renan</h3>
+          <p class="resident-styles">Organic Abstract · Geometry · Blackwork</p>
+          <div class="resident-actions">
+            <a class="resident-insta" href="https://instagram.com/renan_organicjoy" target="_blank" rel="noopener" aria-label="Renan Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+              @renan_organicjoy
+            </a>
+            <a href="renan.html" class="btn btn-primary btn-sm">Portfolio</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- GUEST ARTISTS -->
+  <div class="guests-section">
+    <div class="guests-inner">
+      <div class="guests-header reveal">
+        <div>
+          <span class="section-label">Upcoming</span>
+          <h2 class="section-title">Guest Artists</h2>
+        </div>
+        <p class="section-body guests-header-desc">International talent visiting the studio. Each artist brings a unique vision.</p>
+      </div>
+      <!-- GUESTS: images in images/guest-artist/ — add/remove cards to update -->
+      <div class="guests-track" data-drag>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/karol-rebelo.jpg" alt="Karol Rebelo" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">Apr 07–14</span>
+          </div>
+          <p class="guest-month">April</p>
+          <h3 class="guest-name">Karol Rebelo</h3>
+          <p class="guest-styles">Floral · Whipshading · Fineline</p>
+          <a href="karolrebelo.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/vitor-caetano.jpg" alt="Vitor Caetano" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">Apr 07–14</span>
+          </div>
+          <p class="guest-month">April</p>
+          <h3 class="guest-name">Vitor Caetano</h3>
+          <p class="guest-styles">Realism · Portraits · Chicano</p>
+          <a href="vitorcaetano.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/caio-miguel.jpg" alt="Caio Miguel" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">Apr 27–30</span>
+          </div>
+          <p class="guest-month">April</p>
+          <h3 class="guest-name">Caio Miguel</h3>
+          <p class="guest-styles">Abstract · Blackwork · Surrealism</p>
+          <a href="caiomiguel.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/soonbomb.jpg" alt="Soonbomb" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">May 07–13</span>
+          </div>
+          <p class="guest-month">May</p>
+          <h3 class="guest-name">Soonbomb</h3>
+          <p class="guest-styles">Cat Tattoo · Doodle · Sketch</p>
+          <a href="soonbomb.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/dock.jpg" alt="Dock" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">May 07–13</span>
+          </div>
+          <p class="guest-month">May</p>
+          <h3 class="guest-name">Dock</h3>
+          <p class="guest-styles">Dark · Abstract · Blackwork</p>
+          <a href="dock.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/wika.jpg" alt="Wika" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">Jun 22–27</span>
+          </div>
+          <p class="guest-month">June</p>
+          <h3 class="guest-name">Wika</h3>
+          <p class="guest-styles">Floral · Micro-Realism · Fineline</p>
+          <a href="wika.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/vlada.jpg" alt="Vlada" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">Jul 06–12</span>
+          </div>
+          <p class="guest-month">July</p>
+          <h3 class="guest-name">Vlada</h3>
+          <p class="guest-styles">Botanical · Fineline · Fluid Art</p>
+          <a href="vlada.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+        <div class="guest-card">
+          <div class="guest-photo-wrap">
+            <img src="images/guest-artist/be.jpg" alt="Bê" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+            <span class="guest-dates-badge">Sep 01–05</span>
+          </div>
+          <p class="guest-month">September</p>
+          <h3 class="guest-name">Bê</h3>
+          <p class="guest-styles">Botanical · Abstract · Fluid Art</p>
+          <a href="beatriz.html" class="btn btn-primary btn-sm">Book Here</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- THE GALLERY -->
+  <section class="gallery-section reveal">
+    <span class="section-label">Curated Works</span>
+    <h2 class="section-title">The Gallery</h2>
+    <div class="gallery-layout">
+      <div class="gallery-img tall">
+        <img src="https://images.squarespace-cdn.com/content/v1/62b9dc06e39bc6502a2c195b/e64db4f7-283f-4496-ae56-8ed6a8a8966c/GROUNDING+AND+CONNECTION.png" alt="Gallery artwork">
+      </div>
+      <div class="gallery-text">
+        <p class="section-body"><strong>Authentic, conceptual</strong> and <strong>contemporary artworks</strong> curated by Appreciart. A refined space merging art, skin, and experience.</p>
+        <a href="gallery.html" class="btn btn-primary btn-sm" style="margin-top:24px;width:fit-content">Explore Gallery</a>
+      </div>
+      <div class="gallery-img">
+        <img src="https://images.squarespace-cdn.com/content/v1/62b9dc06e39bc6502a2c195b/c09dd104-5688-441a-849c-279a649f7ec9/THE+MISSING+PIECE.png" alt="Gallery artwork">
+      </div>
+    </div>
+  </section>
+
+  <!-- BE OUR NEXT GUEST -->
+  <div class="guest-apply">
+    <span class="section-label">Join Us</span>
+    <h2 class="section-title">Be Our Next Guest</h2>
+    <p class="section-body">Join Appreciart IE — a private studio-gallery for <strong>global artists.</strong> Enjoy flexible hours, professional exposure, and a passionate creative community.</p>
+    <a href="guest-artist.html" class="btn btn-primary">Apply to Guest</a>
+    <!-- STUDIO PHOTOS: add to images/studio/ when available -->
+    <div class="guest-apply-photos">
+      <img src="images/studio/studio-1.jpg" alt="Studio" onerror="this.style.display='none'">
+      <img src="images/studio/studio-2.jpg" alt="Studio" onerror="this.style.display='none'">
+      <img src="images/studio/studio-3.jpg" alt="Studio" onerror="this.style.display='none'">
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <section class="reviews-section">
+    <div class="reveal">
+      <span class="section-label">From Their View</span>
+      <h2 class="section-title">What They Say</h2>
+    </div>
+    <div class="reviews-track" data-drag>
+      <div class="review-card"><p class="review-text">"Thiago is an artist extraordinaire! I went to him with a tattoo in mind and he made it better. The colours and details are stunning."</p><div><p class="review-author">Maureen Berry</p><p class="review-date">Jul 2025</p></div></div>
+      <div class="review-card"><p class="review-text">"Top-notch artists, clean studio, and amazing vibes. If you want quality ink, this is the place."</p><div><p class="review-author">R F</p><p class="review-date">Mar 2025</p></div></div>
+      <div class="review-card"><p class="review-text">"Amazing artists, welcoming staff, friendly atmosphere, clean. I could not have chosen a better place to get my first tattoo."</p><div><p class="review-author">Fernando Pimenta</p><p class="review-date">Nov 2024</p></div></div>
+      <div class="review-card"><p class="review-text">"Loved my time here. Fernando was an incredible artist, patient and took his time to make something truly incredible."</p><div><p class="review-author">Abigail Walsh</p><p class="review-date">Oct 2024</p></div></div>
+      <div class="review-card"><p class="review-text">"Amazing team, awesome environment. I have no words to describe the quality of work."</p><div><p class="review-author">Leandro Foka</p><p class="review-date">Nov 2023</p></div></div>
+      <div class="review-card"><p class="review-text">"Really nice work place, feel very welcome from the professionals and the tattoos are amazing."</p><div><p class="review-author">Yasmim</p><p class="review-date">Jul 2024</p></div></div>
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <a href="https://g.page/r/CRwOlCPa51NKEBM/review" target="_blank" rel="noopener" class="btn btn-secondary">Leave a Review</a>
+    </div>
+  </section>
+
+  <!-- EI COLLAB -->
+  <div class="collab-section">
+    <div class="collab-inner reveal">
+      <div>
+        <div class="collab-logos">
+          <img src="images/logos/black-logo.png" alt="Appreciart IE" onerror="this.style.display='none'">
+          <span class="collab-x">×</span>
+          <img src="images/logos/logo-electricink.png" alt="Electric Ink IE" onerror="this.style.display='none'">
+        </div>
+        <span class="section-label">A Collaboration Beyond Ink</span>
+        <h2 class="section-title collab-title">Appreciart IE <span class="collab-x-title">×</span> Electric Ink IE</h2>
+        <p class="section-body">More than partners — building a new standard. Together, empowering tattoo artists across Ireland with <strong>world-class tools, creative support,</strong> and access to the exclusive <strong>Pro Team network.</strong></p>
+        <a href="https://electricink.ie" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Shop Electric Ink</a>
+      </div>
+      <div class="collab-visual">
+        <img src="images/studio/collab-1.jpg" alt="" onerror="this.style.display='none'">
+        <img src="images/studio/collab-2.jpg" alt="" onerror="this.style.display='none'">
+        <img src="images/studio/collab-3.jpg" alt="" onerror="this.style.display='none'">
+        <img src="images/studio/collab-4.jpg" alt="" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-wave">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C360,80 1080,0 1440,40 L1440,0 L0,0 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="images/logos/white-logo.png" alt="Appreciart IE">
+        <p>Private Tattoo Studio &amp; Gallery<br><a href="https://maps.app.goo.gl/GZRmkdFQY9An1zwJ9" target="_blank" rel="noopener">Ballsbridge, Dublin, Ireland</a><br><a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="bookings.html">Bookings</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="exhibitions.html">Exhibitions</a></li>
+          <li><a href="guest-artist.html">Be a Guest Artist</a></li>
+          <li><a href="tattoo-consent-form.html">Tattoo Consent Form</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact-us.html">Contact</a></li>
+          <li><a href="faqs.html">FAQs</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms-of-use.html">Terms of Use</a></li>
+        </ul>
+        <h4 style="margin-top:24px">Follow</h4>
+        <ul>
+          <li><a href="https://www.instagram.com/appreciart.ie/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.facebook.com/Appreci4rt-106187725480796" target="_blank" rel="noopener">Facebook</a></li>
+          <li><a href="https://www.tiktok.com/@appreciart.ie" target="_blank" rel="noopener">TikTok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Appreciart IE. All rights reserved.</p>
+      <p>Private Tattoo Studio &amp; Gallery · Dublin, Ireland</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+
+</body>
+</html>
