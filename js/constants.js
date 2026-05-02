@@ -6,7 +6,7 @@
 // Local dev: create .env.local with INTERNAL_API_URL=http://localhost:3000
 export const INTERNAL_API_URL =
   (typeof process !== 'undefined' && process.env?.INTERNAL_API_URL) ||
-  'https://appreciart-internal.up.railway.app';
+  'https://appreciart-internal-production-ee3c.up.railway.app';
 
 export const STRIPE_PUBLIC_KEY =
   (typeof process !== 'undefined' && process.env?.STRIPE_PUBLIC_KEY) || '';
