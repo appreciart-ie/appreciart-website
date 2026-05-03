@@ -17,31 +17,7 @@
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav class="nav" id="nav">
-    <a href="/" class="nav-logo" aria-label="Appreciart IE"><img src="images/logos/black-logo.png" alt="Appreciart IE"></a>
-    <ul class="nav-links">
-      <li><a href="#artists">Artists</a></li>
-      <li><a href="bookings.html">Bookings</a></li>
-      <li><a href="gallery.html">Gallery</a></li>
-      <li><a href="exhibitions.html">Exhibitions</a></li>
-      <li><a href="guest-artist.html">Be a Guest</a></li>
-    </ul>
-    <a href="bookings.html" class="nav-book">Book Now</a>
-    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
-
-  <!-- MOBILE NAV -->
-  <div class="nav-mobile" id="mobileNav" aria-hidden="true">
-    <a href="#artists"         onclick="closeMobile()">Artists</a>
-    <a href="bookings.html"    onclick="closeMobile()">Bookings</a>
-    <a href="gallery.html"     onclick="closeMobile()">Gallery</a>
-    <a href="exhibitions.html" onclick="closeMobile()">Exhibitions</a>
-    <a href="guest-artist.html" onclick="closeMobile()">Be a Guest</a>
-    <a href="bookings.html" onclick="closeMobile()" class="btn btn-primary nav-mobile-book">Book Now</a>
-  </div>
+  <div id="site-header"></div>
 
   <!-- HERO -->
   <section class="hero">
@@ -62,14 +38,8 @@
         <span class="section-label">The Studio</span>
         <h2 class="section-title">We Do<br>Appreciart</h2>
         <p class="section-body">
-          <strong>Appreciart IE</strong> transcends the traditional tattoo studio concept.
-          We're a <strong>curated creative space</strong> where international artists create
-          <strong>authentic, conceptual,</strong> and <strong>contemporary artworks.</strong>
-        </p>
-        <p class="section-body about-body-second">
-          Our <strong>private studio-gallery</strong> in Ballsbridge hosts
-          <strong>resident and guest artists</strong> from around the world —
-          each bringing their unique vision to life on skin and canvas.
+          <strong>Appreciart IE</strong> is a private studio and gallery in Ballsbridge, Dublin.
+          We work with resident and guest artists who treat tattooing as a fine art.
         </p>
       </div>
       <!-- VIDEO: replace placeholder with <video> or <iframe> when ready -->
@@ -253,15 +223,25 @@
     <span class="section-label">Curated Works</span>
     <h2 class="section-title">The Gallery</h2>
     <div class="gallery-layout">
-      <div class="gallery-img tall">
-        <img src="https://images.squarespace-cdn.com/content/v1/62b9dc06e39bc6502a2c195b/e64db4f7-283f-4496-ae56-8ed6a8a8966c/GROUNDING+AND+CONNECTION.png" alt="Gallery artwork">
+      <div class="gallery-img gallery-img--tall">
+        <img src="images/gallery/grounding-connection.webp" alt="Grounding and Connection — Appreciart IE Gallery">
       </div>
-      <div class="gallery-text">
-        <p class="section-body"><strong>Authentic, conceptual</strong> and <strong>contemporary artworks</strong> curated by Appreciart. A refined space merging art, skin, and experience.</p>
-        <a href="gallery.html" class="btn btn-primary btn-sm" style="margin-top:24px;width:fit-content">Explore Gallery</a>
-      </div>
-      <div class="gallery-img">
-        <img src="https://images.squarespace-cdn.com/content/v1/62b9dc06e39bc6502a2c195b/c09dd104-5688-441a-849c-279a649f7ec9/THE+MISSING+PIECE.png" alt="Gallery artwork">
+      <div class="gallery-right">
+        <div class="gallery-right-top">
+          <div class="gallery-img">
+            <img src="images/gallery/assembling.webp" alt="Assembling — Appreciart IE Gallery">
+          </div>
+          <div class="gallery-img">
+            <img src="images/gallery/duality.webp" alt="Duality — Appreciart IE Gallery">
+          </div>
+        </div>
+        <div class="gallery-img gallery-img--wide">
+          <img src="images/gallery/missing-piece.webp" alt="The Missing Piece — Appreciart IE Gallery">
+        </div>
+        <div class="gallery-cta">
+          <p class="section-body">Original works by our resident and guest artists — available to view and collect.</p>
+          <a href="gallery.html" class="btn btn-primary btn-sm">Explore Gallery</a>
+        </div>
       </div>
     </div>
   </section>
@@ -270,8 +250,8 @@
   <div class="guest-apply">
     <span class="section-label">Join Us</span>
     <h2 class="section-title">Be Our Next Guest</h2>
-    <p class="section-body">Join Appreciart IE — a private studio-gallery for <strong>global artists.</strong> Enjoy flexible hours, professional exposure, and a passionate creative community.</p>
-    <a href="guest-artist.html" class="btn btn-primary">Apply to Guest</a>
+    <p class="section-body">We host guest artists throughout the year. If you work at a high level and want a base in Dublin, we'd like to hear from you.</p>
+    <a href="guest-artist.html" class="btn btn-primary">Apply as Guest Artist</a>
     <!-- STUDIO PHOTOS: add to images/studio/ when available -->
     <div class="guest-apply-photos">
       <img src="images/studio/studio-1.jpg" alt="Studio" onerror="this.style.display='none'">
@@ -322,51 +302,11 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-wave">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,40 C360,80 1080,0 1440,40 L1440,0 L0,0 Z" fill="#ffffff"/>
-      </svg>
-    </div>
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <img src="images/logos/white-logo.png" alt="Appreciart IE">
-        <p>Private Tattoo Studio &amp; Gallery<br><a href="https://maps.app.goo.gl/GZRmkdFQY9An1zwJ9" target="_blank" rel="noopener">Ballsbridge, Dublin, Ireland</a><br><a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a></p>
-      </div>
-      <div class="footer-col">
-        <h4>Navigate</h4>
-        <ul>
-          <li><a href="bookings.html">Bookings</a></li>
-          <li><a href="gallery.html">Gallery</a></li>
-          <li><a href="exhibitions.html">Exhibitions</a></li>
-          <li><a href="guest-artist.html">Be a Guest Artist</a></li>
-          <li><a href="tattoo-consent-form.html">Tattoo Consent Form</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Info</h4>
-        <ul>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact-us.html">Contact</a></li>
-          <li><a href="faqs.html">FAQs</a></li>
-          <li><a href="privacy-policy.html">Privacy Policy</a></li>
-          <li><a href="terms-of-use.html">Terms of Use</a></li>
-        </ul>
-        <h4 style="margin-top:24px">Follow</h4>
-        <ul>
-          <li><a href="https://www.instagram.com/appreciart.ie/" target="_blank" rel="noopener">Instagram</a></li>
-          <li><a href="https://www.facebook.com/Appreci4rt-106187725480796" target="_blank" rel="noopener">Facebook</a></li>
-          <li><a href="https://www.tiktok.com/@appreciart.ie" target="_blank" rel="noopener">TikTok</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 Appreciart IE. All rights reserved.</p>
-      <p>Private Tattoo Studio &amp; Gallery · Dublin, Ireland</p>
-    </div>
-  </footer>
+  <div id="site-footer" data-wave-color="#f5f5f5" data-wave-bg="#f5f5f5"></div>
 
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script type="module" src="js/constants.js"></script>
   <script src="js/main.js"></script>
 
 </body>

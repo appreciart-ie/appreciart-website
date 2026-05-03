@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="About Appreciart IE — A private tattoo studio and gallery in Ballsbridge, Dublin.">
+  <title>About — Appreciart IE</title>
+  <meta property="og:title" content="About — Appreciart IE">
+  <meta property="og:url" content="https://appreciart.ie/about.html">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+
+    .about-hero {
+      padding: calc(var(--sv) + 80px) var(--px) 0;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .about-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .about-hero-title {
+      font-size: clamp(40px, 7vw, 96px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      margin-bottom: 24px;
+      white-space: nowrap;
+    }
+
+    .about-hero-tagline {
+      font-size: clamp(14px, 1.4vw, 17px);
+      font-weight: 300;
+      color: var(--mid);
+      max-width: 480px;
+      line-height: 1.75;
+      margin-bottom: 48px;
+    }
+
+    .about-hero-image {
+      width: 100%;
+      aspect-ratio: 21/9;
+      object-fit: cover;
+      object-position: center 40%;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .about-hero-caption {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: var(--sv);
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+    }
+
+    .about-content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--px) var(--sv);
+    }
+
+    .about-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--light);
+      margin: clamp(48px, 6vw, 80px) 0;
+    }
+
+    .about-block {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: start;
+    }
+
+    .about-block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      padding-top: 6px;
+      position: sticky;
+      top: 100px;
+    }
+
+    .about-block-title {
+      font-size: clamp(22px, 3vw, 36px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.05;
+      color: var(--black);
+      margin-bottom: 24px;
+    }
+
+    .about-block-text {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 600px;
+    }
+
+    .about-block-text strong { color: var(--black); font-weight: 700; }
+    .about-block-text p + p  { margin-top: 18px; }
+
+    .timeline { margin-top: 36px; border-top: 1px solid var(--light); }
+
+    .timeline-event {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .timeline-date {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      white-space: nowrap;
+      min-width: 100px;
+    }
+
+    .timeline-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.65;
+    }
+
+    .about-cta {
+      background: var(--black);
+      color: var(--white);
+      padding: var(--sv) var(--px);
+      text-align: center;
+    }
+
+    .about-cta .section-label { color: var(--sec-grey); }
+    .about-cta .section-title { color: var(--white); margin-bottom: 12px; }
+    .about-cta .section-body  { color: rgba(255,255,255,0.5); margin: 0 auto 36px; }
+
+    .about-cta .btn-primary {
+      background: var(--white);
+      color: var(--black);
+      border-color: var(--white);
+    }
+
+    .about-cta .btn-primary:hover {
+      background: transparent;
+      color: var(--white);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.6);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    @media (max-width: 1024px) {
+      .about-block { grid-template-columns: 160px 1fr; }
+      .about-hero-title { white-space: normal; }
+    }
+
+    @media (max-width: 768px) {
+      .about-hero-title { white-space: normal; }
+      .about-hero-image { aspect-ratio: 16/9; border-radius: 12px; }
+      .about-block { grid-template-columns: 1fr; gap: 14px; }
+      .about-block-label { position: static; }
+    }
+
+    @media (max-width: 480px) {
+      .about-hero-image { aspect-ratio: 4/3; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <div class="about-hero reveal">
+    <h1 class="about-hero-title">Appreciart IE</h1>
+    <span class="about-hero-label">Ballsbridge · Dublin · Est. 2022</span>
+    <p class="about-hero-tagline">
+      A private studio in Ballsbridge where tattooing is treated as a fine art form.
+    </p>
+    <img
+      class="about-hero-image"
+      src="images/studio/about.webp"
+      alt="Appreciart IE — First exhibition, Dublin 2022"
+    >
+    <span class="about-hero-caption">14/09/2022 · First public exhibition</span>
+  </div>
+
+  <div class="about-content">
+
+    <div class="about-block reveal">
+      <span class="about-block-label">The Origin</span>
+      <div>
+        <h2 class="about-block-title">How It Started</h2>
+        <div class="about-block-text">
+          <p>
+            Appreciart started with <strong>Thiago Moreira</strong> — tattoo artist and founder.
+            The goal was specific: build a space in Dublin where tattooing sits alongside
+            fine art, not below it.
+          </p>
+          <p>
+            With <strong>Matheus Souza</strong> handling the digital side, the first steps were
+            exhibitions — Dublin, then the Louvre, then World Art Dubai. What began as a series
+            of events became a studio.
+          </p>
+        </div>
+        <div class="timeline">
+          <div class="timeline-event">
+            <span class="timeline-date">Sep 2022</span>
+            <span class="timeline-text">First public exhibition in Dublin.</span>
+          </div>
+          <div class="timeline-event">
+            <span class="timeline-date">2023</span>
+            <span class="timeline-text">
+              In partnership with <strong>Paulo Reis</strong>, founder of Appreciart BR,
+              two studios open — one in São Paulo, one in Dublin.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-divider"></div>
+
+    <div class="about-block reveal">
+      <span class="about-block-label">The Studio</span>
+      <div>
+        <h2 class="about-block-title">Studio and Gallery</h2>
+        <div class="about-block-text">
+          <p>
+            The spaces double as galleries — work on the walls, artists in residence,
+            collectors passing through.
+          </p>
+          <p>
+            Alongside tattooing, Appreciart is moving into fashion. The first collections
+            are in development.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-divider"></div>
+
+    <div class="about-block reveal">
+      <span class="about-block-label">What's Next</span>
+      <div>
+        <h2 class="about-block-title">What Comes Next</h2>
+        <div class="about-block-text">
+          <p>
+            The next step is infrastructure for artists. Mentorship programmes, residencies,
+            workshops — practical support for people building careers in tattooing and visual art.
+          </p>
+          <p>
+            Appreciart is still early. But the direction is clear.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="about-cta">
+    <span class="section-label">Ballsbridge · Dublin</span>
+    <h2 class="section-title">Come In</h2>
+    <p class="section-body">
+      Book a session with one of our resident artists,
+      or join us as a guest artist.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="bookings.html" class="btn btn-primary">Book a Session</a>
+      <a href="guest-artist.html" class="btn btn-ghost">Join as Guest Artist</a>
+    </div>
+  </div>
+
+  <div id="site-footer" data-wave-color="#000000" data-wave-bg="#000000"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

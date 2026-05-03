@@ -1,25 +1,9 @@
-const nav       = document.getElementById('nav');
-const hamburger = document.getElementById('hamburger');
-const mobileNav = document.getElementById('mobileNav');
-
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 40);
-}, { passive: true });
-
-hamburger.addEventListener('click', () => {
-  const open = mobileNav.classList.toggle('open');
-  hamburger.classList.toggle('open', open);
-  hamburger.setAttribute('aria-expanded', open);
-  mobileNav.setAttribute('aria-hidden', !open);
-  document.body.style.overflow = open ? 'hidden' : '';
-});
-
-function closeMobile() {
-  mobileNav.classList.remove('open');
-  hamburger.classList.remove('open');
-  hamburger.setAttribute('aria-expanded', 'false');
-  mobileNav.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
+// Nav scroll — header.js injects #nav
+const navEl = document.getElementById('nav');
+if (navEl) {
+  window.addEventListener('scroll', () => {
+    navEl.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
 }
 
 // Resident cards — touch toggle (mobile)
