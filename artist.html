@@ -414,9 +414,10 @@
       fetchArtist(slug),
       fetchPortfolio(slug),
       fetchAvailability(slug),
-    ]).then(([artist, portfolio, availability]) => {
+      fetchProfile(slug),
+    ]).then(([artist, portfolio, availability, profileImgUrl]) => {
       if (!artist) { renderNotFound(); return; }
-      renderArtist(artist, portfolio, availability);
+      renderArtist(artist, portfolio, availability, profileImgUrl);
     }).catch(() => renderNotFound());
 
     async function fetchArtist(slug) {
@@ -451,8 +452,14 @@
       } catch { return []; }
     }
 
-    function profileUrl(slug) {
-      return `${BASE_URL}/q_auto,f_auto,w_680/appreciart/${slug}/profile`;
+    async function fetchProfile(slug) {
+      try {
+        const res  = await fetch(`https://res.cloudinary.com/${CLOUD}/image/list/appreciart:${slug}.json`, { signal: AbortSignal.timeout(10000) });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const img  = (data.resources || []).find(r => !r.public_id.includes('/portfolio'));
+        return img ? `${BASE_URL}/q_auto,f_auto,w_680/${img.public_id}` : null;
+      } catch { return null; }
     }
 
     function formatDate(dateStr) {
@@ -460,7 +467,7 @@
       return d.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
-    function renderArtist(artist, portfolio, availability) {
+    function renderArtist(artist, portfolio, availability, profileImgUrl) {
       // Update page title
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
 
@@ -495,7 +502,7 @@
             <div class="artist-profile-img-wrap">
               <img
                 class="artist-profile-img"
-                src="${profileUrl(artist.slug)}"
+                src="${profileImgUrl || ''}"
                 alt="${artist.name}"
                 onerror="this.parentElement.style.background='var(--off-white)';this.style.display='none'"
               >
