@@ -388,6 +388,272 @@
       color: var(--mid);
     }
 
+    /* AVAILABILITY GRID */
+    .availability-month-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 20px;
+    }
+
+    .availability-dates-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .avail-date-cell {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, opacity 0.2s;
+      aspect-ratio: 1/1.1;
+    }
+
+    .avail-date-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .avail-date-cell:hover img { transform: scale(1.06); }
+    .avail-date-cell:hover { border-color: var(--black); }
+
+    .avail-date-cell.avail-disabled {
+      opacity: 0.18;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .avail-day-num {
+      position: absolute;
+      bottom: 4px;
+      right: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--white);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+
+    .availability-hint {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-top: 8px;
+    }
+
+    /* BOOKING MODAL */
+    .booking-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 400;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .booking-modal-overlay.open { display: flex; }
+
+    .booking-modal {
+      background: var(--white);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .booking-modal-header {
+      padding: 28px 28px 0;
+      border-bottom: 1px solid var(--light);
+      padding-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .booking-modal-title {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .booking-modal-subtitle {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--mid);
+      margin-top: 4px;
+    }
+
+    .booking-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--mid);
+      flex-shrink: 0;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .booking-modal-close:hover { color: var(--black); }
+
+    .booking-modal-body { padding: 24px 28px 28px; }
+
+    .bm-group { margin-bottom: 16px; }
+
+    .bm-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 7px;
+    }
+
+    .bm-input,
+    .bm-textarea,
+    .bm-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--light);
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+      appearance: none;
+      box-sizing: border-box;
+    }
+
+    .bm-input:focus,
+    .bm-textarea:focus,
+    .bm-select:focus { border-color: var(--black); }
+
+    .bm-textarea { resize: vertical; min-height: 72px; }
+
+    .bm-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .bm-error {
+      font-size: 11px;
+      color: #c0392b;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .bm-error.visible { display: block; }
+
+    .bm-divider {
+      border: none;
+      border-top: 1px solid var(--light);
+      margin: 20px 0;
+    }
+
+    .bm-deposit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .bm-deposit-label {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--mid);
+    }
+
+    .bm-deposit-amount {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .bm-deposit-note {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    #bm-payment-element { margin-bottom: 16px; }
+
+    .bm-payment-error {
+      font-size: 11px;
+      color: #c0392b;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .bm-payment-error.visible { display: block; }
+
+    .bm-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .bm-btn:hover { opacity: 0.85; }
+    .bm-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .bm-success {
+      padding: 40px 28px;
+      text-align: center;
+      display: none;
+    }
+
+    .bm-success.visible { display: block; }
+
+    .bm-success-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .bm-success-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .bm-success-body {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 1024px) {
       .artist-hero { grid-template-columns: 280px 1fr; }
@@ -428,6 +694,99 @@
 
   <div id="site-footer"></div>
 
+  <!-- Stripe -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <!-- Booking Modal -->
+  <div class="booking-modal-overlay" id="bmOverlay">
+    <div class="booking-modal" id="bmModal" role="dialog" aria-modal="true">
+
+      <div class="booking-modal-header">
+        <div>
+          <div class="booking-modal-title" id="bmTitle">Book a Session</div>
+          <div class="booking-modal-subtitle" id="bmSubtitle">Fill in your details to secure this date</div>
+        </div>
+        <button class="booking-modal-close" id="bmClose" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="booking-modal-body" id="bmFormBody">
+        <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off">
+
+        <div class="bm-row">
+          <div class="bm-group">
+            <label class="bm-label" for="bmName">Full Name *</label>
+            <input class="bm-input" type="text" id="bmName" placeholder="Jane Smith" maxlength="200" autocomplete="name">
+            <span class="bm-error" id="bmNameErr">Required</span>
+          </div>
+          <div class="bm-group">
+            <label class="bm-label" for="bmPhone">Phone *</label>
+            <input class="bm-input" type="tel" id="bmPhone" placeholder="+353 87 000 0000" maxlength="30" autocomplete="tel">
+            <span class="bm-error" id="bmPhoneErr">Required</span>
+          </div>
+        </div>
+
+        <div class="bm-group">
+          <label class="bm-label" for="bmEmail">Email *</label>
+          <input class="bm-input" type="email" id="bmEmail" placeholder="jane@example.com" maxlength="254" autocomplete="email">
+          <span class="bm-error" id="bmEmailErr">Valid email required</span>
+        </div>
+
+        <div class="bm-row">
+          <div class="bm-group">
+            <label class="bm-label" for="bmStyle">Style</label>
+            <input class="bm-input" type="text" id="bmStyle" placeholder="Abstract, Blackwork..." maxlength="100">
+          </div>
+          <div class="bm-group">
+            <label class="bm-label" for="bmSize">Size</label>
+            <select class="bm-select" id="bmSize">
+              <option value="">— Select —</option>
+              <option value="small">Small (palm-sized)</option>
+              <option value="medium">Medium (hand-sized)</option>
+              <option value="large">Large (A4+)</option>
+              <option value="sleeve">Sleeve / large piece</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bm-group">
+          <label class="bm-label" for="bmPlacement">Body Placement</label>
+          <input class="bm-input" type="text" id="bmPlacement" placeholder="Forearm, back, ribs..." maxlength="100">
+        </div>
+
+        <div class="bm-group">
+          <label class="bm-label" for="bmDesc">Idea / References</label>
+          <textarea class="bm-textarea" id="bmDesc" placeholder="Describe your idea or paste a reference link..." maxlength="1000"></textarea>
+        </div>
+
+        <button class="bm-btn" id="bmProceedBtn">Continue to Payment</button>
+
+        <hr class="bm-divider" id="bmDivider" style="display:none">
+
+        <div id="bmPaymentSection" style="display:none">
+          <div class="bm-deposit-row">
+            <span class="bm-deposit-label">Refundable deposit</span>
+            <span class="bm-deposit-amount" id="bmDepositAmt">€100</span>
+          </div>
+          <p class="bm-deposit-note">Returned if no design is agreed at consultation. Not returned for cancellations with less than 48h notice.</p>
+          <div id="bm-payment-element"></div>
+          <div class="bm-payment-error" id="bmPayErr"></div>
+          <button class="bm-btn" id="bmPayBtn" disabled>Confirm &amp; Pay</button>
+        </div>
+      </div>
+
+      <div class="bm-success" id="bmSuccess">
+        <div class="bm-success-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="bm-success-title">Booking Confirmed</div>
+        <p class="bm-success-body">Your deposit has been received. We'll be in touch via WhatsApp to discuss your idea before the session.<br><br>See you at the studio.</p>
+      </div>
+
+    </div>
+  </div>
+
   <script src="js/header.js"></script>
   <script src="js/footer.js"></script>
   <script src="js/main.js"></script>
@@ -447,9 +806,9 @@
     Promise.all([
       fetchArtist(slug),
       fetchAvailability(slug),
-    ]).then(([artist, availability]) => {
+    ]).then(([artist, availData]) => {
       if (!artist) { renderNotFound(); return; }
-      renderArtist(artist, availability);
+      renderArtist(artist, availData.availability, availData.date_images);
     }).catch(() => renderNotFound());
 
     async function fetchArtist(slug) {
@@ -464,10 +823,10 @@
     async function fetchAvailability(slug) {
       try {
         const res  = await fetch(`${INTERNAL}/api/public/availability/${slug}`, { signal: AbortSignal.timeout(10000) });
-        if (!res.ok) return [];
+        if (!res.ok) return { availability: [], date_images: [] };
         const data = await res.json();
-        return data.availability || [];
-      } catch { return []; }
+        return { availability: data.availability || [], date_images: data.date_images || [] };
+      } catch { return { availability: [], date_images: [] }; }
     }
 
     function formatDate(dateStr) {
@@ -475,7 +834,7 @@
       return d.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
-    function renderArtist(artist, availability) {
+    function renderArtist(artist, availability, dateImages) {
       // Update page title
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
 
@@ -489,15 +848,34 @@
       const instaHandle = artist.instagram || '';
       const instaUrl    = instaHandle ? `https://instagram.com/${instaHandle.replace('@', '')}` : '#';
 
-      const availHtml = availability.length > 0
-        ? `<div class="availability-dates">
-            ${availability.filter(a => a.is_available).map(a =>
-              `<a class="availability-date" href="bookings.html?artist=${encodeURIComponent(artist.slug)}&date=${a.date}" title="${a.notes || ''}">
-                ${formatDate(a.date)}
-              </a>`
-            ).join('')}
-           </div>`
-        : `<p class="availability-empty">No dates currently available. Contact us directly to enquire.</p>`;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const now   = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear  = now.getFullYear();
+      const daysInMonth  = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const monthName    = now.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
+      const bookedDays   = new Set(availability.filter(a => !a.is_available).map(a => new Date(a.date).getDate()));
+      const sortedDates  = [...dateImages].sort((a,b) => a.day - b.day).filter(d => d.day <= daysInMonth);
+
+      const availHtml = `
+        <p class="availability-month-label">${monthName}</p>
+        ${sortedDates.length > 0
+          ? `<div class="availability-dates-grid">
+              ${sortedDates.map(({ day, url }) => {
+                const cellDate = new Date(currentYear, currentMonth, day);
+                const isPast   = cellDate < today;
+                const isBooked = bookedDays.has(day);
+                const disabled = isPast || isBooked;
+                return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" data-day="${day}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
+                  <img src="${url}" alt="Day ${day}" loading="lazy">
+                  <span class="avail-day-num">${String(day).padStart(2,'0')}</span>
+                </div>`;
+              }).join('')}
+             </div>`
+          : `<p class="availability-empty">No dates available this month.</p>`
+        }
+        <p class="availability-hint">Tap a date to book your session.</p>
+      `;
 
       const portfolioHtml = portfolio.length > 0
         ? portfolio.map(img =>
@@ -583,6 +961,17 @@
         obs.observe(el);
       });
 
+      // Date cells → open booking modal
+      document.querySelectorAll('.avail-date-cell:not(.avail-disabled)').forEach(cell => {
+        cell.addEventListener('click', () => {
+          openBookingModal(
+            parseInt(cell.dataset.day, 10),
+            cell.dataset.artist,
+            cell.dataset.artistName,
+          );
+        });
+      });
+
       // Lightbox
       const lightbox     = document.getElementById('lightbox');
       const lightboxImg  = document.getElementById('lightbox-img');
@@ -607,6 +996,163 @@
         lightboxImg.src = '';
       }
     }
+
+    // ── BOOKING MODAL ──
+    const STRIPE_PK  = 'pk_test_51LMExGFHUBlGAlIRvV0nWtnFAi6fcpJUHKxHixv0Xv9kv1GBqRkP5LYT0INKlTpOoNKGsIQGS0j9iYJNPvvsMPr00M7bEKiAD';
+    let bmStripe     = null;
+    let bmElements   = null;
+    let bmSecret     = null;
+    let bmBookingId  = null;
+    let bmArtistSlug = null;
+    let bmDay        = null;
+    let bmYear       = null;
+    let bmMonth      = null;
+
+    function openBookingModal(day, artistSlug, artistName) {
+      const now   = new Date();
+      bmDay        = day;
+      bmArtistSlug = artistSlug;
+      bmYear       = now.getFullYear();
+      bmMonth      = now.getMonth();
+      const monthName = now.toLocaleString('en-IE', { month: 'long' });
+
+      document.getElementById('bmTitle').textContent    = `Book with ${artistName}`;
+      document.getElementById('bmSubtitle').textContent = `${day} ${monthName} ${bmYear}`;
+      document.getElementById('bmOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      // Reset modal state
+      document.getElementById('bmFormBody').style.display = 'block';
+      document.getElementById('bmSuccess').classList.remove('visible');
+      document.getElementById('bmDivider').style.display = 'none';
+      document.getElementById('bmPaymentSection').style.display = 'none';
+      document.getElementById('bmProceedBtn').style.display = 'block';
+      document.getElementById('bmProceedBtn').disabled = false;
+      document.getElementById('bmProceedBtn').textContent = 'Continue to Payment';
+      document.getElementById('bmPayErr').classList.remove('visible');
+      bmSecret = null; bmElements = null; bmBookingId = null;
+    }
+
+    function closeBookingModal() {
+      document.getElementById('bmOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('bmClose').addEventListener('click', closeBookingModal);
+    document.getElementById('bmOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('bmOverlay')) closeBookingModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.getElementById('bmOverlay').classList.contains('open')) closeBookingModal();
+    });
+
+    document.getElementById('bmProceedBtn').addEventListener('click', async () => {
+      const name  = document.getElementById('bmName').value.trim();
+      const phone = document.getElementById('bmPhone').value.trim();
+      const email = document.getElementById('bmEmail').value.trim();
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      let ok = true;
+
+      document.getElementById('bmNameErr').classList.toggle('visible', !name);
+      document.getElementById('bmPhoneErr').classList.toggle('visible', !phone);
+      document.getElementById('bmEmailErr').classList.toggle('visible', !email || !emailRe.test(email));
+      if (!name || !phone || !email || !emailRe.test(email)) return;
+
+      const btn = document.getElementById('bmProceedBtn');
+      btn.disabled = true;
+      btn.textContent = 'Setting up payment...';
+
+      const dateStr = `${bmYear}-${String(bmMonth + 1).padStart(2,'0')}-${String(bmDay).padStart(2,'0')}`;
+
+      try {
+        const res = await fetch(`${INTERNAL}/api/public/bookings/payment-intent`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            artist_slug:  bmArtistSlug,
+            client_name:  name,
+            client_email: email,
+            client_phone: phone,
+            style:        document.getElementById('bmStyle').value.trim() || undefined,
+            description:  document.getElementById('bmDesc').value.trim()  || undefined,
+            placement:    document.getElementById('bmPlacement').value.trim() || undefined,
+            size:         document.getElementById('bmSize').value || undefined,
+            date:         dateStr,
+          }),
+          signal: AbortSignal.timeout(20000),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Payment setup failed');
+
+        bmSecret    = data.client_secret;
+        bmBookingId = data.booking_id;
+        document.getElementById('bmDepositAmt').textContent = `€${data.deposit_amount}`;
+
+        if (!bmStripe) bmStripe = Stripe(STRIPE_PK);
+        bmElements = bmStripe.elements({
+          clientSecret: bmSecret,
+          appearance: {
+            theme: 'flat',
+            variables: {
+              colorPrimary: '#000000',
+              colorBackground: '#ffffff',
+              colorText: '#000000',
+              colorDanger: '#c0392b',
+              fontFamily: 'Poppins, sans-serif',
+              borderRadius: '0px',
+            },
+            rules: {
+              '.Input': { border: '1px solid #e0e0e0', padding: '10px 12px' },
+              '.Input:focus': { border: '1px solid #000000', boxShadow: 'none' },
+              '.Label': { fontSize: '9px', fontWeight: '700', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#636363' },
+            },
+          },
+        });
+
+        const payEl = bmElements.create('payment', {
+          layout: { type: 'accordion', defaultCollapsed: false, radios: true },
+          paymentMethodOrder: ['apple_pay', 'google_pay', 'klarna', 'card'],
+        });
+
+        payEl.mount('#bm-payment-element');
+        payEl.on('ready', () => { document.getElementById('bmPayBtn').disabled = false; });
+
+        document.getElementById('bmDivider').style.display = 'block';
+        document.getElementById('bmPaymentSection').style.display = 'block';
+        btn.style.display = 'none';
+
+      } catch (err) {
+        document.getElementById('bmPayErr').textContent = err.message || 'Something went wrong. Please try again.';
+        document.getElementById('bmPayErr').classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Continue to Payment';
+      }
+    });
+
+    document.getElementById('bmPayBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('bmPayBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      document.getElementById('bmPayErr').classList.remove('visible');
+
+      const { error } = await bmStripe.confirmPayment({
+        elements: bmElements,
+        confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${bmArtistSlug}&paid=1` },
+        redirect: 'if_required',
+      });
+
+      if (error) {
+        document.getElementById('bmPayErr').textContent = error.message;
+        document.getElementById('bmPayErr').classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Confirm & Pay';
+        return;
+      }
+
+      document.getElementById('bmFormBody').style.display = 'none';
+      document.getElementById('bmSuccess').classList.add('visible');
+    });
 
     function renderNotFound() {
       root.innerHTML = `
