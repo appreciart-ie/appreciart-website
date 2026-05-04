@@ -823,7 +823,7 @@ a   { color: inherit; text-decoration: none; }
     border-radius: 0;
     object-position: center top;
   }
-  .resident-content { padding: 0; justify-content: center; }
+  .resident-content { padding: 0; justify-content: center; min-width: 0; overflow: hidden; }
   .resident-name { font-size: 13px; margin-bottom: 4px; }
   .resident-styles { opacity: 1; transform: none; font-size: 9px; margin-bottom: 10px; }
   .resident-actions { opacity: 1; transform: none; gap: 12px; }
