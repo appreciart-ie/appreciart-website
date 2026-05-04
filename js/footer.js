@@ -20,10 +20,10 @@
           <img src="images/logos/white-logo.png" alt="Appreciart IE" class="footer-logo">
           <div class="footer-brand-text">
             <span class="footer-brand-name">Appreciart IE</span>
-            <span class="footer-brand-sub">Private Tattoo Studio &amp; Gallery · Ballsbridge, Dublin</span>
+            <a href="https://maps.app.goo.gl/GZRmkdFQY9An1zwJ9" target="_blank" rel="noopener" class="footer-brand-sub">Private Tattoo Studio &amp; Gallery · Ballsbridge, Dublin</a>
+            <a href="mailto:appreciartie@gmail.com" class="footer-email">appreciartie@gmail.com</a>
           </div>
         </div>
-        <a href="mailto:appreciartie@gmail.com" class="footer-email">appreciartie@gmail.com</a>
       </div>
       <div class="footer-mid">
         <nav class="footer-nav" aria-label="Footer navigation">

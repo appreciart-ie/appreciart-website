@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tattoo Consent Form — Appreciart IE. Complete before your appointment.">
+  <title>Consent Form — Appreciart IE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+
+    .consent-hero {
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: end;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .consent-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .consent-hero-title {
+      font-size: clamp(36px, 6vw, 80px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+
+    .consent-hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      max-width: 400px;
+      align-self: end;
+    }
+
+    .consent-form-wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--sv) var(--px);
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: start;
+    }
+
+    .consent-form-sidebar {
+      position: sticky;
+      top: 100px;
+    }
+
+    .consent-form-sidebar-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .consent-progress { display: flex; flex-direction: column; gap: 8px; }
+
+    .consent-progress-step {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: color 0.2s;
+    }
+
+    .consent-progress-step.active { color: var(--black); font-weight: 700; }
+    .consent-progress-step.done   { color: var(--mid); }
+
+    .consent-progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--light);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .consent-progress-step.active .consent-progress-dot { background: var(--black); }
+    .consent-progress-step.done   .consent-progress-dot { background: var(--mid); }
+
+    .consent-form { display: flex; flex-direction: column; gap: 0; }
+
+    .form-section {
+      padding: clamp(32px, 4vw, 48px) 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .form-section:last-of-type { border-bottom: none; }
+
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--black);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-row.full { grid-template-columns: 1fr; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .form-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .form-label span {
+      color: var(--sec-grey);
+      font-weight: 300;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--black);
+      background: var(--off-white);
+      border: 1px solid transparent;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--black);
+      background: var(--white);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error { border-color: #c0392b; }
+
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23636363' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+
+    .form-radio-group { display: flex; gap: 8px; }
+
+    .form-radio-label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      background: var(--off-white);
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .form-radio-label input { display: none; }
+    .form-radio-label:has(input:checked) { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    .form-conditional { margin-top: 12px; display: none; }
+    .form-conditional.visible { display: block; }
+
+    .form-error { font-size: 11px; color: #c0392b; margin-top: 4px; display: none; }
+    .form-error.visible { display: block; }
+
+    .consent-notice {
+      background: var(--off-white);
+      padding: 24px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
+    .consent-notice strong { color: var(--black); font-weight: 700; }
+
+    /* Checkbox toggle */
+    .form-check-group { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+
+    .form-check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+
+    .form-check-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--black);
+      cursor: pointer;
+    }
+
+    .signature-hint {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .form-submit-row {
+      padding-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .form-submit-btn {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 16px 48px;
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--black);
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .form-submit-btn:hover:not(:disabled) { background: transparent; color: var(--black); }
+    .form-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .form-submit-note {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      line-height: 1.6;
+      max-width: 300px;
+    }
+
+    .consent-success {
+      display: none;
+      text-align: center;
+      padding: var(--sv) var(--px);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .consent-success.visible { display: block; }
+
+    .consent-success-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 24px;
+      color: var(--black);
+    }
+
+    .consent-success-title {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .consent-success-text {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
+    .form-pot { display: none; visibility: hidden; }
+
+    @media (max-width: 1024px) {
+      .consent-form-wrap { grid-template-columns: 160px 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .consent-hero { grid-template-columns: 1fr; gap: 20px; }
+      .consent-form-wrap { grid-template-columns: 1fr; }
+      .consent-form-sidebar { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <div class="consent-hero reveal">
+    <div>
+      <span class="consent-hero-label">Before Your Appointment</span>
+      <h1 class="consent-hero-title">Consent<br>Form</h1>
+    </div>
+    <p class="consent-hero-desc">
+      Complete this form before your session. All information is kept confidential
+      and used only in connection with your appointment.
+    </p>
+  </div>
+
+  <div class="consent-success" id="successState">
+    <svg class="consent-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="m9 12 2 2 4-4"/>
+    </svg>
+    <h2 class="consent-success-title">Form Submitted</h2>
+    <p class="consent-success-text">Your consent form has been received. See you at the studio.</p>
+  </div>
+
+  <div class="consent-form-wrap" id="formWrap">
+
+    <div class="consent-form-sidebar">
+      <span class="consent-form-sidebar-title">Sections</span>
+      <div class="consent-progress">
+        <div class="consent-progress-step active" id="step-personal">
+          <span class="consent-progress-dot"></span> Personal Details
+        </div>
+        <div class="consent-progress-step" id="step-health">
+          <span class="consent-progress-dot"></span> Health Information
+        </div>
+        <div class="consent-progress-step" id="step-booking">
+          <span class="consent-progress-dot"></span> Booking Details
+        </div>
+        <div class="consent-progress-step" id="step-signature">
+          <span class="consent-progress-dot"></span> Signature
+        </div>
+      </div>
+    </div>
+
+    <form class="consent-form" id="consentForm" novalidate>
+
+      <div class="form-pot" aria-hidden="true">
+        <input type="text" name="_honeypot" id="_honeypot" tabindex="-1" autocomplete="off">
+      </div>
+
+      <!-- PERSONAL DETAILS -->
+      <div class="form-section" id="section-personal">
+        <p class="form-section-title">Personal Details</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="first_name">First Name</label>
+            <input class="form-input" type="text" id="first_name" name="first_name" autocomplete="given-name" required>
+            <span class="form-error" id="err-first_name">Required</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="last_name">Last Name</label>
+            <input class="form-input" type="text" id="last_name" name="last_name" autocomplete="family-name" required>
+            <span class="form-error" id="err-last_name">Required</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" type="email" id="email" name="email" autocomplete="email" required>
+            <span class="form-error" id="err-email">Valid email required</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone</label>
+            <input class="form-input" type="tel" id="phone" name="phone" autocomplete="tel" required>
+            <span class="form-error" id="err-phone">Required</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="date_of_birth">Date of Birth <span>(recommended)</span></label>
+            <input class="form-input" type="date" id="date_of_birth" name="date_of_birth" max="">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="eircode">Eircode <span>(optional)</span></label>
+            <input class="form-input" type="text" id="eircode" name="eircode" autocomplete="postal-code">
+          </div>
+        </div>
+      </div>
+
+      <!-- HEALTH INFORMATION -->
+      <div class="form-section" id="section-health">
+        <p class="form-section-title">Health Information</p>
+
+        <div class="consent-notice">
+          <strong>Confidential.</strong> This information is shared only with your artist and used solely in connection with your tattoo session. Stored securely in accordance with our <a href="privacy-policy.html" style="color:var(--black);text-decoration:underline">Privacy Policy</a>.
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">Do you have any medical conditions or allergies that may affect the tattooing process?</label>
+          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+            <label class="form-radio-label"><input type="radio" name="has_medical" value="false" checked> No</label>
+            <label class="form-radio-label"><input type="radio" name="has_medical" value="true"> Yes</label>
+          </div>
+          <div class="form-conditional" id="cond-medical">
+            <label class="form-label" for="medical_details" style="margin-bottom:6px">Please describe</label>
+            <textarea class="form-textarea" id="medical_details" name="medical_details" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">Are you currently taking any medications that may affect healing, bleeding, or skin sensitivity?</label>
+          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+            <label class="form-radio-label"><input type="radio" name="has_medications" value="false" checked> No</label>
+            <label class="form-radio-label"><input type="radio" name="has_medications" value="true"> Yes</label>
+          </div>
+          <div class="form-conditional" id="cond-medications">
+            <label class="form-label" for="medication_details" style="margin-bottom:6px">Please list your medications</label>
+            <textarea class="form-textarea" id="medication_details" name="medication_details" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">Do you have any blood-borne illnesses that may affect the process?</label>
+          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+            <label class="form-radio-label"><input type="radio" name="has_bloodborne" value="false" checked> No</label>
+            <label class="form-radio-label"><input type="radio" name="has_bloodborne" value="true"> Yes</label>
+          </div>
+          <div class="form-conditional" id="cond-bloodborne">
+            <label class="form-label" for="bloodborne_details" style="margin-bottom:6px">Please specify</label>
+            <textarea class="form-textarea" id="bloodborne_details" name="bloodborne_details" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Before your session</label>
+          <div class="form-check-group">
+            <label class="form-check-label">
+              <input type="checkbox" name="confirm_not_fasting" id="confirm_not_fasting">
+              I have eaten within the last 4 hours and am not fasting
+            </label>
+            <label class="form-check-label">
+              <input type="checkbox" name="confirm_no_alcohol" id="confirm_no_alcohol">
+              I have not consumed alcohol in the last 24 hours
+            </label>
+          </div>
+          <span class="form-error" id="err-session-confirm" style="margin-top:8px">Please confirm both statements before proceeding</span>
+        </div>
+      </div>
+
+      <!-- BOOKING DETAILS -->
+      <div class="form-section" id="section-booking">
+        <p class="form-section-title">Booking Details</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="artist_name">Artist Name</label>
+            <select class="form-select" id="artist_name" name="artist_name" required>
+              <option value="">Select artist</option>
+              <option value="Moreirart">Moreirart</option>
+              <option value="Marina Sadra">Marina Sadra</option>
+              <option value="Renan Organicjoy">Renan Organicjoy</option>
+              <option value="Guest Artist">Guest Artist</option>
+            </select>
+            <span class="form-error" id="err-artist_name">Please select an artist</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="instagram">Your Instagram <span>(optional)</span></label>
+            <input class="form-input" type="text" id="instagram" name="instagram" placeholder="@username">
+          </div>
+        </div>
+
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label" for="referral_source">How did you hear about us? <span>(optional)</span></label>
+            <select class="form-select" id="referral_source" name="referral_source">
+              <option value="">Select an option</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Google">Google</option>
+              <option value="Friend or family">Friend or family</option>
+              <option value="Walk-by">Walk-by</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:8px">
+          <label class="form-label">Photography consent</label>
+          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+            <label class="form-radio-label"><input type="radio" name="photo_consent" value="true" checked> Yes</label>
+            <label class="form-radio-label"><input type="radio" name="photo_consent" value="false"> No</label>
+          </div>
+          <p class="signature-hint">I consent to photographs of the completed tattoo being used for portfolio and social media purposes.</p>
+        </div>
+      </div>
+
+      <!-- SIGNATURE -->
+      <div class="form-section" id="section-signature">
+        <p class="form-section-title">Declaration &amp; Signature</p>
+
+        <div class="consent-notice">
+          By signing below I confirm that:
+          <ul style="margin-top:12px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px">
+            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I am 18 years of age or older</li>
+            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> The health information I have provided is accurate and complete</li>
+            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I understand that tattooing is a permanent procedure</li>
+            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I agree to follow all aftercare instructions provided by my artist</li>
+            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I have read and agree to the <a href="terms-of-use.html" style="color:var(--black);text-decoration:underline">Terms of Use</a> and <a href="privacy-policy.html" style="color:var(--black);text-decoration:underline">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signature">Signature — type your full name</label>
+          <input class="form-input" type="text" id="signature" name="signature" placeholder="First and last name" required>
+          <span class="form-error" id="err-signature">Signature must match your full name exactly</span>
+          <p class="signature-hint">Typing your full name constitutes your digital signature for this form.</p>
+        </div>
+
+        <div class="form-submit-row">
+          <button type="submit" class="form-submit-btn" id="submitBtn">Submit Form</button>
+          <p class="form-submit-note">Your data is stored securely and used only in connection with your appointment.</p>
+        </div>
+
+        <span class="form-error" id="err-general" style="margin-top:16px;font-size:13px"></span>
+      </div>
+
+    </form>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      const INTERNAL_API_URL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+
+      // Set max date for date of birth (today)
+      const dobInput = document.getElementById('date_of_birth');
+      if (dobInput) dobInput.max = new Date().toISOString().split('T')[0];
+
+      // Conditional fields
+      function setupConditional(radioName, condId) {
+        document.querySelectorAll(`input[name="${radioName}"]`).forEach(r => {
+          r.addEventListener('change', () => {
+            document.getElementById(condId).classList.toggle('visible', r.value === 'true' && r.checked);
+          });
+        });
+      }
+
+      setupConditional('has_medical',     'cond-medical');
+      setupConditional('has_medications', 'cond-medications');
+      setupConditional('has_bloodborne',  'cond-bloodborne');
+
+      // Progress sidebar
+      const sections = ['personal', 'health', 'booking', 'signature'];
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const id = e.target.id.replace('section-', '');
+            sections.forEach(s => {
+              const step = document.getElementById(`step-${s}`);
+              if (!step) return;
+              step.classList.toggle('active', s === id);
+              step.classList.toggle('done', sections.indexOf(s) < sections.indexOf(id));
+            });
+          }
+        });
+      }, { threshold: 0.3 });
+
+      sections.forEach(s => {
+        const el = document.getElementById(`section-${s}`);
+        if (el) observer.observe(el);
+      });
+
+      // Error helpers
+      function showError(id, msg) {
+        const el    = document.getElementById(`err-${id}`);
+        const input = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+        if (el) { if (msg) el.textContent = msg; el.style.display = 'block'; }
+        if (input) input.classList.add('error');
+      }
+
+      function clearError(id) {
+        const el    = document.getElementById(`err-${id}`);
+        const input = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+        if (el) el.style.display = 'none';
+        if (input) input.classList.remove('error');
+      }
+
+      // Submit
+      document.getElementById('consentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn    = document.getElementById('submitBtn');
+        const errGen = document.getElementById('err-general');
+        let valid    = true;
+
+        ['first_name','last_name','email','phone','artist_name','signature','session-confirm'].forEach(clearError);
+        errGen.style.display = 'none';
+
+        const firstName  = document.getElementById('first_name').value.trim();
+        const lastName   = document.getElementById('last_name').value.trim();
+        const email      = document.getElementById('email').value.trim();
+        const phone      = document.getElementById('phone').value.trim();
+        const artistName = document.getElementById('artist_name').value;
+        const signature  = document.getElementById('signature').value.trim();
+
+        if (!firstName)  { showError('first_name'); valid = false; }
+        if (!lastName)   { showError('last_name');  valid = false; }
+        if (!phone)      { showError('phone');       valid = false; }
+        if (!artistName) { showError('artist_name'); valid = false; }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showError('email', 'Valid email required'); valid = false;
+        }
+
+        if (signature.toLowerCase() !== `${firstName} ${lastName}`.toLowerCase()) {
+          showError('signature', 'Signature must match your full name exactly'); valid = false;
+        }
+
+        const notFasting  = document.getElementById('confirm_not_fasting').checked;
+        const noAlcohol   = document.getElementById('confirm_no_alcohol').checked;
+        if (!notFasting || !noAlcohol) {
+          showError('session-confirm', 'Please confirm both statements before proceeding'); valid = false;
+        }
+
+        if (!valid) { document.querySelector('.form-error[style*="display: block"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        const hasMedical     = document.querySelector('input[name="has_medical"]:checked')?.value === 'true';
+        const hasMedications = document.querySelector('input[name="has_medications"]:checked')?.value === 'true';
+        const hasBloodborne  = document.querySelector('input[name="has_bloodborne"]:checked')?.value === 'true';
+        const photoConsent   = document.querySelector('input[name="photo_consent"]:checked')?.value === 'true';
+
+        const payload = {
+          first_name:         firstName,
+          last_name:          lastName,
+          email,
+          phone,
+          date_of_birth:      document.getElementById('date_of_birth').value || null,
+          eircode:            document.getElementById('eircode').value.trim(),
+          artist_name:        artistName,
+          instagram:          document.getElementById('instagram').value.trim(),
+          referral_source:    document.getElementById('referral_source').value,
+          has_medical:        hasMedical,
+          medical_details:    hasMedical ? document.getElementById('medical_details').value.trim() : '',
+          has_medications:    hasMedications,
+          medication_details: hasMedications ? document.getElementById('medication_details').value.trim() : '',
+          has_bloodborne:     hasBloodborne,
+          bloodborne_details: hasBloodborne ? document.getElementById('bloodborne_details').value.trim() : '',
+          photo_consent:      photoConsent,
+          signature,
+          _honeypot:          document.getElementById('_honeypot').value,
+        };
+
+        try {
+          const res  = await fetch(`${INTERNAL_API_URL}/api/public/consent`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(25000),
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.ok) {
+            document.getElementById('formWrap').style.display = 'none';
+            document.getElementById('successState').classList.add('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            errGen.textContent = data.error || 'Something went wrong. Please try again.';
+            errGen.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Submit Form';
+          }
+        } catch {
+          errGen.textContent = 'Connection error. Please check your connection and try again.';
+          errGen.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Submit Form';
+        }
+      });
+
+    })();
+  </script>
+
+</body>
+</html>
