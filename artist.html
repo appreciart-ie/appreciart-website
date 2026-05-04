@@ -843,11 +843,6 @@
       } catch { return { availability: [], date_images: [] }; }
     }
 
-    function formatDate(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' });
-    }
-
     function renderArtist(artist, availability, dateImages) {
       // Update page title
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
@@ -927,17 +922,15 @@
             <h1 class="artist-name">${artist.name}</h1>
             <div class="artist-styles">${styles}</div>
             <p class="artist-bio">${artist.bio || ''}</p>
-            <div class="artist-actions">
-              ${instaHandle ? `
-              <a class="artist-insta" href="${instaUrl}" target="_blank" rel="noopener" aria-label="${artist.name} Instagram">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <rect x="2" y="2" width="20" height="20" rx="5"/>
-                  <circle cx="12" cy="12" r="4"/>
-                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-                </svg>
-                ${instaHandle}
-              </a>` : ''}
-              <a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary btn-sm">Book a Session</a>
+            ${instaHandle ? `
+            <a class="artist-insta" href="${instaUrl}" target="_blank" rel="noopener" aria-label="${artist.name} Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+              </svg>
+              ${instaHandle}
+            </a>` : ''}
             <div class="artist-availability-inline">
               <span class="artist-section-label" style="margin-top:32px;display:block">Available Dates</span>
               ${availHtml}
@@ -978,6 +971,7 @@
             parseInt(cell.dataset.day, 10),
             cell.dataset.artist,
             cell.dataset.artistName,
+            cell.dataset.date,
           );
         });
       });
@@ -1018,13 +1012,13 @@
     let bmYear       = null;
     let bmMonth      = null;
 
-    function openBookingModal(day, artistSlug, artistName) {
-      const now   = new Date();
+    function openBookingModal(day, artistSlug, artistName, dateStr) {
+      const d      = dateStr ? new Date(dateStr) : new Date();
       bmDay        = day;
       bmArtistSlug = artistSlug;
-      bmYear       = now.getFullYear();
-      bmMonth      = now.getMonth();
-      const monthName = now.toLocaleString('en-IE', { month: 'long' });
+      bmYear       = d.getFullYear();
+      bmMonth      = d.getMonth();
+      const monthName = d.toLocaleString('en-IE', { month: 'long' });
 
       document.getElementById('bmTitle').textContent    = `Book with ${artistName}`;
       document.getElementById('bmSubtitle').textContent = `${day} ${monthName} ${bmYear}`;
@@ -1163,6 +1157,17 @@
       document.getElementById('bmFormBody').style.display = 'none';
       document.getElementById('bmSuccess').classList.add('visible');
     });
+
+    // Handle return from Stripe redirect (3DS / Klarna)
+    if (new URLSearchParams(window.location.search).get('paid') === '1') {
+      Promise.all([fetchArtist(slug), fetchAvailability(slug)])
+        .then(([artist, availData]) => {
+          if (artist) renderArtist(artist, availData.availability, availData.date_images);
+          document.getElementById('bmFormBody').style.display = 'none';
+          document.getElementById('bmSuccess').classList.add('visible');
+          document.getElementById('bmOverlay').classList.add('open');
+        });
+    }
 
     function renderNotFound() {
       root.innerHTML = `
