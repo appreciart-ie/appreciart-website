@@ -179,9 +179,7 @@
 
     /* Dates grid */
     .dates-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      display: block;
     }
 
     .date-cell {
@@ -534,18 +532,7 @@
         grid-template-columns: 1fr;
         gap: 24px;
       }
-      .dates-grid {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-      }
       .form-row { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 480px) {
-      .dates-grid {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 3px;
-      }
     }
   </style>
 </head>
