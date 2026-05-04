@@ -262,11 +262,21 @@
 
   <!-- REVIEWS -->
   <section class="reviews-section">
-    <div class="reveal">
-      <span class="section-label">From Their View</span>
-      <h2 class="section-title">What They Say</h2>
+    <div class="reviews-header reveal">
+      <div>
+        <span class="section-label">From Their View</span>
+        <h2 class="section-title">What They Say</h2>
+      </div>
+      <div class="reviews-nav">
+        <button class="reviews-nav-btn" id="reviewsPrev" aria-label="Previous">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
+        </button>
+        <button class="reviews-nav-btn" id="reviewsNext" aria-label="Next">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </button>
+      </div>
     </div>
-    <div class="reviews-track" data-drag>
+    <div class="reviews-track" id="reviewsTrack" data-drag>
       <div class="review-card"><p class="review-text">"Thiago is an artist extraordinaire! I went to him with a tattoo in mind and he made it better. The colours and details are stunning."</p><div><p class="review-author">Maureen Berry</p><p class="review-date">Jul 2025</p></div></div>
       <div class="review-card"><p class="review-text">"Top-notch artists, clean studio, and amazing vibes. If you want quality ink, this is the place."</p><div><p class="review-author">R F</p><p class="review-date">Mar 2025</p></div></div>
       <div class="review-card"><p class="review-text">"Amazing artists, welcoming staff, friendly atmosphere, clean. I could not have chosen a better place to get my first tattoo."</p><div><p class="review-author">Fernando Pimenta</p><p class="review-date">Nov 2024</p></div></div>

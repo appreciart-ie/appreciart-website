@@ -32,3 +32,13 @@ document.querySelectorAll('[data-drag]').forEach(el => {
   el.addEventListener('touchstart', e => { startX = e.touches[0].pageX - el.offsetLeft; scrollLeft = el.scrollLeft; }, { passive: true });
   el.addEventListener('touchmove',  e => { el.scrollLeft = scrollLeft - (e.touches[0].pageX - el.offsetLeft - startX); }, { passive: true });
 });
+
+// Reviews nav arrows
+const reviewsTrack = document.getElementById('reviewsTrack');
+const reviewsPrev  = document.getElementById('reviewsPrev');
+const reviewsNext  = document.getElementById('reviewsNext');
+if (reviewsTrack && reviewsPrev && reviewsNext) {
+  const step = () => reviewsTrack.querySelector('.review-card')?.offsetWidth + 32 || 320;
+  reviewsPrev.addEventListener('click', () => reviewsTrack.scrollBy({ left: -step(), behavior: 'smooth' }));
+  reviewsNext.addEventListener('click', () => reviewsTrack.scrollBy({ left:  step(), behavior: 'smooth' }));
+}
