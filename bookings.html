@@ -237,6 +237,42 @@
       pointer-events: none;
     }
 
+    .dates-month-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sec-grey, #9a9a9a);
+      margin: 20px 0 12px;
+    }
+
+    .dates-month-label:first-child { margin-top: 0; }
+
+    .dates-month-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .date-cell {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .date-num-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--off-white, #f5f5f5);
+      color: var(--black, #000);
+    }
+
     .dates-loading {
       grid-column: 1 / -1;
       padding: 40px 0;
@@ -572,16 +608,6 @@
         <!-- Step 2: Date -->
         <span class="booking-section-label">02 — Select a Date</span>
 
-        <div class="month-selector">
-          <button class="month-nav" id="prevMonth" aria-label="Previous month">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <span class="month-label" id="monthLabel"></span>
-          <button class="month-nav" id="nextMonth" aria-label="Next month">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-        </div>
-
         <div class="dates-grid" id="datesGrid">
           <div class="dates-loading">Select an artist to see availability</div>
         </div>
@@ -706,10 +732,9 @@
     let artists        = [];
     let selectedArtist = null;
     let selectedDay    = null;
-    let dateImages     = [];    // [{ day, url }]
-    let bookedDays     = new Set();
+    let selectedDate   = null;
     let currentYear    = new Date().getFullYear();
-    let currentMonth   = new Date().getMonth(); // 0-indexed
+    let currentMonth   = new Date().getMonth();
     let stripe         = null;
     let elements       = null;
     let clientSecret   = null;
@@ -806,64 +831,63 @@
           { signal: AbortSignal.timeout(10000) }
         );
         const data = await res.json();
-        dateImages = (data.date_images || []).sort((a, b) => a.day - b.day);
+        const dateImgMap     = new Map((data.date_images || []).map(d => [d.day, d.url]));
+        const today          = new Date(); today.setHours(0,0,0,0);
+        const availableSlots = (data.availability || []).filter(a => a.is_available);
 
-        // Booked days = days in availability where is_available = false
-        bookedDays = new Set(
-          (data.availability || [])
-            .filter(a => !a.is_available)
-            .map(a => new Date(a.date).getDate())
-        );
+        if (!availableSlots.length) {
+          datesGrid.innerHTML = '<div class="dates-empty">No dates available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a> to enquire.</div>';
+          return;
+        }
 
-        renderDatesGrid();
+        // Group by month
+        const byMonth = {};
+        availableSlots.forEach(a => {
+          const d   = new Date(a.date);
+          const key = `${d.getFullYear()}-${d.getMonth()}`;
+          const lbl = d.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
+          if (!byMonth[key]) byMonth[key] = { label: lbl, year: d.getFullYear(), month: d.getMonth(), slots: [] };
+          byMonth[key].slots.push({ day: d.getDate(), date: a.date, isPast: d < today });
+        });
+
+        datesGrid.innerHTML = '';
+        Object.values(byMonth)
+          .sort((a,b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
+          .forEach(({ label, slots }) => {
+            const monthEl = document.createElement('p');
+            monthEl.className = 'dates-month-label';
+            monthEl.textContent = label;
+            datesGrid.appendChild(monthEl);
+
+            const grid = document.createElement('div');
+            grid.className = 'dates-month-grid';
+
+            slots.sort((a,b) => a.day - b.day).forEach(({ day, date, isPast }) => {
+              const url  = dateImgMap.get(day) || '';
+              const cell = document.createElement('div');
+              cell.className = 'date-cell' + (isPast ? ' past' : '');
+              cell.dataset.date = date;
+              cell.dataset.day  = day;
+              cell.innerHTML = url
+                ? `<img src="${url}" alt="Day ${day}" loading="lazy"><span class="date-num">${day}</span>`
+                : `<span class="date-num-fallback">${String(day).padStart(2,'0')}</span>`;
+              if (!isPast) cell.addEventListener('click', () => pickDay(day, date, cell));
+              grid.appendChild(cell);
+            });
+
+            datesGrid.appendChild(grid);
+          });
       } catch (e) {
         datesGrid.innerHTML = '<div class="dates-empty">Could not load dates. Please refresh.</div>';
       }
     }
 
-    // ── Render dates grid ──
-    function renderDatesGrid() {
-      datesGrid.innerHTML = '';
-
-      if (!dateImages.length) {
-        datesGrid.innerHTML = '<div class="dates-empty">No dates available this month.</div>';
-        return;
-      }
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Only show days for current month/year
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-      dateImages.forEach(({ day, url }) => {
-        if (day > daysInMonth) return; // skip days > month length
-
-        const cellDate = new Date(currentYear, currentMonth, day);
-        const isPast   = cellDate < today;
-        const isBooked = bookedDays.has(day);
-
-        const cell = document.createElement('div');
-        cell.className = 'date-cell';
-        if (isPast)   cell.classList.add('past');
-        if (isBooked) cell.classList.add('unavailable');
-        if (selectedDay === day) cell.classList.add('selected');
-
-        cell.innerHTML = `
-          <img src="${url}" alt="Day ${day}" loading="lazy">
-          <span class="date-num">${day}</span>
-        `;
-
-        if (!isPast && !isBooked) {
-          cell.addEventListener('click', () => pickDay(day, cell));
-        }
-
-        datesGrid.appendChild(cell);
-      });
-    }
-
-    function pickDay(day, cell) {
-      selectedDay = day;
+    function pickDay(day, dateStr, cell) {
+      selectedDay   = day;
+      selectedDate  = dateStr;
+      const d = new Date(dateStr);
+      currentYear   = d.getFullYear();
+      currentMonth  = d.getMonth();
       document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('selected'));
       cell.classList.add('selected');
       updateSelectedDateBar();
@@ -961,7 +985,7 @@
       proceedBtn.disabled = true;
       proceedBtn.textContent = 'Setting up payment...';
 
-      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
+      const dateStr = selectedDate || `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
 
       try {
         const res  = await fetch(`${INTERNAL_API}/api/public/bookings/payment-intent`, {
