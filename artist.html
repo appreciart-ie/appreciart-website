@@ -136,26 +136,21 @@
 
     .artist-bio strong { color: var(--black); font-weight: 700; }
 
-    .artist-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
     .artist-insta {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 400;
-      color: var(--mid);
+      letter-spacing: 0.06em;
+      color: var(--sec-grey);
       transition: color 0.2s;
       text-decoration: none;
+      margin-bottom: 32px;
     }
 
     .artist-insta:hover { color: var(--black); }
-    .artist-insta svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .artist-insta svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     /* DIVIDER */
     .artist-divider {
@@ -451,10 +446,21 @@
     }
 
     .availability-hint {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 300;
       color: var(--sec-grey);
-      margin-top: 8px;
+      margin-top: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .availability-month-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 14px;
+      margin-top: 4px;
     }
 
     /* BOOKING MODAL */
