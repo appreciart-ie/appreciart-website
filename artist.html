@@ -452,14 +452,8 @@
       } catch { return []; }
     }
 
-    async function fetchProfile(slug) {
-      try {
-        const res  = await fetch(`https://res.cloudinary.com/${CLOUD}/image/list/appreciart:${slug}.json`, { signal: AbortSignal.timeout(10000) });
-        if (!res.ok) return null;
-        const data = await res.json();
-        const img  = (data.resources || []).find(r => !r.public_id.includes('/portfolio'));
-        return img ? `${BASE_URL}/q_auto,f_auto,w_680/${img.public_id}` : null;
-      } catch { return null; }
+    function fetchProfile(slug) {
+      return Promise.resolve(`images/resident-artists/${slug}-profile.webp`);
     }
 
     function formatDate(dateStr) {
