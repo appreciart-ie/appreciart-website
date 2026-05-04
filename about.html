@@ -188,7 +188,6 @@
     }
 
     @media (max-width: 768px) {
-      .about-hero-title { white-space: normal; }
       .about-hero-image { aspect-ratio: 16/9; border-radius: 12px; }
       .about-block { grid-template-columns: 1fr; gap: 14px; }
       .about-block-label { position: static; }
@@ -214,6 +213,7 @@
       class="about-hero-image"
       src="images/studio/about.webp"
       alt="Appreciart IE — First exhibition, Dublin 2022"
+      onerror="this.style.display='none'"
     >
     <span class="about-hero-caption">14/09/2022 · First public exhibition</span>
   </div>

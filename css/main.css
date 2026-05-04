@@ -776,7 +776,6 @@ a   { color: inherit; text-decoration: none; }
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .nav-links { gap: 20px; }
-  /* .strip-row, .strip-label — removed, dead rules */
   .gallery-layout { grid-template-columns: 1fr; }
   .gallery-img.tall { grid-row: span 1; }
   .collab-inner { text-align: center; }
