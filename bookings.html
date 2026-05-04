@@ -201,7 +201,8 @@
       transition: transform 0.3s;
     }
 
-    .date-cell:hover img { transform: scale(1.05); }
+    .date-cell:hover img { transform: scale(1.06); }
+    .date-cell:hover { border-color: var(--black, #000); }
 
     .date-cell.unavailable {
       opacity: 0.25;
@@ -210,7 +211,7 @@
     }
 
     .date-cell.past {
-      opacity: 0.15;
+      opacity: 0.18;
       cursor: not-allowed;
       pointer-events: none;
     }
@@ -224,17 +225,6 @@
       position: absolute;
       inset: 0;
       background: rgba(0,0,0,0.08);
-    }
-
-    .date-num {
-      position: absolute;
-      bottom: 4px;
-      right: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--white, #fff);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-      pointer-events: none;
     }
 
     .dates-month-label {
@@ -864,7 +854,7 @@
               cell.dataset.date = date;
               cell.dataset.day  = day;
               cell.innerHTML = url
-                ? `<img src="${url}" alt="Day ${day}" loading="lazy"><span class="date-num">${day}</span>`
+                ? `<img src="${url}" alt="Day ${day}" loading="lazy">`
                 : `<span class="date-num-fallback">${String(day).padStart(2,'0')}</span>`;
               if (!isPast) cell.addEventListener('click', () => pickDay(day, date, cell));
               grid.appendChild(cell);
