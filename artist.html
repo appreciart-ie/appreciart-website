@@ -401,7 +401,7 @@
       }
 
       .artist-profile-card { position: static; }
-      .artist-profile-img  { aspect-ratio: 4/3; object-position: center 20%; }
+      .artist-profile-img  { aspect-ratio: 3/4; object-position: center 20%; }
       .portfolio-grid      { columns: 2; }
     }
 
@@ -529,7 +529,6 @@
           </div>
 
           <div class="artist-info">
-            <span class="artist-label">Appreciart IE</span>
             <h1 class="artist-name">${artist.name}</h1>
             <div class="artist-styles">${styles}</div>
             <p class="artist-bio">${artist.bio || ''}</p>
@@ -553,7 +552,7 @@
         <div class="artist-portfolio">
           <div class="artist-section-header">
             <span class="artist-section-label">Portfolio</span>
-            <span class="artist-section-count">${portfolio.length > 0 ? `${portfolio.length} works` : ''}</span>
+            <span class="artist-section-count"></span>
           </div>
           <div class="portfolio-grid">${portfolioHtml}</div>
         </div>
