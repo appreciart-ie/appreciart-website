@@ -887,8 +887,8 @@
       const today       = new Date(); today.setHours(0,0,0,0);
       const dateImgMap  = new Map(dateImages.map(d => [d.day, d.url]));
 
-      // Group available dates by month
-      const availableSlots = availability.filter(a => a.is_available);
+      const bookedDays     = new Set(availability.filter(a => !a.is_available).map(a => new Date(a.date).getDate()));
+      const availableSlots = availability;
       const byMonth = {};
       availableSlots.forEach(a => {
         const d     = new Date(a.date);
