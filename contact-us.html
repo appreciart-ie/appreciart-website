@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact Appreciart IE — Reach us by WhatsApp, email or Instagram. Private tattoo studio in Ballsbridge, Dublin.">
+  <title>Contact — Appreciart IE</title>
+  <meta property="og:title" content="Contact — Appreciart IE">
+  <meta property="og:url" content="https://appreciart.ie/contact-us.html">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+
+    .contact-hero {
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: end;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .contact-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .contact-hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+
+    .contact-hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      max-width: 400px;
+      align-self: end;
+    }
+
+    /* CHANNELS */
+    .contact-content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--sv) var(--px);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-bottom: var(--sv);
+    }
+
+    .contact-channel {
+      padding: clamp(32px, 4vw, 56px) clamp(24px, 3vw, 40px);
+      background: var(--off-white);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: background 0.3s ease, outline-color 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      outline: 2px solid transparent;
+      outline-offset: -2px;
+      border-radius: 8px;
+    }
+
+    .contact-channel:hover {
+      background: var(--black);
+      outline-color: var(--black);
+    }
+
+    .contact-channel-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--black);
+      transition: color 0.3s ease;
+    }
+
+    .contact-channel:hover .contact-channel-icon { color: var(--white); }
+
+    .contact-channel-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      transition: color 0.3s ease;
+    }
+
+    .contact-channel:hover .contact-channel-label { color: rgba(255,255,255,0.4); }
+
+    .contact-channel-value {
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 700;
+      color: var(--black);
+      line-height: 1.3;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .contact-channel:hover .contact-channel-value { color: var(--white); }
+
+    .contact-channel-note {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.6;
+      margin-top: auto;
+      transition: color 0.3s ease;
+    }
+
+    .contact-channel:hover .contact-channel-note { color: rgba(255,255,255,0.4); }
+
+    /* LOCATION */
+    .contact-location {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+
+    .contact-location-info {
+      background: var(--black);
+      color: var(--white);
+      padding: clamp(40px, 5vw, 72px) clamp(24px, 3vw, 56px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .contact-location-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .contact-location-address {
+      font-size: clamp(18px, 2.5vw, 28px);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.3;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      display: block;
+    }
+
+    .contact-location-address:hover { opacity: 0.6; }
+
+    .contact-location-hours {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.75;
+    }
+
+    .contact-location-hours strong {
+      color: rgba(255,255,255,0.7);
+      font-weight: 400;
+    }
+
+    .contact-map {
+      overflow: hidden;
+      min-height: 360px;
+    }
+
+    .contact-map iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      filter: grayscale(100%);
+      transition: filter 0.4s;
+      min-height: 360px;
+    }
+
+    .contact-map:hover iframe { filter: grayscale(0%); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .contact-grid { grid-template-columns: 1fr 1fr; }
+      .contact-grid .contact-channel:last-child {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .contact-hero { grid-template-columns: 1fr; gap: 20px; }
+      .contact-hero-desc { max-width: 100%; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .contact-grid .contact-channel:last-child { grid-column: span 1; }
+      .contact-channel { padding: 24px 20px; gap: 14px; }
+      .contact-channel-icon { width: 28px; height: 28px; }
+      .contact-channel-value { font-size: 15px; }
+      .contact-channel-note { font-size: 11px; }
+      .contact-location { grid-template-columns: 1fr; }
+      .contact-location-info { padding: 36px 24px; gap: 28px; }
+      .contact-map { min-height: 260px; }
+      .contact-map iframe { min-height: 260px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <!-- HERO -->
+  <div class="contact-hero reveal">
+    <div>
+      <span class="contact-hero-label">Get in Touch</span>
+      <h1 class="contact-hero-title">Contact</h1>
+    </div>
+    <p class="contact-hero-desc">
+      WhatsApp is the fastest way to reach us.
+      For everything else — email or Instagram works fine.
+    </p>
+  </div>
+
+  <!-- CHANNELS -->
+  <div class="contact-content">
+    <div class="contact-grid reveal">
+
+      <!-- WhatsApp -->
+      <a class="contact-channel" href="https://wa.me/353838882759" target="_blank" rel="noopener">
+        <svg class="contact-channel-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        <span class="contact-channel-label">WhatsApp</span>
+        <span class="contact-channel-value">+353 83 888 2759</span>
+        <p class="contact-channel-note">Fastest response. Use this for booking enquiries, questions about artists, or anything time-sensitive.</p>
+      </a>
+
+      <!-- Email -->
+      <a class="contact-channel" href="mailto:appreciartie@gmail.com">
+        <svg class="contact-channel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+        <span class="contact-channel-label">Email</span>
+        <span class="contact-channel-value">appreciartie@gmail.com</span>
+        <p class="contact-channel-note">For longer conversations, collaborations, or anything that needs a paper trail.</p>
+      </a>
+
+      <!-- Instagram -->
+      <a class="contact-channel" href="https://www.instagram.com/appreciart.ie/" target="_blank" rel="noopener">
+        <svg class="contact-channel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+        </svg>
+        <span class="contact-channel-label">Instagram</span>
+        <span class="contact-channel-value">@appreciart.ie</span>
+        <p class="contact-channel-note">Follow for artist updates, guest announcements, flash days, and exhibition news.</p>
+      </a>
+
+    </div>
+
+    <!-- LOCATION -->
+    <div class="contact-location reveal">
+      <div class="contact-location-info">
+        <div>
+          <span class="contact-location-label">Studio Location</span>
+          <a
+            href="https://maps.app.goo.gl/GZRmkdFQY9An1zwJ9"
+            target="_blank"
+            rel="noopener"
+            class="contact-location-address"
+          >
+            120 Baggot Lane<br>
+            Ballsbridge<br>
+            Dublin, D04 WK59
+          </a>
+        </div>
+        <div class="contact-location-hours">
+          <strong>By appointment only.</strong><br>
+          We don't operate walk-in sessions — all visits are booked in advance through WhatsApp or the Bookings page.
+        </div>
+      </div>
+      <div class="contact-map">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2382.7!2d-6.2488!3d53.3308!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48670f2444235815%3A0x98af782e3d92cd8f!2s120%20Baggot%20Ln%2C%20Ballsbridge%2C%20Dublin!5e0!3m2!1sen!2sie!4v1"
+          title="Appreciart IE — 120 Baggot Lane, Ballsbridge, Dublin"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

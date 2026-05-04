@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Frequently asked questions about Appreciart IE — bookings, artists, consultations, exhibitions and more.">
+  <title>FAQs — Appreciart IE</title>
+  <meta property="og:title" content="FAQs — Appreciart IE">
+  <meta property="og:url" content="https://appreciart.ie/faqs.html">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+
+    .faqs-hero {
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: end;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .faqs-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .faqs-hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+
+    .faqs-hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      max-width: 400px;
+      align-self: end;
+    }
+
+    /* FAQ LIST */
+    .faqs-content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--sv) var(--px);
+    }
+
+    .faq-block {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      padding: clamp(32px, 4vw, 56px) 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .faq-block:first-child { padding-top: 0; }
+
+    .faq-number {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      padding-top: 4px;
+      position: sticky;
+      top: 100px;
+    }
+
+    .faq-question {
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 700;
+      color: var(--black);
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    .faq-answer {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 580px;
+    }
+
+    .faq-answer strong { color: var(--black); font-weight: 700; }
+
+    .faq-answer a {
+      color: var(--black);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.2s;
+    }
+
+    .faq-answer a:hover { opacity: 0.5; }
+
+    /* CTA */
+    .faqs-cta {
+      background: var(--black);
+      color: var(--white);
+      padding: var(--sv) var(--px);
+      text-align: center;
+    }
+
+    .faqs-cta .section-label { color: var(--sec-grey); }
+    .faqs-cta .section-title { color: var(--white); margin-bottom: 12px; }
+    .faqs-cta .section-body  { color: rgba(255,255,255,0.5); margin: 0 auto 36px; }
+
+    .faqs-cta .btn-primary {
+      background: var(--white);
+      color: var(--black);
+      border-color: var(--white);
+    }
+
+    .faqs-cta .btn-primary:hover {
+      background: transparent;
+      color: var(--white);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.6);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .faq-block { grid-template-columns: 160px 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .faqs-hero { grid-template-columns: 1fr; gap: 24px; }
+      .faq-block { grid-template-columns: 1fr; gap: 12px; }
+      .faq-number { position: static; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <!-- HERO -->
+  <div class="faqs-hero reveal">
+    <div>
+      <span class="faqs-hero-label">Questions</span>
+      <h1 class="faqs-hero-title">FAQs</h1>
+    </div>
+    <p class="faqs-hero-desc">
+      Common questions about bookings, artists, and how the studio works.
+      Can't find what you're looking for — get in touch.
+    </p>
+  </div>
+
+  <!-- FAQ LIST -->
+  <div class="faqs-content">
+
+    <div class="faq-block reveal">
+      <span class="faq-number">01</span>
+      <div>
+        <h2 class="faq-question">What is Appreciart IE?</h2>
+        <p class="faq-answer">
+          A private tattoo studio and gallery in Ballsbridge, Dublin. We work with resident
+          and guest artists who treat tattooing as a fine art — not a service.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">02</span>
+      <div>
+        <h2 class="faq-question">Who are the resident artists?</h2>
+        <p class="faq-answer">
+          <strong>Moreirart</strong>, <strong>Marina Sadra</strong> and <strong>Renan Organicjoy</strong>.
+          Each has a distinct approach — from abstract paletting to fluid art and organic blackwork.
+          Their profiles are on the site — take a look before reaching out.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">03</span>
+      <div>
+        <h2 class="faq-question">Do you host guest artists?</h2>
+        <p class="faq-answer">
+          Yes, throughout the year. We bring in artists from outside Ireland for short residencies.
+          Dates go up on the site and
+          <a href="https://www.instagram.com/appreciart.ie/" target="_blank" rel="noopener">Instagram</a>
+          when they're set.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">04</span>
+      <div>
+        <h2 class="faq-question">How do I book?</h2>
+        <p class="faq-answer">
+          Through the <a href="bookings.html">Bookings page</a>, or directly via WhatsApp.
+          Tell us which artist you're interested in and what you have in mind —
+          we'll take it from there.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">05</span>
+      <div>
+        <h2 class="faq-question">Can I choose a specific artist?</h2>
+        <p class="faq-answer">
+          Browse the portfolios and go with whoever feels right. If you're not sure,
+          tell us what you have in mind and we'll point you in the right direction.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">06</span>
+      <div>
+        <h2 class="faq-question">Do you offer consultations?</h2>
+        <p class="faq-answer">
+          Yes. Most bookings start with a consultation — a chance to talk through the idea
+          with the artist before anything is decided. A refundable deposit secures
+          your slot. If no design is agreed at the consultation, the deposit comes back.
+          If you cancel without <strong>48 hours notice</strong>, it doesn't.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">07</span>
+      <div>
+        <h2 class="faq-question">What exhibitions do you run?</h2>
+        <p class="faq-answer">
+          The gallery space runs shows throughout the year — solo projects, collaborations,
+          themed work. The focus is always on the work itself.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">08</span>
+      <div>
+        <h2 class="faq-question">How do I stay updated?</h2>
+        <p class="faq-answer">
+          <a href="https://www.instagram.com/appreciart.ie/" target="_blank" rel="noopener">Instagram</a>
+          is the fastest. We post artist arrivals, guest spots, flash days,
+          and exhibition dates there first.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-block reveal">
+      <span class="faq-number">09</span>
+      <div>
+        <h2 class="faq-question">Can I bring my own design?</h2>
+        <p class="faq-answer">
+          Yes. Bring references, sketches, or just a direction. The artists work with
+          what you bring and develop something from there. You don't need a finished
+          idea to start.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="faqs-cta">
+    <span class="section-label">Still have questions?</span>
+    <h2 class="section-title">Get in Touch</h2>
+    <p class="section-body">
+      If something isn't clear, just ask — no commitment needed.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="bookings.html" class="btn btn-primary">Book a Session</a>
+      <a href="contact-us.html" class="btn btn-ghost">Contact Us</a>
+    </div>
+  </div>
+
+  <div id="site-footer" data-wave-color="#000000" data-wave-bg="#000000"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>
