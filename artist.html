@@ -299,14 +299,8 @@
     .lightbox-close:hover { color: var(--white); }
 
     /* AVAILABILITY */
-    .artist-availability {
-      background: var(--off-white);
-      padding: var(--sv) var(--px);
-    }
-
-    .artist-availability-inner {
-      max-width: var(--max);
-      margin: 0 auto;
+    .artist-availability-inline {
+      margin-top: 8px;
     }
 
     .availability-empty {
@@ -939,20 +933,14 @@
                 ${instaHandle}
               </a>` : ''}
               <a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary btn-sm">Book a Session</a>
+            <div class="artist-availability-inline">
+              <span class="artist-section-label" style="margin-top:32px;display:block">Available Dates</span>
+              ${availHtml}
             </div>
           </div>
         </div>
 
         <div class="artist-divider"><hr></div>
-
-        <div class="artist-availability">
-          <div class="artist-availability-inner">
-            <div class="artist-section-header">
-              <span class="artist-section-label">Available Dates</span>
-            </div>
-            ${availHtml}
-          </div>
-        </div>
 
         <div class="artist-portfolio">
           <div class="artist-section-header">
