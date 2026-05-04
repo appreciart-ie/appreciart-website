@@ -1016,7 +1016,7 @@
       document.querySelectorAll('.portfolio-item').forEach(item => {
         item.addEventListener('click', () => {
           lightboxImg.src = item.dataset.full;
-          lightboxImg.alt = item.querySelector('img').alt;
+          lightboxImg.alt = item.querySelector('img')?.alt || '';
           lightbox.classList.add('open');
           document.body.style.overflow = 'hidden';
         });
