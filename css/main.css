@@ -804,7 +804,30 @@ a   { color: inherit; text-decoration: none; }
 @media (max-width: 480px) {
   .hero-actions { flex-direction: column; align-items: stretch; }
   .hero-actions .btn { text-align: center; }
-  .residents-grid { grid-template-columns: 1fr; }
+  .residents-grid { grid-template-columns: 1fr; gap: 0; }
+  .resident-card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--light);
+    cursor: default;
+  }
+  .resident-card:first-child { border-top: 1px solid var(--light); }
+  .resident-photo {
+    width: 88px;
+    height: 110px;
+    aspect-ratio: unset;
+    flex-shrink: 0;
+    border-radius: 0;
+    object-position: center top;
+  }
+  .resident-content { padding: 0; justify-content: center; }
+  .resident-name { font-size: 13px; margin-bottom: 4px; }
+  .resident-styles { opacity: 1; transform: none; font-size: 9px; margin-bottom: 10px; }
+  .resident-actions { opacity: 1; transform: none; gap: 12px; }
+  .resident-insta { font-size: 10px; }
   .guest-card { width: 72vw; }
   .guest-apply-photos { display: none; }
 }
