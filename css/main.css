@@ -830,4 +830,14 @@ a   { color: inherit; text-decoration: none; }
   .resident-insta { font-size: 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 120px; }
   .guest-card { width: 72vw; }
   .guest-apply-photos { display: none; }
+
+  /* Gallery — mobile: 2-col image strip + CTA */
+  .gallery-layout { grid-template-columns: 1fr; gap: 0; margin-top: 24px; }
+  .gallery-img--tall { min-height: unset; aspect-ratio: 1/1; border-radius: 0; }
+  .gallery-right { gap: 0; }
+  .gallery-right-top { grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 4px; }
+  .gallery-right-top .gallery-img { aspect-ratio: 1/1; border-radius: 0; }
+  .gallery-img--wide { display: none; }
+  .gallery-cta { flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px 0 0; }
+  .gallery-cta .section-body { font-size: 13px; }
 }
