@@ -743,9 +743,6 @@
     // ── DOM refs ──
     const artistSelector  = document.getElementById('artistSelector');
     const datesGrid       = document.getElementById('datesGrid');
-    const monthLabel      = document.getElementById('monthLabel');
-    const prevMonthBtn    = document.getElementById('prevMonth');
-    const nextMonthBtn    = document.getElementById('nextMonth');
     const selectedDateBar = document.getElementById('selectedDateBar');
     const selectedDateText= document.getElementById('selectedDateText');
     const clearDateBtn    = document.getElementById('clearDate');
@@ -766,8 +763,6 @@
       const artistParam = params.get('artist');
 
       await loadArtists(artistParam);
-      renderMonthLabel();
-      updateMonthNav();
 
       // Pre-read URL date param if present
       const dateParam = parseInt(params.get('date'), 10);
@@ -910,40 +905,6 @@
       document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('selected'));
       updateSelectedDateBar();
       checkProceedButton();
-    });
-
-    // ── Month navigation ──
-    function renderMonthLabel() {
-      const name = new Date(currentYear, currentMonth, 1)
-        .toLocaleString('en-IE', { month: 'long', year: 'numeric' });
-      monthLabel.textContent = name;
-    }
-
-    function updateMonthNav() {
-      const now = new Date();
-      prevMonthBtn.disabled = (currentYear === now.getFullYear() && currentMonth <= now.getMonth());
-    }
-
-    prevMonthBtn.addEventListener('click', () => {
-      if (currentMonth === 0) { currentMonth = 11; currentYear--; }
-      else currentMonth--;
-      selectedDay = null;
-      updateSelectedDateBar();
-      checkProceedButton();
-      renderMonthLabel();
-      updateMonthNav();
-      if (selectedArtist) renderDatesGrid();
-    });
-
-    nextMonthBtn.addEventListener('click', () => {
-      if (currentMonth === 11) { currentMonth = 0; currentYear++; }
-      else currentMonth++;
-      selectedDay = null;
-      updateSelectedDateBar();
-      checkProceedButton();
-      renderMonthLabel();
-      updateMonthNav();
-      if (selectedArtist) renderDatesGrid();
     });
 
     // ── Form validation ──
