@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Terms of Use — Appreciart IE. The terms governing use of this website and our services.">
+  <title>Terms of Use — Appreciart IE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+
+    .legal-hero {
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: end;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .legal-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .legal-hero-title {
+      font-size: clamp(36px, 6vw, 80px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+
+    .legal-hero-meta { align-self: end; }
+
+    .legal-hero-date {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .legal-hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      max-width: 400px;
+    }
+
+    .legal-content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--sv) var(--px);
+    }
+
+    .legal-block {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      padding: clamp(32px, 4vw, 48px) 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .legal-block:first-child { padding-top: 0; }
+    .legal-block:last-child  { border-bottom: none; }
+
+    .legal-block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      padding-top: 4px;
+      position: sticky;
+      top: 100px;
+    }
+
+    .legal-block-title {
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .legal-block-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 600px;
+    }
+
+    .legal-block-body strong { color: var(--black); font-weight: 600; }
+    .legal-block-body p + p  { margin-top: 14px; }
+
+    .legal-block-body ul {
+      list-style: none;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legal-block-body ul li {
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .legal-block-body ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--sec-grey);
+      font-weight: 300;
+    }
+
+    .legal-block-body a {
+      color: var(--black);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.2s;
+    }
+
+    .legal-block-body a:hover { opacity: 0.5; }
+
+    @media (max-width: 1024px) {
+      .legal-block { grid-template-columns: 160px 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .legal-hero  { grid-template-columns: 1fr; gap: 20px; }
+      .legal-block { grid-template-columns: 1fr; gap: 12px; }
+      .legal-block-label { position: static; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <div class="legal-hero reveal">
+    <div>
+      <span class="legal-hero-label">Legal</span>
+      <h1 class="legal-hero-title">Terms<br>of Use</h1>
+    </div>
+    <div class="legal-hero-meta">
+      <span class="legal-hero-date">Last updated: 4 May 2026</span>
+      <p class="legal-hero-desc">
+        By using this website or booking our services, you agree to these terms.
+        Please read them before proceeding.
+      </p>
+    </div>
+  </div>
+
+  <div class="legal-content">
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">01</span>
+      <div>
+        <h2 class="legal-block-title">Who We Are</h2>
+        <div class="legal-block-body">
+          <p>
+            These terms apply to <strong>Appreciart IE</strong>, a private tattoo studio and gallery
+            at 120 Baggot Lane, Ballsbridge, Dublin, D04 WK59, Ireland.
+          </p>
+          <p>
+            Contact: <a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a> ·
+            <a href="https://wa.me/353838882759" target="_blank" rel="noopener">+353 83 888 2759</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">02</span>
+      <div>
+        <h2 class="legal-block-title">Use of This Website</h2>
+        <div class="legal-block-body">
+          <p>
+            This website is for informational purposes — to present our artists, services,
+            and gallery, and to facilitate bookings.
+          </p>
+          <p>You agree not to:</p>
+          <ul>
+            <li>Use the site for any unlawful purpose</li>
+            <li>Reproduce or redistribute our content without permission</li>
+            <li>Attempt to interfere with the site's functionality or security</li>
+            <li>Submit false or misleading information through any form or booking channel</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">03</span>
+      <div>
+        <h2 class="legal-block-title">Bookings &amp; Consultations</h2>
+        <div class="legal-block-body">
+          <p>
+            All sessions are by appointment only. Bookings are confirmed only after a deposit
+            has been received.
+          </p>
+          <p>
+            By booking, you confirm that you are at least <strong>18 years of age</strong>,
+            or have written parental consent where required by law.
+          </p>
+          <p>
+            We reserve the right to refuse or cancel any booking at our discretion —
+            for example, if the requested work falls outside our artists' scope or values.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">04</span>
+      <div>
+        <h2 class="legal-block-title">Deposits &amp; Cancellations</h2>
+        <div class="legal-block-body">
+          <p>
+            A deposit is required to secure a consultation slot.
+          </p>
+          <ul>
+            <li>The deposit is <strong>refundable</strong> if no design is agreed at the consultation</li>
+            <li>The deposit is <strong>non-refundable</strong> if you cancel without 48 hours notice</li>
+            <li>For larger projects, at least <strong>5 days notice</strong> is required to reschedule</li>
+            <li>For guest artist appointments, rescheduling may not be possible due to limited availability</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">05</span>
+      <div>
+        <h2 class="legal-block-title">Intellectual Property</h2>
+        <div class="legal-block-body">
+          <p>
+            All content on this website — including images, artwork, designs, text and logos —
+            is the property of Appreciart IE or the respective artists.
+          </p>
+          <p>
+            You may not copy, reproduce, distribute or use any content without prior written
+            permission. Artists retain full rights to their work unless otherwise agreed in writing.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">06</span>
+      <div>
+        <h2 class="legal-block-title">Health &amp; Safety</h2>
+        <div class="legal-block-body">
+          <p>
+            By booking a tattoo session, you confirm that you have disclosed any relevant
+            medical conditions, allergies or contraindications that could affect the procedure.
+          </p>
+          <p>
+            Tattooing is a permanent procedure. You are responsible for following all
+            aftercare instructions provided by your artist.
+          </p>
+          <p>
+            We reserve the right to refuse a session if we believe it poses a health or
+            safety risk to you or our artists.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">07</span>
+      <div>
+        <h2 class="legal-block-title">Liability</h2>
+        <div class="legal-block-body">
+          <p>
+            We take care to provide accurate information on this website, but we do not
+            guarantee it is always complete or up to date.
+          </p>
+          <p>
+            To the extent permitted by Irish law, Appreciart IE is not liable for any
+            indirect or consequential loss arising from use of this website or our services.
+          </p>
+          <p>
+            Nothing in these terms limits your statutory rights as a consumer under Irish
+            or EU law.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">08</span>
+      <div>
+        <h2 class="legal-block-title">Governing Law</h2>
+        <div class="legal-block-body">
+          <p>
+            These terms are governed by the laws of Ireland. Any disputes will be subject
+            to the exclusive jurisdiction of the Irish courts.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">09</span>
+      <div>
+        <h2 class="legal-block-title">Changes to These Terms</h2>
+        <div class="legal-block-body">
+          <p>
+            We may update these terms from time to time. The current version will always
+            be available on this page. Continued use of the website after changes constitutes
+            acceptance of the updated terms.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">10</span>
+      <div>
+        <h2 class="legal-block-title">Contact</h2>
+        <div class="legal-block-body">
+          <p>
+            Questions about these terms? Get in touch:
+          </p>
+          <p>
+            <a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a><br>
+            <a href="https://wa.me/353838882759" target="_blank" rel="noopener">+353 83 888 2759</a><br>
+            120 Baggot Lane, Ballsbridge, Dublin, D04 WK59
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

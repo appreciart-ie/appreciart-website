@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Privacy Policy — Appreciart IE. How we collect, use and protect your personal data. GDPR compliant.">
+  <title>Privacy Policy — Appreciart IE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+
+    .legal-hero {
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: end;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .legal-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .legal-hero-title {
+      font-size: clamp(36px, 6vw, 80px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+
+    .legal-hero-meta {
+      align-self: end;
+    }
+
+    .legal-hero-date {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .legal-hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      max-width: 400px;
+    }
+
+    /* CONTENT */
+    .legal-content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--sv) var(--px);
+    }
+
+    .legal-block {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      padding: clamp(32px, 4vw, 48px) 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .legal-block:first-child { padding-top: 0; }
+    .legal-block:last-child  { border-bottom: none; }
+
+    .legal-block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      padding-top: 4px;
+      position: sticky;
+      top: 100px;
+    }
+
+    .legal-block-title {
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .legal-block-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 600px;
+    }
+
+    .legal-block-body strong { color: var(--black); font-weight: 600; }
+    .legal-block-body p + p  { margin-top: 14px; }
+
+    .legal-block-body ul {
+      list-style: none;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legal-block-body ul li {
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .legal-block-body ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--sec-grey);
+      font-weight: 300;
+    }
+
+    .legal-block-body a {
+      color: var(--black);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.2s;
+    }
+
+    .legal-block-body a:hover { opacity: 0.5; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .legal-block { grid-template-columns: 160px 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .legal-hero  { grid-template-columns: 1fr; gap: 20px; }
+      .legal-block { grid-template-columns: 1fr; gap: 12px; }
+      .legal-block-label { position: static; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <!-- HERO -->
+  <div class="legal-hero reveal">
+    <div>
+      <span class="legal-hero-label">Legal</span>
+      <h1 class="legal-hero-title">Privacy<br>Policy</h1>
+    </div>
+    <div class="legal-hero-meta">
+      <span class="legal-hero-date">Last updated: 4 May 2026</span>
+      <p class="legal-hero-desc">
+        This policy explains what personal data Appreciart IE collects, why, and how it is used. We are committed to handling your data in accordance with GDPR and the Irish Data Protection Act 2018.
+      </p>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="legal-content">
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">01</span>
+      <div>
+        <h2 class="legal-block-title">Who We Are</h2>
+        <div class="legal-block-body">
+          <p>
+            <strong>Appreciart IE</strong> is a private tattoo studio and gallery located at
+            120 Baggot Lane, Ballsbridge, Dublin, D04 WK59, Ireland.
+          </p>
+          <p>
+            We are the data controller for the personal data collected through this website
+            and through our booking and consultation process.
+          </p>
+          <p>
+            Contact: <a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a> ·
+            <a href="https://wa.me/353838882759" target="_blank" rel="noopener">+353 83 888 2759</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">02</span>
+      <div>
+        <h2 class="legal-block-title">What Data We Collect</h2>
+        <div class="legal-block-body">
+          <p>We collect only what is necessary to provide our services:</p>
+          <ul>
+            <li><strong>Contact details</strong> — name, phone number, email address</li>
+            <li><strong>Booking information</strong> — appointment dates, artist preferences, deposit records</li>
+            <li><strong>Consultation notes</strong> — tattoo ideas, references, placement, size</li>
+            <li><strong>Communication history</strong> — messages sent via WhatsApp, email or Instagram</li>
+          </ul>
+          <p style="margin-top:14px">
+            We do not collect sensitive personal data beyond what is directly relevant to your tattoo consultation.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">03</span>
+      <div>
+        <h2 class="legal-block-title">Why We Collect It — Legal Basis</h2>
+        <div class="legal-block-body">
+          <p>Under GDPR, we process your data on the following legal bases:</p>
+          <ul>
+            <li><strong>Contract</strong> — to manage bookings, consultations and deposit payments</li>
+            <li><strong>Legitimate interest</strong> — to communicate about your appointment and follow up after consultations</li>
+            <li><strong>Consent</strong> — if you opt in to receive studio news, artist updates or exhibition invitations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">04</span>
+      <div>
+        <h2 class="legal-block-title">How We Use Your Data</h2>
+        <div class="legal-block-body">
+          <ul>
+            <li>To confirm and manage your booking or consultation</li>
+            <li>To process deposits and coordinate with the relevant artist</li>
+            <li>To follow up after your session if needed</li>
+            <li>To send studio or exhibition updates, only if you have opted in</li>
+          </ul>
+          <p style="margin-top:14px">
+            We do not use your data for automated decision-making or profiling.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">05</span>
+      <div>
+        <h2 class="legal-block-title">Who We Share It With</h2>
+        <div class="legal-block-body">
+          <p>
+            We do not sell or share your personal data for marketing purposes.
+          </p>
+          <p>
+            Your data may be shared only where necessary:
+          </p>
+          <ul>
+            <li><strong>Resident or guest artists</strong> — to coordinate your appointment or consultation</li>
+            <li><strong>Payment processors</strong> — to handle deposit transactions securely (e.g. Stripe)</li>
+            <li><strong>Technology providers</strong> — hosting, booking and communication tools used to run the studio</li>
+          </ul>
+          <p style="margin-top:14px">
+            All third-party providers are required to handle your data in accordance with GDPR.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">06</span>
+      <div>
+        <h2 class="legal-block-title">How Long We Keep It</h2>
+        <div class="legal-block-body">
+          <p>
+            We retain your personal data only for as long as necessary:
+          </p>
+          <ul>
+            <li><strong>Booking and payment records</strong> — up to 7 years, for tax and accounting purposes</li>
+            <li><strong>Consultation notes</strong> — up to 2 years after your last appointment</li>
+            <li><strong>Marketing communications</strong> — until you withdraw consent</li>
+          </ul>
+          <p style="margin-top:14px">
+            After these periods, your data is securely deleted.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">07</span>
+      <div>
+        <h2 class="legal-block-title">Cookies</h2>
+        <div class="legal-block-body">
+          <p>
+            This website uses only essential cookies — those strictly necessary for the site to function.
+            We do not use tracking, advertising or analytics cookies.
+          </p>
+          <p>
+            If this changes in the future, this policy will be updated and consent will be requested
+            before any non-essential cookies are placed on your device.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">08</span>
+      <div>
+        <h2 class="legal-block-title">Your Rights</h2>
+        <div class="legal-block-body">
+          <p>Under GDPR, you have the right to:</p>
+          <ul>
+            <li><strong>Access</strong> — request a copy of the personal data we hold about you</li>
+            <li><strong>Rectification</strong> — ask us to correct inaccurate or incomplete data</li>
+            <li><strong>Erasure</strong> — request that we delete your data, where legally permitted</li>
+            <li><strong>Restriction</strong> — ask us to limit how we use your data</li>
+            <li><strong>Objection</strong> — object to processing based on legitimate interest</li>
+            <li><strong>Portability</strong> — receive your data in a structured, machine-readable format</li>
+            <li><strong>Withdraw consent</strong> — at any time, where processing is based on consent</li>
+          </ul>
+          <p style="margin-top:14px">
+            To exercise any of these rights, contact us at
+            <a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a>.
+            We will respond within 30 days.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">09</span>
+      <div>
+        <h2 class="legal-block-title">Complaints</h2>
+        <div class="legal-block-body">
+          <p>
+            If you believe we have not handled your data correctly, you have the right to lodge a
+            complaint with the <strong>Data Protection Commission (DPC)</strong> — the Irish supervisory
+            authority for GDPR.
+          </p>
+          <p>
+            <a href="https://www.dataprotection.ie" target="_blank" rel="noopener">dataprotection.ie</a> ·
+            Phone: +353 57 868 4800
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">10</span>
+      <div>
+        <h2 class="legal-block-title">Deposit &amp; Cancellation Policy</h2>
+        <div class="legal-block-body">
+          <p>
+            A deposit is required to secure a consultation slot. This deposit is
+            <strong>refundable</strong> if no design is agreed at the consultation.
+          </p>
+          <p>
+            If you cancel without <strong>48 hours notice</strong>, the deposit is non-refundable —
+            last-minute cancellations leave the artist with an unfillable slot.
+          </p>
+          <p>
+            For larger projects, please give at least <strong>5 days notice</strong> to reschedule.
+            For guest artists, rescheduling may not be possible due to limited availability.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-block reveal">
+      <span class="legal-block-label">11</span>
+      <div>
+        <h2 class="legal-block-title">Updates to This Policy</h2>
+        <div class="legal-block-body">
+          <p>
+            We may update this policy from time to time. The current version will always be
+            available on this page, with the date of the last update shown at the top.
+          </p>
+          <p>
+            If changes are significant, we will notify you directly where we have your contact details.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>
