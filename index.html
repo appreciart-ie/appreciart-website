@@ -308,5 +308,25 @@
   <script src="js/footer.js"></script>
   <script src="js/main.js"></script>
 
+  <script>
+  (function () {
+    const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
+    fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(8000) })
+      .then(r => r.json())
+      .then(data => {
+        (data.artists || []).forEach(artist => {
+          if (!artist.profile_url) return;
+          const link = document.querySelector(`a[href="artist.html?slug=${artist.slug}"]`);
+          if (!link) return;
+          const card = link.closest('.resident-card');
+          if (!card) return;
+          const img = card.querySelector('.resident-photo');
+          if (img) img.src = artist.profile_url;
+        });
+      })
+      .catch(() => {});
+  })();
+  </script>
+
 </body>
 </html>
