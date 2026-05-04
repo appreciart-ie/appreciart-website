@@ -397,9 +397,7 @@
   <script src="js/main.js"></script>
   <script>
   (function () {
-    const CLOUD      = 'dji3wtp20';
-    const BASE_URL   = `https://res.cloudinary.com/${CLOUD}/image/upload`;
-    const INTERNAL   = 'https://appreciart-internal-production-ee3c.up.railway.app';
+    const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
     const slug = new URLSearchParams(window.location.search).get('slug');
     const root = document.getElementById('artist-root');
@@ -409,38 +407,22 @@
       return;
     }
 
-    // Load artist data + portfolio in parallel
+    // Load artist data (includes profile_url + portfolio from backend) + availability in parallel
     Promise.all([
       fetchArtist(slug),
-      fetchPortfolio(slug),
       fetchAvailability(slug),
-      fetchProfile(slug),
-    ]).then(([artist, portfolio, availability, profileImgUrl]) => {
+    ]).then(([artist, availability]) => {
       if (!artist) { renderNotFound(); return; }
-      renderArtist(artist, portfolio, availability, profileImgUrl);
+      renderArtist(artist, availability);
     }).catch(() => renderNotFound());
 
     async function fetchArtist(slug) {
       try {
-        const res  = await fetch(`${INTERNAL}/api/public/artists/${slug}`, { signal: AbortSignal.timeout(10000) });
+        const res  = await fetch(`${INTERNAL}/api/public/artists/${slug}`, { signal: AbortSignal.timeout(12000) });
         if (!res.ok) return null;
         const data = await res.json();
         return data.artist || null;
       } catch { return null; }
-    }
-
-    async function fetchPortfolio(slug) {
-      try {
-        const folder = `appreciart/${slug}/portfolio`;
-        const res    = await fetch(`https://res.cloudinary.com/${CLOUD}/image/list/appreciart:${slug}:portfolio.json`, { signal: AbortSignal.timeout(10000) });
-        if (!res.ok) return [];
-        const data   = await res.json();
-        return (data.resources || []).map(r => ({
-          url:       `${BASE_URL}/q_auto,f_auto,w_800/${r.public_id}`,
-          urlFull:   `${BASE_URL}/q_auto,f_auto/${r.public_id}`,
-          public_id: r.public_id,
-        }));
-      } catch { return []; }
     }
 
     async function fetchAvailability(slug) {
@@ -452,18 +434,17 @@
       } catch { return []; }
     }
 
-    function fetchProfile(slug) {
-      return Promise.resolve(`images/resident-artists/${slug}-profile.webp`);
-    }
-
     function formatDate(dateStr) {
       const d = new Date(dateStr);
       return d.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
-    function renderArtist(artist, portfolio, availability, profileImgUrl) {
+    function renderArtist(artist, availability) {
       // Update page title
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
+
+      const portfolio     = artist.portfolio || [];
+      const profileImgUrl = artist.profile_url || `images/resident-artists/${artist.slug}-profile.webp`;
 
       const styles = (artist.styles || []).map(s =>
         `<span class="artist-style-tag">${s}</span>`
