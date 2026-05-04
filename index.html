@@ -66,7 +66,7 @@
     <div class="residents-grid reveal">
 
       <div class="resident-card">
-        <img class="resident-photo" src="images/resident-artists/moreirart-profile.webp" alt="Moreirart">
+        <img class="resident-photo" data-slug="moreirart" src="images/resident-artists/moreirart-profile.webp" alt="Moreirart">
         <div class="resident-content">
           <h3 class="resident-name">Moreirart</h3>
           <p class="resident-styles">Palleting · Abstract · Figurative</p>
@@ -81,7 +81,7 @@
       </div>
 
       <div class="resident-card">
-        <img class="resident-photo" src="images/resident-artists/marina-profile.webp" alt="Marina Sadra">
+        <img class="resident-photo" data-slug="marina" src="images/resident-artists/marina-profile.webp" alt="Marina Sadra">
         <div class="resident-content">
           <h3 class="resident-name">Marina Sadra</h3>
           <p class="resident-styles">Suminagashi · Abstract · Fluid Art</p>
@@ -96,7 +96,7 @@
       </div>
 
       <div class="resident-card">
-        <img class="resident-photo" src="images/resident-artists/renan-profile.webp" alt="Renan Organicjoy">
+        <img class="resident-photo" data-slug="renan" src="images/resident-artists/renan-profile.webp" alt="Renan Organicjoy">
         <div class="resident-content">
           <h3 class="resident-name">Renan</h3>
           <p class="resident-styles">Organic Abstract · Geometry · Blackwork</p>
@@ -311,20 +311,16 @@
   <script>
   (function () {
     const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
-    fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(8000) })
-      .then(r => r.json())
-      .then(data => {
-        (data.artists || []).forEach(artist => {
-          if (!artist.profile_url) return;
-          const link = document.querySelector(`a[href="artist.html?slug=${artist.slug}"]`);
-          if (!link) return;
-          const card = link.closest('.resident-card');
-          if (!card) return;
-          const img = card.querySelector('.resident-photo');
-          if (img) img.src = artist.profile_url;
-        });
-      })
-      .catch(() => {});
+    document.querySelectorAll('.resident-photo[data-slug]').forEach(img => {
+      const slug = img.dataset.slug;
+      fetch(`${INTERNAL_API}/api/public/artists/${slug}`, { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json())
+        .then(data => {
+          const url = data.artist && data.artist.profile_url;
+          if (url) img.src = url;
+        })
+        .catch(() => {});
+    });
   })();
   </script>
 
