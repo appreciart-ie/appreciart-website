@@ -507,15 +507,14 @@ a   { color: inherit; text-decoration: none; }
 .gallery-layout {
   display: grid;
   grid-template-columns: 1fr 1.6fr;
-  gap: 20px;
+  gap: 32px;
   margin-top: 48px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .gallery-img--tall {
   overflow: hidden;
-  height: 100%;
-  min-height: 560px;
+  aspect-ratio: 2/3;
 }
 
 .gallery-img--tall img {
@@ -531,13 +530,13 @@ a   { color: inherit; text-decoration: none; }
 .gallery-right {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
 }
 
 .gallery-right-top {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 32px;
 }
 
 .gallery-right-top .gallery-img {
