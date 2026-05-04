@@ -399,10 +399,10 @@
     }
 
     .availability-dates-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
     }
 
     .avail-date-cell {
@@ -411,7 +411,21 @@
       overflow: hidden;
       border: 2px solid transparent;
       transition: border-color 0.2s, opacity 0.2s;
-      aspect-ratio: 1/1.1;
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .avail-day-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--off-white);
+      color: var(--black);
     }
 
     .avail-date-cell img {
@@ -848,34 +862,37 @@
       const instaHandle = artist.instagram || '';
       const instaUrl    = instaHandle ? `https://instagram.com/${instaHandle.replace('@', '')}` : '#';
 
-      const today = new Date(); today.setHours(0,0,0,0);
-      const now   = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear  = now.getFullYear();
-      const daysInMonth  = new Date(currentYear, currentMonth + 1, 0).getDate();
-      const monthName    = now.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
-      const bookedDays   = new Set(availability.filter(a => !a.is_available).map(a => new Date(a.date).getDate()));
-      const sortedDates  = [...dateImages].sort((a,b) => a.day - b.day).filter(d => d.day <= daysInMonth);
+      const today       = new Date(); today.setHours(0,0,0,0);
+      const dateImgMap  = new Map(dateImages.map(d => [d.day, d.url]));
 
-      const availHtml = `
-        <p class="availability-month-label">${monthName}</p>
-        ${sortedDates.length > 0
-          ? `<div class="availability-dates-grid">
-              ${sortedDates.map(({ day, url }) => {
-                const cellDate = new Date(currentYear, currentMonth, day);
-                const isPast   = cellDate < today;
-                const isBooked = bookedDays.has(day);
-                const disabled = isPast || isBooked;
-                return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" data-day="${day}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
-                  <img src="${url}" alt="Day ${day}" loading="lazy">
-                  <span class="avail-day-num">${String(day).padStart(2,'0')}</span>
-                </div>`;
-              }).join('')}
-             </div>`
-          : `<p class="availability-empty">No dates available this month.</p>`
-        }
-        <p class="availability-hint">Tap a date to book your session.</p>
-      `;
+      // Group available dates by month
+      const availableSlots = availability.filter(a => a.is_available);
+      const byMonth = {};
+      availableSlots.forEach(a => {
+        const d     = new Date(a.date);
+        const key   = `${d.getFullYear()}-${d.getMonth()}`;
+        const label = d.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
+        if (!byMonth[key]) byMonth[key] = { label, year: d.getFullYear(), month: d.getMonth(), slots: [] };
+        byMonth[key].slots.push({ day: d.getDate(), date: a.date, isPast: d < today });
+      });
+
+      const monthBlocks = Object.values(byMonth)
+        .sort((a,b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
+        .map(({ label, year, month, slots }) => {
+          const cells = slots.sort((a,b) => a.day - b.day).map(({ day, date, isPast }) => {
+            const url = dateImgMap.get(day) || '';
+            return `<div class="avail-date-cell${isPast ? ' avail-disabled' : ''}" data-day="${day}" data-date="${date}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
+              ${url ? `<img src="${url}" alt="Day ${day}" loading="lazy">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
+              <span class="avail-day-num">${String(day).padStart(2,'0')}</span>
+            </div>`;
+          }).join('');
+          return `<p class="availability-month-label">${label}</p>
+                  <div class="availability-dates-grid">${cells}</div>`;
+        }).join('');
+
+      const availHtml = availableSlots.length > 0
+        ? `${monthBlocks}<p class="availability-hint">Tap a date to book your session.</p>`
+        : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a> to enquire.</p>`;
 
       const portfolioHtml = portfolio.length > 0
         ? portfolio.map(img =>
