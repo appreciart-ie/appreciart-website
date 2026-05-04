@@ -877,7 +877,6 @@
             const url = dateImgMap.get(day) || '';
             return `<div class="avail-date-cell${isPast ? ' avail-disabled' : ''}" data-day="${day}" data-date="${date}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
               ${url ? `<img src="${url}" alt="Day ${day}" loading="lazy">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
-              <span class="avail-day-num">${String(day).padStart(2,'0')}</span>
             </div>`;
           }).join('');
           return `<p class="availability-month-label">${label}</p>
