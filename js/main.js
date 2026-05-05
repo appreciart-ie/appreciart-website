@@ -1,11 +1,3 @@
-// Nav scroll — header.js injects #nav
-const navEl = document.getElementById('nav');
-if (navEl) {
-  window.addEventListener('scroll', () => {
-    navEl.classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
-}
-
 // Resident cards — touch toggle (mobile)
 const residentCards = document.querySelectorAll('.resident-card');
 residentCards.forEach(card => {
