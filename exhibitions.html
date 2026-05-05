@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Appreciart IE Exhibitions — World Art Dubai and Carrousel du Louvre.">
+  <title>Exhibitions — Appreciart IE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .exh-hero {
+      padding: calc(var(--sv) + 64px) var(--px) 56px;
+      max-width: var(--max);
+      margin: 0 auto;
+      border-bottom: 1px solid var(--light);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 5vw, 80px);
+      align-items: end;
+    }
+
+    .exh-hero-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 20px;
+    }
+
+    .exh-hero-title {
+      font-size: clamp(40px, 7vw, 88px);
+      font-weight: 900;
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      color: var(--black);
+    }
+
+    .exh-hero-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.8;
+      max-width: 440px;
+    }
+
+    .exh-list {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--px) var(--sv);
+    }
+
+    .exh-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: start;
+      padding: 80px 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .exh-item:last-child { border-bottom: none; }
+
+    .exh-item:nth-child(even) .exh-item-video { order: 2; }
+    .exh-item:nth-child(even) .exh-item-info  { order: 1; }
+
+    .exh-item-iframe-wrap {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: var(--off-white);
+    }
+
+    .exh-item-iframe-wrap iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: none;
+    }
+
+    .exh-item-play {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0);
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .exh-item-play:hover { background: rgba(0,0,0,0.18); }
+
+    .exh-play-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+
+    .exh-play-btn svg { width: 18px; height: 18px; fill: var(--black); margin-left: 3px; }
+    .exh-item-play:hover .exh-play-btn { opacity: 1; transform: scale(1); }
+
+    .exh-item-caption {
+      margin-top: 12px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+    }
+
+    .exh-item-info { padding-top: 8px; }
+
+    .exh-item-index {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .exh-item-title {
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 16px;
+    }
+
+    .exh-item-by {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--mid);
+      letter-spacing: 0.06em;
+      margin-bottom: 28px;
+      display: block;
+    }
+
+    .exh-item-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 420px;
+    }
+
+    .exh-item-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+      border-bottom: 1px solid var(--black);
+      padding-bottom: 2px;
+      transition: opacity 0.2s;
+    }
+
+    .exh-item-link:hover { opacity: 0.5; }
+
+    /* LIGHTBOX */
+    .exh-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .exh-lightbox.open { display: flex; }
+
+    .exh-lightbox-inner {
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+    }
+
+    .exh-lightbox-close {
+      position: absolute;
+      top: -44px;
+      right: 0;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      font-size: 11px;
+      font-family: var(--font);
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .exh-lightbox-close:hover { color: #fff; }
+
+    .exh-lightbox-video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      display: block;
+      background: #000;
+    }
+
+    @media (max-width: 1024px) { .exh-item { gap: 40px; } }
+
+    @media (max-width: 768px) {
+      .exh-hero { grid-template-columns: 1fr; gap: 20px; }
+      .exh-item { grid-template-columns: 1fr; gap: 28px; padding: 48px 0; }
+      .exh-item:nth-child(even) .exh-item-video { order: 0; }
+      .exh-item:nth-child(even) .exh-item-info  { order: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <div class="exh-hero reveal">
+    <div>
+      <span class="exh-hero-label">Appreciart IE · International</span>
+      <h1 class="exh-hero-title">Exhibitions</h1>
+    </div>
+    <p class="exh-hero-desc">
+      Our artists have shown in some of the world's most significant cultural spaces. These are the exhibitions that took Appreciart beyond Dublin.
+    </p>
+  </div>
+
+  <div class="exh-list">
+
+    <div class="exh-item reveal">
+      <div class="exh-item-video">
+        <div class="exh-item-iframe-wrap">
+          <iframe
+            src="https://www.youtube.com/embed/I3u4ZpVVj88?si=SdquNMylKJwyuce_&rel=0&modestbranding=1"
+            title="World Art Dubai — Exhibition by Thiago Moreira"
+            frameborder="0"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+          <div class="exh-item-play" data-video="https://www.youtube.com/embed/I3u4ZpVVj88?si=SdquNMylKJwyuce_&rel=0&modestbranding=1&autoplay=1">
+            <div class="exh-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          </div>
+        </div>
+        <p class="exh-item-caption">Dubai · 2023</p>
+      </div>
+      <div class="exh-item-info">
+        <span class="exh-item-index">01</span>
+        <h2 class="exh-item-title">World Art<br>Dubai</h2>
+        <span class="exh-item-by">Thiago Moreira &amp; Marcell Khiesz</span>
+        <p class="exh-item-desc">Thiago Moreira and Marcell Khiesz showed at World Art Dubai — one of the region's largest international art fairs. Two artists, two distinct approaches, one shared stage.</p>
+        <a class="exh-item-link" href="https://youtu.be/I3u4ZpVVj88?si=semAJBvsybhfXDFU" target="_blank" rel="noopener">
+          Watch on YouTube
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="exh-item reveal">
+      <div class="exh-item-video">
+        <div class="exh-item-iframe-wrap">
+          <iframe
+            src="https://www.youtube.com/embed/cHKBk0mnZC4?si=ccfGnHucLX9t0a20&rel=0&modestbranding=1"
+            title="Carrousel du Louvre — Exhibition by Thiago Moreira"
+            frameborder="0"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+          <div class="exh-item-play" data-video="https://www.youtube.com/embed/cHKBk0mnZC4?si=ccfGnHucLX9t0a20&rel=0&modestbranding=1&autoplay=1">
+            <div class="exh-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          </div>
+        </div>
+        <p class="exh-item-caption">Paris · 2022</p>
+      </div>
+      <div class="exh-item-info">
+        <span class="exh-item-index">02</span>
+        <h2 class="exh-item-title">Carrousel<br>du Louvre</h2>
+        <span class="exh-item-by">Thiago Moreira</span>
+        <p class="exh-item-desc">Thiago Moreira's piece <em>Unlock</em> was exhibited at the Carrousel du Louvre — a space that sits beneath one of the most visited museums in the world. The work went from Dublin to Paris.</p>
+        <a class="exh-item-link" href="https://youtu.be/cHKBk0mnZC4?si=K-jho_dQucEcGCEj" target="_blank" rel="noopener">
+          Watch on YouTube
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="exh-lightbox" id="exhLightbox" role="dialog" aria-modal="true" aria-labelledby="exhLightboxTitle">
+    <div class="exh-lightbox-inner">
+      <button class="exh-lightbox-close" id="exhClose" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Close
+      </button>
+      <iframe class="exh-lightbox-video" id="exhLightboxVideo" src="" title="Exhibition video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+  (function () {
+    document.querySelectorAll('.exh-item-play').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const src = btn.dataset.video;
+        if (!src) return;
+        document.getElementById('exhLightboxVideo').src = src;
+        document.getElementById('exhLightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    function closeLightbox() {
+      document.getElementById('exhLightbox').classList.remove('open');
+      document.getElementById('exhLightboxVideo').src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('exhClose').addEventListener('click', closeLightbox);
+    document.getElementById('exhLightbox').addEventListener('click', e => {
+      if (e.target === document.getElementById('exhLightbox')) closeLightbox();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+  })();
+  </script>
+
+</body>
+</html>
