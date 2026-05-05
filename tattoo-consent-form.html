@@ -62,7 +62,8 @@
 
     .consent-form-sidebar {
       position: sticky;
-      top: 100px;
+      top: 120px;
+      align-self: start;
     }
 
     .consent-form-sidebar-title {
@@ -606,7 +607,7 @@
             });
           }
         });
-      }, { threshold: 0.3 });
+      }, { threshold: 0.1, rootMargin: '-10% 0px -60% 0px' });
 
       sections.forEach(s => {
         const el = document.getElementById(`section-${s}`);
