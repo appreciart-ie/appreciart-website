@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Purchase confirmed — Appreciart IE Gallery">
+  <title>Purchase Confirmed — Appreciart IE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .success-page {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+    }
+
+    .success-inner {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+    }
+
+    .success-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 16px;
+    }
+
+    .success-title {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      margin-bottom: 20px;
+      line-height: 1;
+    }
+
+    .success-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      margin-bottom: 40px;
+    }
+
+    .success-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .success-divider {
+      width: 48px;
+      height: 1px;
+      background: var(--light);
+      margin: 40px auto;
+    }
+
+    .success-contact {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      line-height: 1.75;
+    }
+
+    .success-contact a {
+      color: var(--black);
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <div class="success-page">
+    <div class="success-inner">
+      <div class="success-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+
+      <span class="success-label">Appreciart IE · Gallery</span>
+      <h1 class="success-title">Purchase<br>Confirmed</h1>
+      <p class="success-body">
+        Your payment has been received. A confirmation has been sent to your email.<br><br>
+        We'll be in touch shortly with shipping details and handling information for your work.
+      </p>
+
+      <div class="success-actions">
+        <a href="gallery.html" class="btn btn-primary">Back to Gallery</a>
+        <a href="index.html" class="btn btn-secondary">Go to Homepage</a>
+      </div>
+
+      <div class="success-divider"></div>
+
+      <p class="success-contact">
+        Questions about your order?<br>
+        Contact us at <a href="mailto:appreciartie@gmail.com">appreciartie@gmail.com</a>
+        or via <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a>.
+      </p>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

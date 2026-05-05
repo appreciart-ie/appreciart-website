@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Appreciart IE Gallery — Original works by resident and guest artists. Available to collect.">
+  <title>Gallery — Appreciart IE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* HERO */
+    .gallery-hero {
+      padding: calc(var(--sv) + 64px) var(--px) 56px;
+      max-width: var(--max);
+      margin: 0 auto;
+      border-bottom: 1px solid var(--light);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 5vw, 80px);
+      align-items: end;
+    }
+
+    .gallery-hero-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 20px;
+    }
+
+    .gallery-hero-title {
+      font-size: clamp(40px, 7vw, 88px);
+      font-weight: 900;
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      color: var(--black);
+    }
+
+    .gallery-hero-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.8;
+      max-width: 440px;
+    }
+
+    /* GRID */
+    .gallery-works {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 64px var(--px) var(--sv);
+    }
+
+    .gallery-works-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+
+    .gallery-work-card {
+      cursor: pointer;
+      position: relative;
+      background: var(--white);
+      overflow: hidden;
+    }
+
+    .gallery-work-img-wrap {
+      position: relative;
+      aspect-ratio: 4/5;
+      overflow: hidden;
+    }
+
+    .gallery-work-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .gallery-work-card:hover .gallery-work-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    .gallery-work-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      transition: background 0.4s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gallery-work-card:hover .gallery-work-overlay {
+      background: rgba(0,0,0,0.18);
+    }
+
+    .gallery-work-view {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.6);
+      padding: 10px 20px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .gallery-work-card:hover .gallery-work-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gallery-work-info {
+      padding: 20px 24px 24px;
+      background: var(--white);
+      border-top: 1px solid var(--light);
+    }
+
+    .gallery-work-artist {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .gallery-work-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+
+    .gallery-work-price {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+    }
+
+    /* LIGHTBOX */
+    .gallery-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .gallery-lightbox.open { display: flex; }
+
+    .gallery-lightbox-inner {
+      background: var(--white);
+      width: 100%;
+      max-width: 960px;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+    }
+
+    .gallery-lightbox-img-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--off-white);
+    }
+
+    .gallery-lightbox-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      max-height: 80vh;
+    }
+
+    .gallery-lightbox-details {
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .gallery-lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--mid);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+
+    .gallery-lightbox-close:hover { color: var(--black); }
+
+    .gallery-lightbox-artist {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .gallery-lightbox-title {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .gallery-lightbox-medium {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .gallery-lightbox-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      flex: 1;
+    }
+
+    .gallery-lightbox-buy {
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid var(--light);
+    }
+
+    .gallery-lightbox-price {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--black);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .gallery-buy-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .gallery-buy-btn:hover { opacity: 0.8; }
+    .gallery-buy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .gallery-buy-note {
+      font-size: 10px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-top: 10px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .gallery-buy-error {
+      font-size: 11px;
+      color: #c0392b;
+      margin-top: 8px;
+      display: none;
+      text-align: center;
+    }
+
+    .gallery-buy-error.visible { display: block; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .gallery-lightbox-inner { grid-template-columns: 1fr; max-width: 560px; }
+      .gallery-lightbox-img-wrap img { max-height: 50vh; }
+      .gallery-lightbox-details { padding: 32px 28px 36px; }
+    }
+
+    @media (max-width: 768px) {
+      .gallery-hero { grid-template-columns: 1fr; gap: 20px; }
+      .gallery-works-grid { grid-template-columns: 1fr; }
+      .gallery-lightbox-details { padding: 24px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <!-- HERO -->
+  <div class="gallery-hero reveal">
+    <div>
+      <span class="gallery-hero-label">Appreciart IE · Curated Works</span>
+      <h1 class="gallery-hero-title">The Gallery</h1>
+    </div>
+    <p class="gallery-hero-desc">
+      Original works by our resident and guest artists — available to view and collect. Each piece ships worldwide.
+    </p>
+  </div>
+
+  <!-- WORKS GRID -->
+  <div class="gallery-works">
+    <div class="gallery-works-grid">
+
+      <!-- Duality -->
+      <div class="gallery-work-card reveal"
+           data-price-id="price_1RZemUAXCLzSUHlff7PEqRMV"
+           data-title="Duality"
+           data-artist="Kadu Antonioli"
+           data-price="€1,500"
+           data-medium="Acrylic and coffee on canvas — 80 × 100cm, 2023"
+           data-desc="Duality sets sun against moon, sky against earth. The tension between those forces isn't resolved — it's held. Contrast here isn't conflict. It's structure."
+           data-img="images/gallery/duality.webp">
+        <div class="gallery-work-img-wrap">
+          <img src="images/gallery/duality.webp" alt="Duality — Kadu Antonioli" loading="lazy" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+          <div class="gallery-work-overlay">
+            <span class="gallery-work-view">View Work</span>
+          </div>
+        </div>
+        <div class="gallery-work-info">
+          <span class="gallery-work-artist">Kadu Antonioli</span>
+          <h3 class="gallery-work-title">Duality</h3>
+          <p class="gallery-work-price">€1,500</p>
+        </div>
+      </div>
+
+      <!-- Grounding & Connection -->
+      <div class="gallery-work-card reveal"
+           data-price-id="price_1RZe3EAXCLzSUHlfcpfoAtrX"
+           data-title="Grounding &amp; Connection"
+           data-artist="Marina Sadra"
+           data-price="€1,000"
+           data-medium="Acrylic on canvas — 50 × 70cm, 2024"
+           data-desc="Grounding &amp; Connection draws from patterns Marina found in the earth — riverbeds, surfaces worn by water over time. The work sits with that slow movement. Nothing here is urgent. The forms build a quiet that pulls you in."
+           data-img="images/gallery/grounding-connection.webp">
+        <div class="gallery-work-img-wrap">
+          <img src="images/gallery/grounding-connection.webp" alt="Grounding and Connection — Marina Sadra" loading="lazy" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+          <div class="gallery-work-overlay">
+            <span class="gallery-work-view">View Work</span>
+          </div>
+        </div>
+        <div class="gallery-work-info">
+          <span class="gallery-work-artist">Marina Sadra</span>
+          <h3 class="gallery-work-title">Grounding &amp; Connection</h3>
+          <p class="gallery-work-price">€1,000</p>
+        </div>
+      </div>
+
+      <!-- The Missing Piece -->
+      <div class="gallery-work-card reveal"
+           data-price-id="price_1RZZg6AXCLzSUHlfUeFu5Yu1"
+           data-title="The Missing Piece"
+           data-artist="Thiago Moreira"
+           data-price="€1,500"
+           data-medium="Acrylic on canvas — 70 × 90cm, 2023"
+           data-desc="The Missing Piece started with the work before it — Assembling. Thiago kept looking at the gaps. That became the question: what if we are all pieces, incomplete, looking for where we fit? This work is that question, left open."
+           data-img="images/gallery/missing-piece.webp">
+        <div class="gallery-work-img-wrap">
+          <img src="images/gallery/missing-piece.webp" alt="The Missing Piece — Thiago Moreira" loading="lazy" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+          <div class="gallery-work-overlay">
+            <span class="gallery-work-view">View Work</span>
+          </div>
+        </div>
+        <div class="gallery-work-info">
+          <span class="gallery-work-artist">Thiago Moreira</span>
+          <h3 class="gallery-work-title">The Missing Piece</h3>
+          <p class="gallery-work-price">€1,500</p>
+        </div>
+      </div>
+
+      <!-- Assembling -->
+      <div class="gallery-work-card reveal"
+           data-price-id="price_1RZYknAXCLzSUHlfyXJpNvlY"
+           data-title="Assembling"
+           data-artist="Thiago Moreira"
+           data-price="€4,000"
+           data-medium="Acrylic on canvas — 50 × 70cm, 2023"
+           data-desc="Assembling began with one idea: that we are all pieces in a puzzle, each shaped to connect with others. What the work revealed was simpler than expected — pieces that don't fit aren't broken. They are just in the wrong place."
+           data-img="images/gallery/assembling.webp">
+        <div class="gallery-work-img-wrap">
+          <img src="images/gallery/assembling.webp" alt="Assembling — Thiago Moreira" loading="lazy" onerror="this.parentElement.style.background='var(--light)';this.style.display='none'">
+          <div class="gallery-work-overlay">
+            <span class="gallery-work-view">View Work</span>
+          </div>
+        </div>
+        <div class="gallery-work-info">
+          <span class="gallery-work-artist">Thiago Moreira</span>
+          <h3 class="gallery-work-title">Assembling</h3>
+          <p class="gallery-work-price">€4,000</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="gallery-lightbox" id="galleryLightbox" role="dialog" aria-modal="true" aria-labelledby="lightboxTitle">
+    <div class="gallery-lightbox-inner">
+      <button class="gallery-lightbox-close" id="lightboxClose" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+
+      <div class="gallery-lightbox-img-wrap">
+        <img id="lightboxImg" src="" alt="">
+      </div>
+
+      <div class="gallery-lightbox-details">
+        <div>
+          <span class="gallery-lightbox-artist" id="lightboxArtist"></span>
+          <h2 class="gallery-lightbox-title" id="lightboxTitle"></h2>
+          <p class="gallery-lightbox-medium" id="lightboxMedium"></p>
+          <p class="gallery-lightbox-desc" id="lightboxDesc"></p>
+        </div>
+
+        <div class="gallery-lightbox-buy">
+          <span class="gallery-lightbox-price" id="lightboxPrice"></span>
+          <button class="gallery-buy-btn" id="galleryBuyBtn">Purchase this Work</button>
+          <p class="gallery-buy-error" id="galleryBuyError"></p>
+          <p class="gallery-buy-note">Secure checkout via Stripe. Ships worldwide. Payment in full required.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+
+    const lightbox    = document.getElementById('galleryLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const buyBtn      = document.getElementById('galleryBuyBtn');
+    const buyError    = document.getElementById('galleryBuyError');
+
+    let currentPriceId = null;
+
+    // Open lightbox
+    document.querySelectorAll('.gallery-work-card').forEach(card => {
+      card.addEventListener('click', () => {
+        currentPriceId = card.dataset.priceId;
+
+        lightboxImg.src = card.dataset.img || '';
+        lightboxImg.alt = card.dataset.title || '';
+        document.getElementById('lightboxArtist').textContent  = card.dataset.artist || '';
+        document.getElementById('lightboxTitle').textContent   = card.dataset.title  || '';
+        document.getElementById('lightboxMedium').textContent  = card.dataset.medium || '';
+        document.getElementById('lightboxDesc').textContent    = card.dataset.desc   || '';
+        document.getElementById('lightboxPrice').textContent   = card.dataset.price  || '';
+
+        buyBtn.disabled      = false;
+        buyBtn.textContent   = 'Purchase this Work';
+        buyError.classList.remove('visible');
+
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    // Close lightbox
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+      lightboxImg.src = '';
+      currentPriceId  = null;
+    }
+
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    // Buy — POST to backend → redirect to Stripe Checkout
+    buyBtn.addEventListener('click', async () => {
+      if (!currentPriceId) return;
+
+      buyBtn.disabled    = true;
+      buyBtn.textContent = 'Redirecting to checkout...';
+      buyError.classList.remove('visible');
+
+      try {
+        const res = await fetch(`${INTERNAL}/api/public/gallery/checkout`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ price_id: currentPriceId }),
+          signal:  AbortSignal.timeout(15000),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Checkout failed');
+
+        window.location.href = data.url;
+      } catch (err) {
+        buyError.textContent = err.message || 'Something went wrong. Please try again.';
+        buyError.classList.add('visible');
+        buyBtn.disabled    = false;
+        buyBtn.textContent = 'Purchase this Work';
+      }
+    });
+  })();
+  </script>
+
+</body>
+</html>
