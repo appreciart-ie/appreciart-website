@@ -593,26 +593,30 @@
       setupConditional('has_medications', 'cond-medications');
       setupConditional('has_bloodborne',  'cond-bloodborne');
 
-      // Progress sidebar
+      // Progress sidebar — scroll-based active detection
       const sections = ['personal', 'health', 'booking', 'signature'];
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            const id = e.target.id.replace('section-', '');
-            sections.forEach(s => {
-              const step = document.getElementById(`step-${s}`);
-              if (!step) return;
-              step.classList.toggle('active', s === id);
-              step.classList.toggle('done', sections.indexOf(s) < sections.indexOf(id));
-            });
+
+      function updateProgress() {
+        const scrollY    = window.scrollY + window.innerHeight * 0.35;
+        let activeIdx    = 0;
+
+        sections.forEach((s, i) => {
+          const el = document.getElementById(`section-${s}`);
+          if (el && el.getBoundingClientRect().top + window.scrollY <= scrollY) {
+            activeIdx = i;
           }
         });
-      }, { threshold: 0.1, rootMargin: '-10% 0px -60% 0px' });
 
-      sections.forEach(s => {
-        const el = document.getElementById(`section-${s}`);
-        if (el) observer.observe(el);
-      });
+        sections.forEach((s, i) => {
+          const step = document.getElementById(`step-${s}`);
+          if (!step) return;
+          step.classList.toggle('active', i === activeIdx);
+          step.classList.toggle('done',   i < activeIdx);
+        });
+      }
+
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
 
       // Error helpers
       function showError(id, msg) {
