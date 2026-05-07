@@ -79,6 +79,18 @@
         btn.addEventListener('click', () => selectArtist(artist));
         artistSelector.appendChild(btn);
 
+        // Fetch profile_url from individual endpoint
+        fetch(`${INTERNAL_API}/api/public/artists/${artist.slug}`, { signal: AbortSignal.timeout(8000) })
+          .then(r => r.json())
+          .then(data => {
+            const url = data.artist && data.artist.profile_url;
+            if (url) {
+              const img = btn.querySelector('img');
+              if (img) img.src = url;
+            }
+          })
+          .catch(() => {});
+
         if (preselect && artist.slug === preselect) {
           selectArtist(artist, btn);
         }
