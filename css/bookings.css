@@ -1,3 +1,6 @@
+.form-pot { display: none; visibility: hidden; position: absolute; }
+#paymentError { margin-bottom: 12px; }
+
 /* ─── BOOKING PAGE ─── */
     .booking-page {
       min-height: 100vh;
