@@ -1,0 +1,710 @@
+
+    /* LOADING */
+    .artist-loading {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+    }
+
+    /* HERO */
+    .artist-hero {
+      padding: calc(var(--sv) + 24px) var(--px) 40px;
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: clamp(48px, 7vw, 120px);
+      align-items: start;
+    }
+
+    /* LEFT — profile card */
+    .artist-profile-card {
+      position: sticky;
+      top: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .artist-profile-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--light);
+      border-bottom: none;
+      margin-bottom: -1px;
+    }
+
+    .artist-profile-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: grayscale(15%);
+      transition: filter 0.4s;
+    }
+
+    .artist-profile-img-wrap:hover .artist-profile-img { filter: grayscale(0%); }
+
+    .artist-profile-caption {
+      background: var(--black);
+      color: var(--white);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .artist-profile-caption-type {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+    }
+
+    .artist-profile-caption-location {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* RIGHT — info */
+    .artist-info { padding-top: 8px; }
+
+    .artist-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .artist-name {
+      font-size: clamp(48px, 8vw, 100px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      margin-bottom: 24px;
+    }
+
+    .artist-styles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .artist-style-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border: 1px solid var(--light);
+      padding: 6px 14px;
+    }
+
+    .artist-bio {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 540px;
+      margin-bottom: 40px;
+    }
+
+    .artist-bio strong { color: var(--black); font-weight: 700; }
+
+    .artist-insta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--sec-grey);
+      transition: color 0.2s;
+      text-decoration: none;
+      margin-bottom: 32px;
+    }
+
+    .artist-insta:hover { color: var(--black); }
+    .artist-insta svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* DIVIDER */
+    .artist-divider {
+      max-width: var(--max);
+      margin: 0 auto var(--sv);
+      padding: 0 var(--px);
+    }
+
+    .artist-divider hr {
+      border: none;
+      border-top: 1px solid var(--light);
+    }
+
+    /* PORTFOLIO */
+    .artist-portfolio {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--px) var(--sv);
+    }
+
+    .artist-section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .artist-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .artist-section-count {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+    }
+
+    /* Masonry grid */
+    .portfolio-grid {
+      columns: 4;
+      column-gap: 4px;
+    }
+
+    .portfolio-item {
+      break-inside: avoid;
+      margin-bottom: 4px;
+      overflow: hidden;
+      display: block;
+      cursor: zoom-in;
+      position: relative;
+    }
+
+    .portfolio-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .portfolio-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      transition: background 0.4s ease;
+      pointer-events: none;
+    }
+
+    .portfolio-item:hover::after {
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .portfolio-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .portfolio-item-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .portfolio-item-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: rgba(255,255,255,0.9);
+    }
+
+    .portfolio-item:hover .portfolio-item-icon {
+      opacity: 1;
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 24px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .lightbox-close:hover { color: var(--white); }
+
+    /* AVAILABILITY */
+    .artist-availability-inline {
+      margin-top: 8px;
+    }
+
+    .availability-empty {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-top: 20px;
+    }
+
+    .availability-dates {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .availability-date {
+      padding: 10px 20px;
+      border: 1px solid var(--light);
+      background: var(--white);
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--black);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+
+    .availability-date:hover {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    /* CTA */
+    .artist-cta {
+      background: var(--black);
+      color: var(--white);
+      padding: var(--sv) var(--px);
+      text-align: center;
+    }
+
+    .artist-cta .section-title { color: var(--white); margin-bottom: 12px; }
+    .artist-cta .section-body  { color: rgba(255,255,255,0.5); margin: 0 auto 36px; }
+    .artist-cta .section-label { color: var(--sec-grey); }
+
+    .artist-cta .btn-primary {
+      background: var(--white);
+      color: var(--black);
+      border-color: var(--white);
+    }
+
+    .artist-cta .btn-primary:hover {
+      background: transparent;
+      color: var(--white);
+    }
+
+    /* NOT FOUND */
+    .artist-not-found {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      padding: var(--px);
+    }
+
+    .artist-not-found h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .artist-not-found p {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+    }
+
+    /* AVAILABILITY GRID */
+    .availability-month-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 20px;
+    }
+
+    .availability-dates-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .avail-date-cell {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, opacity 0.2s;
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .avail-day-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--off-white);
+      color: var(--black);
+    }
+
+    .avail-date-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .avail-date-cell:hover img { transform: scale(1.06); }
+    .avail-date-cell:hover { border-color: var(--black); }
+
+    .avail-date-cell.avail-disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .avail-date-cell.avail-disabled::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.35);
+    }
+
+    .avail-date-cell.avail-disabled .avail-lock {
+      display: flex;
+    }
+
+    .avail-lock {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .avail-lock svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--black);
+      opacity: 0.7;
+    }
+
+    .avail-day-num {
+      position: absolute;
+      bottom: 4px;
+      right: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--white);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+
+    .availability-hint {
+      font-size: 10px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-top: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .availability-month-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 14px;
+      margin-top: 4px;
+    }
+
+    /* BOOKING MODAL */
+    .booking-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 400;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .booking-modal-overlay.open { display: flex; }
+
+    .booking-modal {
+      background: var(--white);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .booking-modal-header {
+      padding: 28px 28px 0;
+      border-bottom: 1px solid var(--light);
+      padding-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .booking-modal-title {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .booking-modal-subtitle {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--mid);
+      margin-top: 4px;
+    }
+
+    .booking-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--mid);
+      flex-shrink: 0;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .booking-modal-close:hover { color: var(--black); }
+
+    .booking-modal-body { padding: 24px 28px 28px; }
+
+    .bm-group { margin-bottom: 16px; }
+
+    .bm-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 7px;
+    }
+
+    .bm-input,
+    .bm-textarea,
+    .bm-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--light);
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+      appearance: none;
+      box-sizing: border-box;
+    }
+
+    .bm-input:focus,
+    .bm-textarea:focus,
+    .bm-select:focus { border-color: var(--black); }
+
+    .bm-textarea { resize: vertical; min-height: 72px; }
+
+    .bm-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .bm-error {
+      font-size: 11px;
+      color: #c0392b;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .bm-error.visible { display: block; }
+
+    .bm-divider {
+      border: none;
+      border-top: 1px solid var(--light);
+      margin: 20px 0;
+    }
+
+    .bm-deposit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .bm-deposit-label {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--mid);
+    }
+
+    .bm-deposit-amount {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .bm-deposit-note {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    #bm-payment-element { margin-bottom: 16px; }
+
+    .bm-payment-error {
+      font-size: 11px;
+      color: #c0392b;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .bm-payment-error.visible { display: block; }
+
+    .bm-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .bm-btn:hover { opacity: 0.85; }
+    .bm-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .bm-success {
+      padding: 40px 28px;
+      text-align: center;
+      display: none;
+    }
+
+    .bm-success.visible { display: block; }
+
+    .bm-success-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .bm-success-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .bm-success-body {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .artist-hero { grid-template-columns: 280px 1fr; }
+      .portfolio-grid { columns: 3; }
+    }
+
+    @media (max-width: 768px) {
+      .artist-hero {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-top: calc(var(--sv) + 48px);
+      }
+
+      .artist-profile-card { position: static; }
+      .artist-profile-img  { aspect-ratio: 3/4; object-position: center 20%; }
+      .portfolio-grid      { columns: 2; }
+    }
+
+    @media (max-width: 480px) {
+      .portfolio-grid { columns: 2; column-gap: 3px; }
+      .portfolio-item { margin-bottom: 3px; }
+    }
+
