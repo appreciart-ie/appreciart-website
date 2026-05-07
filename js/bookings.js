@@ -69,9 +69,10 @@
         const btn = document.createElement('button');
         btn.className = 'artist-btn';
         btn.dataset.slug = artist.slug;
+        const profileSrc = artist.profile_url || `images/resident-artists/${artist.slug}-profile.webp`;
         btn.innerHTML = `
-          <img src="images/resident-artists/${artist.slug}-profile.webp"
-               onerror="this.style.display='none'"
+          <img src="${profileSrc}"
+               onerror="this.src='images/resident-artists/${artist.slug}-profile.webp';this.onerror=null;"
                alt="${artist.name}">
           <span class="artist-btn-name">${artist.name}</span>
         `;
