@@ -1,0 +1,183 @@
+
+    .about-hero {
+      padding: calc(var(--sv) + 80px) var(--px) 0;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .about-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .about-hero-title {
+      font-size: clamp(40px, 7vw, 96px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      margin-bottom: 24px;
+      white-space: nowrap;
+    }
+
+    .about-hero-tagline {
+      font-size: clamp(14px, 1.4vw, 17px);
+      font-weight: 300;
+      color: var(--mid);
+      max-width: 480px;
+      line-height: 1.75;
+      margin-bottom: 48px;
+    }
+
+    .about-hero-image {
+      width: 100%;
+      aspect-ratio: 21/9;
+      object-fit: cover;
+      object-position: center 40%;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .about-hero-caption {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: var(--sv);
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+    }
+
+    .about-content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--px) var(--sv);
+    }
+
+    .about-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--light);
+      margin: clamp(48px, 6vw, 80px) 0;
+    }
+
+    .about-block {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: start;
+    }
+
+    .about-block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      padding-top: 6px;
+      position: sticky;
+      top: 100px;
+    }
+
+    .about-block-title {
+      font-size: clamp(22px, 3vw, 36px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.05;
+      color: var(--black);
+      margin-bottom: 24px;
+    }
+
+    .about-block-text {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 600px;
+    }
+
+    .about-block-text strong { color: var(--black); font-weight: 700; }
+    .about-block-text p + p  { margin-top: 18px; }
+
+    .timeline { margin-top: 36px; border-top: 1px solid var(--light); }
+
+    .timeline-event {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .timeline-date {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      white-space: nowrap;
+      min-width: 100px;
+    }
+
+    .timeline-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.65;
+    }
+
+    .about-cta {
+      background: var(--black);
+      color: var(--white);
+      padding: var(--sv) var(--px);
+      text-align: center;
+    }
+
+    .about-cta .section-label { color: var(--sec-grey); }
+    .about-cta .section-title { color: var(--white); margin-bottom: 12px; }
+    .about-cta .section-body  { color: rgba(255,255,255,0.5); margin: 0 auto 36px; }
+
+    .about-cta .btn-primary {
+      background: var(--white);
+      color: var(--black);
+      border-color: var(--white);
+    }
+
+    .about-cta .btn-primary:hover {
+      background: transparent;
+      color: var(--white);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.6);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    @media (max-width: 1024px) {
+      .about-block { grid-template-columns: 160px 1fr; }
+      .about-hero-title { white-space: normal; }
+    }
+
+    @media (max-width: 768px) {
+      .about-hero-image { aspect-ratio: 16/9; border-radius: 12px; }
+      .about-block { grid-template-columns: 1fr; gap: 14px; }
+      .about-block-label { position: static; }
+    }
+
+    @media (max-width: 480px) {
+      .about-hero-image { aspect-ratio: 4/3; }
+    }
