@@ -1,0 +1,77 @@
+    .success-page {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+    }
+
+    .success-inner {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+    }
+
+    .success-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--sec-grey);
+      margin-bottom: 16px;
+    }
+
+    .success-title {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      margin-bottom: 20px;
+      line-height: 1;
+    }
+
+    .success-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      margin-bottom: 40px;
+    }
+
+    .success-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .success-divider {
+      width: 48px;
+      height: 1px;
+      background: var(--light);
+      margin: 40px auto;
+    }
+
+    .success-contact {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      line-height: 1.75;
+    }
+
+    .success-contact a {
+      color: var(--black);
+      font-weight: 400;
+    }
