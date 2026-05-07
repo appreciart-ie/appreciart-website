@@ -73,4 +73,16 @@
     mobileNav.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
   };
+
+  // Close mobile nav on link click
+  mobileNav.querySelectorAll('.mobile-nav-link').forEach(a => {
+    a.addEventListener('click', () => window.closeMobile());
+  });
+
+  // Close mobile nav on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && mobileNav.classList.contains('open')) {
+      window.closeMobile();
+    }
+  });
 })();

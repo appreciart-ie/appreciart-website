@@ -10,7 +10,7 @@
 
   const html = `
     <footer class="footer">
-      <div class="footer-wave" style="background:${waveBg};${waveColor === waveBg ? 'height:0;overflow:hidden;' : ''}">
+      <div class="footer-wave" id="footerWave">
         <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,72 C60,90 160,18 300,52 C440,86 500,8 660,38 C800,64 900,6 1060,42 C1180,68 1320,16 1440,44 L1440,0 L0,0 Z" fill="${waveColor}"/>
         </svg>
@@ -62,5 +62,14 @@
     container.innerHTML = html;
   } else {
     document.body.insertAdjacentHTML('beforeend', html);
+  }
+
+  const wave = document.getElementById('footerWave');
+  if (wave) {
+    wave.style.setProperty('background', waveBg);
+    if (waveColor === waveBg) {
+      wave.style.setProperty('height', '0');
+      wave.style.setProperty('overflow', 'hidden');
+    }
   }
 })();
