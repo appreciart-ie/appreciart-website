@@ -1,0 +1,324 @@
+
+    .consent-hero {
+      padding: calc(var(--sv) + 80px) var(--px) var(--sv);
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: end;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .consent-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .consent-hero-title {
+      font-size: clamp(36px, 6vw, 80px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+
+    .consent-hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      max-width: 400px;
+      align-self: end;
+    }
+
+    .consent-form-wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--sv) var(--px);
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: start;
+    }
+
+    .consent-form-sidebar {
+      position: sticky;
+      top: 120px;
+      align-self: start;
+    }
+
+    .consent-form-sidebar-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .consent-progress { display: flex; flex-direction: column; gap: 8px; }
+
+    .consent-progress-step {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: color 0.2s;
+    }
+
+    .consent-progress-step.active { color: var(--black); font-weight: 700; }
+    .consent-progress-step.done   { color: var(--mid); }
+
+    .consent-progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--light);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .consent-progress-step.active .consent-progress-dot { background: var(--black); }
+    .consent-progress-step.done   .consent-progress-dot { background: var(--mid); }
+
+    .consent-form { display: flex; flex-direction: column; gap: 0; }
+
+    .form-section {
+      padding: clamp(32px, 4vw, 48px) 0;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .form-section:last-of-type { border-bottom: none; }
+
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--black);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-row.full { grid-template-columns: 1fr; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .form-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .form-label span {
+      color: var(--sec-grey);
+      font-weight: 300;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--black);
+      background: var(--off-white);
+      border: 1px solid transparent;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--black);
+      background: var(--white);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error { border-color: #c0392b; }
+
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23636363' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+
+    .form-radio-group { display: flex; gap: 8px; }
+
+    .form-radio-label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      background: var(--off-white);
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .form-radio-label input { display: none; }
+    .form-radio-label:has(input:checked) { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    .form-conditional { margin-top: 12px; display: none; }
+    .form-conditional.visible { display: block; }
+
+    .form-error { font-size: 11px; color: #c0392b; margin-top: 4px; display: none; }
+    .form-error.visible { display: block; }
+
+    .consent-notice {
+      background: var(--off-white);
+      padding: 24px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
+    .consent-notice strong { color: var(--black); font-weight: 700; }
+
+    /* Checkbox toggle */
+    .form-check-group { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+
+    .form-check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+
+    .form-check-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--black);
+      cursor: pointer;
+    }
+
+    .signature-hint {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .form-submit-row {
+      padding-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .form-submit-btn {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 16px 48px;
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--black);
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .form-submit-btn:hover:not(:disabled) { background: transparent; color: var(--black); }
+    .form-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .form-submit-note {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      line-height: 1.6;
+      max-width: 300px;
+    }
+
+    .consent-success {
+      display: none;
+      text-align: center;
+      padding: var(--sv) var(--px);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .consent-success.visible { display: block; }
+
+    .consent-success-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 24px;
+      color: var(--black);
+    }
+
+    .consent-success-title {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .consent-success-text {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
+    .form-pot { display: none; visibility: hidden; }
+
+    @media (max-width: 1024px) {
+      .consent-form-wrap { grid-template-columns: 160px 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .consent-hero { grid-template-columns: 1fr; gap: 20px; }
+      .consent-form-wrap { grid-template-columns: 1fr; }
+      .consent-form-sidebar { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
