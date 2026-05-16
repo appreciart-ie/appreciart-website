@@ -6,6 +6,7 @@
   const links = [
     { href: '/#artists',        label: 'Artists' },
     { href: 'bookings.html',    label: 'Bookings' },
+    { href: 'login.html',       label: 'Login' },
     { href: 'gallery.html',     label: 'Gallery' },
     { href: 'exhibitions.html', label: 'Exhibitions' },
     { href: 'guest-artist.html', label: 'Be a Guest' },
