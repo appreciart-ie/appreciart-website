@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 (function () {
   const form = document.getElementById('loginForm');
@@ -66,22 +66,15 @@
         // If API not reachable, try mock fallback
         data = await mockAuth(payload);
       }
-
-      // Store session token in sessionStorage (not persistent by default)
-      if (data && data.token) {
-        try {
-          if (remember) localStorage.setItem('app:session', JSON.stringify(data));
-          else sessionStorage.setItem('app:session', JSON.stringify(data));
-        } catch (storageErr) {
-          // ignore storage errors
-        }
-        window.location.href = 'bookings.html';
-      } else {
-        throw new Error('Unexpected response');
-      }
-    } catch (errLocal) {
-      showError(errLocal.message);
+      const store = remember ? localStorage : sessionStorage;
+      store.setItem('art_token', data.token);
+      store.setItem('art_user', JSON.stringify(data.user));
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      showError(err.message || 'Login failed.');
+    } finally {
       btn.disabled = false;
     }
   });
+
 })();
