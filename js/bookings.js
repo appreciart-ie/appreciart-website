@@ -69,15 +69,22 @@
         const btn = document.createElement('button');
         btn.className = 'artist-btn';
         btn.dataset.slug = artist.slug;
-        const profileSrc = artist.profile_url || `images/resident-artists/${artist.slug}-profile.webp`;
+        const profileSrc = artist.profile_url || `images/resident-artists/${esc(artist.slug)}-profile.webp`;
         btn.innerHTML = `
-          <img src="${profileSrc}"
-               onerror="this.src='images/resident-artists/${artist.slug}-profile.webp';this.onerror=null;"
-               alt="${artist.name}">
-          <span class="artist-btn-name">${artist.name}</span>
+          <img src="${esc(profileSrc)}"
+               alt="${esc(artist.name)}">
+          <span class="artist-btn-name">${esc(artist.name)}</span>
         `;
         btn.addEventListener('click', () => selectArtist(artist));
         artistSelector.appendChild(btn);
+
+        const btnImg = btn.querySelector('img');
+        if (btnImg) {
+          btnImg.addEventListener('error', () => {
+            btnImg.src = `images/resident-artists/${artist.slug}-profile.webp`;
+            btnImg.onerror = null;
+          });
+        }
 
         // Fetch profile_url from individual endpoint
         fetch(`${INTERNAL_API}/api/public/artists/${artist.slug}`, { signal: AbortSignal.timeout(8000) })

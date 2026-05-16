@@ -44,11 +44,11 @@
       const profileImgUrl = artist.profile_url || `images/resident-artists/${artist.slug}-profile.webp`;
 
       const styles = (artist.styles || []).map(s =>
-        `<span class="artist-style-tag">${s}</span>`
+        `<span class="artist-style-tag">${esc(s)}</span>`
       ).join('');
 
       const instaHandle = artist.instagram || '';
-      const instaUrl    = instaHandle ? `https://instagram.com/${instaHandle.replace('@', '')}` : '#';
+      const instaUrl    = instaHandle ? `https://instagram.com/${encodeURIComponent(instaHandle.replace('@', ''))}` : '#';
 
       const today       = new Date(); today.setHours(0,0,0,0);
       const dateImgMap  = new Map(dateImages.map(d => [d.day, d.url]));
@@ -122,17 +122,17 @@
           </div>
 
           <div class="artist-info">
-            <h1 class="artist-name">${artist.name}</h1>
+            <h1 class="artist-name">${esc(artist.name)}</h1>
             <div class="artist-styles">${styles}</div>
-            <p class="artist-bio">${artist.bio || ''}</p>
+            <p class="artist-bio">${esc(artist.bio || '')}</p>
             ${instaHandle ? `
-            <a class="artist-insta" href="${instaUrl}" target="_blank" rel="noopener" aria-label="${artist.name} Instagram">
+            <a class="artist-insta" href="${esc(instaUrl)}" target="_blank" rel="noopener" aria-label="${esc(artist.name)} Instagram">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="2" y="2" width="20" height="20" rx="5"/>
                 <circle cx="12" cy="12" r="4"/>
                 <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
               </svg>
-              ${instaHandle}
+              ${esc(instaHandle)}
             </a>` : ''}
             <div class="artist-availability-inline">
               <span class="artist-section-label" style="margin-top:32px;display:block">Available Dates</span>
@@ -153,7 +153,7 @@
 
         <div class="artist-cta">
           <span class="section-label">Ready?</span>
-          <h2 class="section-title">Book with ${artist.name}</h2>
+          <h2 class="section-title">Book with ${esc(artist.name)}</h2>
           <p class="section-body">Start the conversation — tell us what you have in mind.</p>
           <a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>
         </div>
@@ -237,7 +237,7 @@
       bmMonth      = d.getMonth();
       const monthName = d.toLocaleString('en-IE', { month: 'long' });
 
-      document.getElementById('bmTitle').textContent    = `Book with ${artistName}`;
+      document.getElementById('bmTitle').textContent    = `Book with ${esc(artistName)}`;
       document.getElementById('bmSubtitle').textContent = `${day} ${monthName} ${bmYear}`;
       document.getElementById('bmOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';
