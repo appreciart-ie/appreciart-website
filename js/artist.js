@@ -71,8 +71,13 @@
             const url = dateImgMap.get(day) || '';
             const isBooked = bookedDays && bookedDays.has(day);
             const disabled = isPast || isBooked;
-            return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" data-day="${day}" data-date="${date}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
-              ${url ? `<img src="${url}" alt="Day ${day}" loading="lazy" onerror="this.style.display='none'">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
+            const dateObj   = new Date(date);
+            const dayLabel  = dateObj.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+            const ariaLabel = disabled
+              ? `Unavailable — ${dayLabel}`
+              : `Book session on ${dayLabel} with ${artist.name}`;
+            return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" role="button" aria-label="${ariaLabel}"${disabled ? ' aria-disabled="true"' : ''} data-day="${day}" data-date="${date}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
+              ${url ? `<img src="${url}" alt="Day ${day}" loading="lazy" class="avail-date-img">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
               <div class="avail-lock">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
@@ -87,8 +92,8 @@
         : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a> to enquire.</p>`;
 
       const portfolioHtml = portfolio.length > 0
-        ? portfolio.map(img =>
-            `<div class="portfolio-item" data-full="${img.urlFull}">
+        ? portfolio.map((img, idx) =>
+            `<div class="portfolio-item" role="button" aria-label="View portfolio image ${idx + 1} by ${artist.name}" data-full="${img.urlFull}">
                <img src="${img.url}" alt="${artist.name} — portfolio" loading="lazy">
                <div class="portfolio-item-icon">
                  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -107,7 +112,7 @@
                 class="artist-profile-img"
                 src="${profileImgUrl || ''}"
                 alt="${artist.name}"
-                onerror="this.parentElement.style.background='var(--off-white)';this.style.display='none'"
+                id="artistProfileImg"
               >
             </div>
             <div class="artist-profile-caption">
@@ -153,6 +158,20 @@
           <a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>
         </div>
       `;
+
+      // Date image error handlers
+      document.querySelectorAll('.avail-date-img').forEach(img => {
+        img.addEventListener('error', () => { img.style.display = 'none'; });
+      });
+
+      // Profile image error handler
+      const profileImg = document.getElementById('artistProfileImg');
+      if (profileImg) {
+        profileImg.addEventListener('error', () => {
+          profileImg.style.display = 'none';
+          if (profileImg.parentElement) profileImg.parentElement.style.background = 'var(--off-white)';
+        });
+      }
 
       // Reveal animation
       document.querySelectorAll('.reveal').forEach(el => {
@@ -226,9 +245,9 @@
       // Reset modal state
       document.getElementById('bmFormBody').style.display = 'block';
       document.getElementById('bmSuccess').classList.remove('visible');
-      document.getElementById('bmDivider').style.display = 'none';
-      document.getElementById('bmPaymentSection').style.display = 'none';
-      document.getElementById('bmProceedBtn').style.display = 'block';
+      document.getElementById('bmDivider').classList.add('bm-hidden');
+      document.getElementById('bmPaymentSection').classList.add('bm-hidden');
+      document.getElementById('bmProceedBtn').classList.remove('bm-hidden');
       document.getElementById('bmProceedBtn').disabled = false;
       document.getElementById('bmProceedBtn').textContent = 'Continue to Payment';
       document.getElementById('bmPayErr').classList.remove('visible');
@@ -320,9 +339,9 @@
         payEl.mount('#bm-payment-element');
         payEl.on('ready', () => { document.getElementById('bmPayBtn').disabled = false; });
 
-        document.getElementById('bmDivider').style.display = 'block';
-        document.getElementById('bmPaymentSection').style.display = 'block';
-        btn.style.display = 'none';
+        document.getElementById('bmDivider').classList.remove('bm-hidden');
+        document.getElementById('bmPaymentSection').classList.remove('bm-hidden');
+        btn.classList.add('bm-hidden');
 
       } catch (err) {
         document.getElementById('bmPayErr').textContent = err.message || 'Something went wrong. Please try again.';
@@ -340,7 +359,7 @@
 
       const { error } = await bmStripe.confirmPayment({
         elements: bmElements,
-        confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${bmArtistSlug}&paid=1` },
+        confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${encodeURIComponent(bmArtistSlug)}&paid=1` },
         redirect: 'if_required',
       });
 

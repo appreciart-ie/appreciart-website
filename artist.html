@@ -44,7 +44,7 @@
       </div>
 
       <div class="booking-modal-body" id="bmFormBody">
-        <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="text" name="_hp" class="bm-honeypot" tabindex="-1" autocomplete="off">
 
         <div class="bm-row">
           <div class="bm-group">
@@ -94,9 +94,9 @@
 
         <button class="bm-btn" id="bmProceedBtn">Continue to Payment</button>
 
-        <hr class="bm-divider" id="bmDivider" style="display:none">
+        <hr class="bm-divider bm-hidden" id="bmDivider">
 
-        <div id="bmPaymentSection" style="display:none">
+        <div id="bmPaymentSection" class="bm-hidden">
           <div class="bm-deposit-row">
             <span class="bm-deposit-label">Refundable deposit</span>
             <span class="bm-deposit-amount" id="bmDepositAmt">€100</span>
