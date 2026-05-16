@@ -11,7 +11,7 @@
 
   async function postLogin(payload) {
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(`${INTERNAL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
