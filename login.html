@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Appreciart IE</title>
+  <link rel="icon" type="image/x-icon" href="/images/favicon/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <main class="login-wrap">
+    <div class="login-box">
+
+      <span class="section-label">Artist Portal</span>
+      <h1 class="section-title" style="margin-top:8px;margin-bottom:6px">Sign in</h1>
+      <p class="section-body" style="margin-bottom:32px">Manage your sessions and availability.</p>
+
+      <form id="loginForm" autocomplete="off" novalidate>
+
+        <div class="login-group">
+          <label class="login-label" for="email">Email</label>
+          <input class="login-input" id="email" name="email" type="email" inputmode="email" required autocomplete="username" placeholder="your@email.com">
+        </div>
+
+        <div class="login-group">
+          <label class="login-label" for="password">Password</label>
+          <input class="login-input" id="password" name="password" type="password" required autocomplete="current-password" minlength="8" placeholder="••••••••">
+        </div>
+
+        <div class="login-helpers">
+          <label class="login-checkbox">
+            <input id="remember" name="remember" type="checkbox"> Remember me
+          </label>
+          <a href="contact-us.html" class="login-forgot">Need access?</a>
+        </div>
+
+        <button id="loginBtn" class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+
+        <p id="loginError" class="login-error" role="alert" aria-live="polite"></p>
+
+      </form>
+
+    </div>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
