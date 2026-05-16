@@ -70,6 +70,24 @@
     });
   }
 
+  // ── STUDIO CAROUSEL ──
+  const studioTrack = document.getElementById('gaStudioTrack');
+  const studioPrev  = document.getElementById('gaStudioPrev');
+  const studioNext  = document.getElementById('gaStudioNext');
+
+  if (studioTrack && studioPrev && studioNext) {
+    const slideWidth = () => studioTrack.querySelector('.ga-studio-slide').offsetWidth + 2;
+    const maxScroll  = () => studioTrack.scrollWidth - studioTrack.offsetWidth;
+
+    studioNext.addEventListener('click', () => {
+      studioTrack.scrollBy({ left: slideWidth(), behavior: 'smooth' });
+    });
+
+    studioPrev.addEventListener('click', () => {
+      studioTrack.scrollBy({ left: -slideWidth(), behavior: 'smooth' });
+    });
+  }
+
   // ── REVIEWS NAV ARROWS ──
   const track    = document.getElementById('gaReviewsTrack');
   const prevBtn  = document.getElementById('gaPrev');
