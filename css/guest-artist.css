@@ -430,7 +430,7 @@
 .ga-review-avatar {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
+  border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
   filter: grayscale(100%);
