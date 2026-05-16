@@ -369,7 +369,16 @@
   font-style: italic;
 }
 
-.ga-review-author { display: flex; flex-direction: column; gap: 2px; }
+.ga-review-author { display: flex; align-items: center; gap: 12px; }
+
+.ga-review-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  filter: grayscale(100%);
+}
 
 .ga-review-name {
   font-size: 12px;
