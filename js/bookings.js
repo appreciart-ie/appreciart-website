@@ -59,7 +59,7 @@
         artists = (data.artists || []).filter(a => a.is_resident);
         renderArtistSelector(preselect);
       } catch (e) {
-        artistSelector.innerHTML = '<p style="font-size:13px;color:#636363">Could not load artists. Please try again.</p>';
+        artistSelector.innerHTML = '<p class="artists-load-error">Could not load artists. Please try again.</p>';
       }
     }
 
@@ -154,10 +154,16 @@
             slots.sort((a,b) => a.day - b.day).forEach(({ day, date, isPast, isBooked }) => {
               const url      = dateImgMap.get(day) || '';
               const disabled = isPast || isBooked;
-              const cell     = document.createElement('div');
-              cell.className = 'date-cell' + (isBooked ? ' unavailable' : isPast ? ' past' : '');
+              const cell        = document.createElement('div');
+              const cellDateObj = new Date(date);
+              const cellLabel   = cellDateObj.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+              const cellDisabled = isPast || isBooked;
+              cell.className    = 'date-cell' + (isBooked ? ' unavailable' : isPast ? ' past' : '');
               cell.dataset.date = date;
               cell.dataset.day  = day;
+              cell.setAttribute('role', 'button');
+              cell.setAttribute('aria-label', cellDisabled ? `Unavailable — ${cellLabel}` : `Select ${cellLabel}`);
+              if (cellDisabled) cell.setAttribute('aria-disabled', 'true');
               cell.innerHTML = (url
                 ? `<img src="${url}" alt="Day ${day}" loading="lazy">`
                 : `<span class="date-num-fallback">${String(day).padStart(2,'0')}</span>`) +

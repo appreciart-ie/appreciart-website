@@ -11,6 +11,14 @@
 
     let currentPriceId = null;
 
+    // Gallery image error handlers
+    document.querySelectorAll('.gallery-work-img').forEach(img => {
+      img.addEventListener('error', () => {
+        img.style.display = 'none';
+        if (img.parentElement) img.parentElement.style.background = 'var(--light)';
+      });
+    });
+
     // Open lightbox
     document.querySelectorAll('.gallery-work-card').forEach(card => {
       card.addEventListener('click', () => {
