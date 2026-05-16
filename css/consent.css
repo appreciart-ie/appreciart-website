@@ -322,3 +322,13 @@
       .form-row { grid-template-columns: 1fr; }
     }
 
+.consent-policy-link { color: var(--black); text-decoration: underline; }
+.form-group-spaced { margin-bottom: 20px; }
+.form-radio-group-inline { margin-top: 8px; max-width: 240px; }
+.form-label-tight { margin-bottom: 6px; }
+.form-group-top { margin-top: 8px; }
+.err-session-confirm { margin-top: 8px; }
+.err-general { margin-top: 16px; font-size: 13px; }
+.consent-declaration-list { margin-top: 12px; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.consent-declaration-item { padding-left: 16px; position: relative; }
+.consent-declaration-dash { position: absolute; left: 0; color: var(--sec-grey); }

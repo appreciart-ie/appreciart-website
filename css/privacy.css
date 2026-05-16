@@ -138,3 +138,5 @@
       .legal-block { grid-template-columns: 1fr; gap: 12px; }
       .legal-block-label { position: static; }
     }
+
+.policy-spacer { margin-top: 14px; }

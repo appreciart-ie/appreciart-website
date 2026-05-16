@@ -13,7 +13,7 @@
   --sv:        clamp(80px, 10vw, 140px);
 }
 
-html { scroll-behavior: smooth; overflow-x: hidden; }
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--white);

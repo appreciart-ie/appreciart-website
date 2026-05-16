@@ -108,41 +108,41 @@
         <p class="form-section-title">Health Information</p>
 
         <div class="consent-notice">
-          <strong>Confidential.</strong> This information is shared only with your artist and used solely in connection with your tattoo session. Stored securely in accordance with our <a href="privacy-policy.html" style="color:var(--black);text-decoration:underline">Privacy Policy</a>.
+          <strong>Confidential.</strong> This information is shared only with your artist and used solely in connection with your tattoo session. Stored securely in accordance with our <a href="privacy-policy.html" class="consent-policy-link">Privacy Policy</a>.
         </div>
 
-        <div class="form-group" style="margin-bottom:20px">
+        <div class="form-group form-group-spaced">
           <label class="form-label">Do you have any medical conditions or allergies that may affect the tattooing process?</label>
-          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+          <div class="form-radio-group form-radio-group-inline">
             <label class="form-radio-label"><input type="radio" name="has_medical" value="false" checked> No</label>
             <label class="form-radio-label"><input type="radio" name="has_medical" value="true"> Yes</label>
           </div>
           <div class="form-conditional" id="cond-medical">
-            <label class="form-label" for="medical_details" style="margin-bottom:6px">Please describe</label>
+            <label class="form-label" for="medical_details" class="form-label-tight">Please describe</label>
             <textarea class="form-textarea" id="medical_details" name="medical_details" rows="3"></textarea>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom:20px">
+        <div class="form-group form-group-spaced">
           <label class="form-label">Are you currently taking any medications that may affect healing, bleeding, or skin sensitivity?</label>
-          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+          <div class="form-radio-group form-radio-group-inline">
             <label class="form-radio-label"><input type="radio" name="has_medications" value="false" checked> No</label>
             <label class="form-radio-label"><input type="radio" name="has_medications" value="true"> Yes</label>
           </div>
           <div class="form-conditional" id="cond-medications">
-            <label class="form-label" for="medication_details" style="margin-bottom:6px">Please list your medications</label>
+            <label class="form-label" for="medication_details" class="form-label-tight">Please list your medications</label>
             <textarea class="form-textarea" id="medication_details" name="medication_details" rows="3"></textarea>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom:20px">
+        <div class="form-group form-group-spaced">
           <label class="form-label">Do you have any blood-borne illnesses that may affect the process?</label>
-          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+          <div class="form-radio-group form-radio-group-inline">
             <label class="form-radio-label"><input type="radio" name="has_bloodborne" value="false" checked> No</label>
             <label class="form-radio-label"><input type="radio" name="has_bloodborne" value="true"> Yes</label>
           </div>
           <div class="form-conditional" id="cond-bloodborne">
-            <label class="form-label" for="bloodborne_details" style="margin-bottom:6px">Please specify</label>
+            <label class="form-label" for="bloodborne_details" class="form-label-tight">Please specify</label>
             <textarea class="form-textarea" id="bloodborne_details" name="bloodborne_details" rows="3"></textarea>
           </div>
         </div>
@@ -159,7 +159,7 @@
               I have not consumed alcohol in the last 24 hours
             </label>
           </div>
-          <span class="form-error" id="err-session-confirm" style="margin-top:8px">Please confirm both statements before proceeding</span>
+          <span class="form-error err-session-confirm" id="err-session-confirm">Please confirm both statements before proceeding</span>
         </div>
       </div>
 
@@ -199,9 +199,9 @@
           </div>
         </div>
 
-        <div class="form-group" style="margin-top:8px">
+        <div class="form-group form-group-top">
           <label class="form-label">Photography consent</label>
-          <div class="form-radio-group" style="margin-top:8px;max-width:240px">
+          <div class="form-radio-group form-radio-group-inline">
             <label class="form-radio-label"><input type="radio" name="photo_consent" value="true" checked> Yes</label>
             <label class="form-radio-label"><input type="radio" name="photo_consent" value="false"> No</label>
           </div>
@@ -215,12 +215,12 @@
 
         <div class="consent-notice">
           By signing below I confirm that:
-          <ul style="margin-top:12px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px">
-            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I am 18 years of age or older</li>
-            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> The health information I have provided is accurate and complete</li>
-            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I understand that tattooing is a permanent procedure</li>
-            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I agree to follow all aftercare instructions provided by my artist</li>
-            <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--sec-grey)">—</span> I have read and agree to the <a href="terms-of-use.html" style="color:var(--black);text-decoration:underline">Terms of Use</a> and <a href="privacy-policy.html" style="color:var(--black);text-decoration:underline">Privacy Policy</a></li>
+          <ul class="consent-declaration-list">
+            <li class="consent-declaration-item"><span class="consent-declaration-dash">—</span> I am 18 years of age or older</li>
+            <li class="consent-declaration-item"><span class="consent-declaration-dash">—</span> The health information I have provided is accurate and complete</li>
+            <li class="consent-declaration-item"><span class="consent-declaration-dash">—</span> I understand that tattooing is a permanent procedure</li>
+            <li class="consent-declaration-item"><span class="consent-declaration-dash">—</span> I agree to follow all aftercare instructions provided by my artist</li>
+            <li class="consent-declaration-item"><span class="consent-declaration-dash">—</span> I have read and agree to the <a href="terms-of-use.html" class="consent-policy-link">Terms of Use</a> and <a href="privacy-policy.html" class="consent-policy-link">Privacy Policy</a></li>
           </ul>
         </div>
 
@@ -236,7 +236,7 @@
           <p class="form-submit-note">Your data is stored securely and used only in connection with your appointment.</p>
         </div>
 
-        <span class="form-error" id="err-general" style="margin-top:16px;font-size:13px"></span>
+        <span class="form-error err-general" id="err-general"></span>
       </div>
 
     </form>
