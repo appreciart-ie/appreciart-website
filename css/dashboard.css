@@ -15,7 +15,7 @@
   padding: 18px var(--px);
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--light);
+  border-bottom: 1px solid var(--sec-grey);
 }
 
 .dash-header-logo img {
