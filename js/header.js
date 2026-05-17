@@ -5,7 +5,7 @@
   const token       = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
   const stored      = sessionStorage.getItem('art_artist') || localStorage.getItem('art_artist');
   const isLoggedIn  = !!token;
-  const isDashboard = currentPath === 'dashboard.html';
+  const isDashboard = window.location.pathname.includes('dashboard');
 
   let artistName = '';
   if (isLoggedIn && stored) {
