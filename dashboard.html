@@ -9,18 +9,19 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/dashboard.css">
 </head>
-<body>
+<body class="dash-body">
 
-  <div id="site-header"></div>
+  <header class="dash-header">
+    <a href="/" class="dash-header-logo">
+      <img src="images/logos/black-logo.png" alt="Appreciart IE">
+    </a>
+    <div class="dash-header-right">
+      <span class="dash-header-name" id="dashName">—</span>
+      <button class="dash-header-signout" id="dashSignOut">Sign out</button>
+    </div>
+  </header>
 
   <main class="dash-wrap">
-
-    <div class="dash-top">
-      <div>
-        <span class="section-label">Artist Portal</span>
-        <h1 class="section-title" id="dashName" style="margin-top:8px">—</h1>
-      </div>
-    </div>
 
     <nav class="dash-tabs">
       <button class="dash-tab active" data-tab="bookings">Bookings</button>
@@ -57,9 +58,6 @@
 
   <script src="js/utils.js"></script>
   <script src="js/toast.js"></script>
-  <script src="js/header.js"></script>
-  <script src="js/footer.js"></script>
-  <script src="js/main.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>

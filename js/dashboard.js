@@ -17,6 +17,7 @@
 
   // ── DOM ──
   const dashName    = document.getElementById('dashName');
+  const dashSignOut = document.getElementById('dashSignOut');
   const tabs        = document.querySelectorAll('.dash-tab');
   const panels      = document.querySelectorAll('.dash-panel');
   const bookingsList = document.getElementById('bookingsList');
@@ -26,6 +27,16 @@
   const calNext     = document.getElementById('calNext');
 
   dashName.textContent = artist.name || 'Artist';
+
+  // ── Sign out ──
+  if (dashSignOut) dashSignOut.addEventListener('click', () => {
+    sessionStorage.removeItem('art_token');
+    sessionStorage.removeItem('art_artist');
+    localStorage.removeItem('art_token');
+    localStorage.removeItem('art_artist');
+    window.toast('Signed out successfully', 'info');
+    setTimeout(() => { window.location.href = 'login.html'; }, 600);
+  });
 
   // ── Tabs ──
   tabs.forEach(tab => {
