@@ -60,7 +60,10 @@
 .dash-wrap {
   max-width: 900px;
   margin: 0 auto;
-  padding: 80px var(--px) 80px;
+  padding-top: 100px;
+  padding-bottom: 80px;
+  padding-left: var(--px);
+  padding-right: var(--px);
 }
 
 .dash-top {
@@ -252,7 +255,10 @@
 
 @media (max-width: 600px) {
   .dash-wrap {
-    padding: 80px var(--px) 60px;
+    padding-top: 90px;
+    padding-bottom: 60px;
+    padding-left: var(--px);
+    padding-right: var(--px);
     overflow-x: hidden;
   }
 
