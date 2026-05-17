@@ -277,7 +277,7 @@ a   { color: inherit; text-decoration: none; }
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.nav-m-btn--ghost { color: rgba(255,255,255,0.6); }
+.nav-m-btn--ghost { color: rgba(255,255,255,0.6); background: none; font-family: var(--font); cursor: pointer; }
 .nav-m-btn--ghost:hover { border-color: var(--white); color: var(--white); }
 .nav-m-btn--solid { background: var(--white); color: var(--black); border-color: var(--white); }
 .nav-m-btn--solid:hover { background: transparent; color: var(--white); }
