@@ -16,7 +16,6 @@
   try { artist = JSON.parse(stored); } catch { toast('Invalid session data. Please sign in again.', 'error'); setTimeout(() => { window.location.href = 'login.html'; }, 800); return; }
 
   // ── DOM ──
-  const dashName    = document.getElementById('dashName');
   const dashSignOut = document.getElementById('dashSignOut');
   const tabs        = document.querySelectorAll('.dash-tab');
   const panels      = document.querySelectorAll('.dash-panel');
@@ -25,8 +24,6 @@
   const calMonth    = document.getElementById('calMonth');
   const calPrev     = document.getElementById('calPrev');
   const calNext     = document.getElementById('calNext');
-
-  dashName.textContent = artist.name || 'Artist';
 
   // ── Sign out ──
   if (dashSignOut) dashSignOut.addEventListener('click', () => {
