@@ -4,18 +4,24 @@
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
   const links = [
-    { href: '/#artists',        label: 'Artists' },
-    { href: 'bookings.html',    label: 'Bookings' },
-    { href: 'login.html',       label: 'Login' },
-    { href: 'gallery.html',     label: 'Gallery' },
-    { href: 'exhibitions.html', label: 'Exhibitions' },
+    { href: '/#artists',         label: 'Artists' },
+    { href: 'bookings.html',     label: 'Bookings' },
+    { href: 'gallery.html',      label: 'Gallery' },
+    { href: 'exhibitions.html',  label: 'Exhibitions' },
     { href: 'guest-artist.html', label: 'Be a Guest' },
   ];
 
   const navLinks = links.map(l => {
-    const active = currentPath === l.href.replace('/#artists', '') ? ' aria-current="page"' : '';
+    const active = currentPath === l.href ? ' aria-current="page"' : '';
     return `<li><a href="${l.href}"${active}>${l.label}</a></li>`;
-  }).join('');
+  }).join('') + `<li><a href="tattoo-consent-form.html">Consent Form</a></li>`;
+
+  const mobileLinks = links.map((l, i) => `
+    <div class="nav-m-item">
+      <span class="nav-m-num">0${i + 1}</span>
+      <a href="${l.href}" class="nav-m-link" onclick="closeMobile()">${l.label}</a>
+    </div>
+  `).join('');
 
   const html = `
     <nav class="nav" id="nav">
@@ -25,15 +31,34 @@
       <ul class="nav-links">
         ${navLinks}
       </ul>
-      <a href="bookings.html" class="nav-book">Book Now</a>
+      <div class="nav-actions">
+        <a href="login.html" class="nav-login">Login</a>
+        <a href="bookings.html" class="nav-book">Book Now</a>
+      </div>
       <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </nav>
 
     <div class="nav-mobile" id="mobileNav" aria-hidden="true">
-      ${links.map(l => `<a href="${l.href}" onclick="closeMobile()">${l.label}</a>`).join('\n      ')}
-      <a href="bookings.html" onclick="closeMobile()" class="btn btn-primary nav-mobile-book">Book Now</a>
+      <div class="nav-m-top">
+        <a href="/" class="nav-m-logo">
+          <img src="images/logos/white-logo.png" alt="Appreciart IE">
+        </a>
+        <button class="nav-m-close" id="mobileClose" aria-label="Close menu">
+          <span></span><span></span>
+        </button>
+      </div>
+      <div class="nav-m-links">
+        ${mobileLinks}
+      </div>
+      <div class="nav-m-consent">
+        <a href="tattoo-consent-form.html" class="nav-m-consent-link" onclick="closeMobile()">Consent Form</a>
+      </div>
+      <div class="nav-m-bottom">
+        <a href="login.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">Login</a>
+        <a href="bookings.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--solid">Book Now</a>
+      </div>
     </div>
   `;
 
@@ -44,7 +69,6 @@
     document.body.insertAdjacentHTML('afterbegin', html);
   }
 
-  // Nav scroll behaviour
   const nav = document.getElementById('nav');
   if (nav) {
     window.addEventListener('scroll', () => {
@@ -52,22 +76,19 @@
     }, { passive: true });
   }
 
-  // Mobile nav toggle
-  const hamburger = document.getElementById('hamburger');
-  const mobileNav  = document.getElementById('mobileNav');
+  const hamburger   = document.getElementById('hamburger');
+  const mobileNav   = document.getElementById('mobileNav');
+  const mobileClose = document.getElementById('mobileClose');
 
-  if (hamburger && mobileNav) {
-    hamburger.addEventListener('click', () => {
-      const open = mobileNav.classList.toggle('open');
-      hamburger.classList.toggle('open', open);
-      hamburger.setAttribute('aria-expanded', open);
-      mobileNav.setAttribute('aria-hidden', !open);
-      document.body.style.overflow = open ? 'hidden' : '';
-    });
+  function openMobile() {
+    mobileNav.classList.add('open');
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    mobileNav.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
   }
 
   window.closeMobile = function () {
-    if (!mobileNav || !hamburger) return;
     mobileNav.classList.remove('open');
     hamburger.classList.remove('open');
     hamburger.setAttribute('aria-expanded', 'false');
@@ -75,12 +96,9 @@
     document.body.style.overflow = '';
   };
 
-  // Close mobile nav on link click
-  mobileNav.querySelectorAll('.mobile-nav-link').forEach(a => {
-    a.addEventListener('click', () => window.closeMobile());
-  });
+  if (hamburger) hamburger.addEventListener('click', openMobile);
+  if (mobileClose) mobileClose.addEventListener('click', window.closeMobile);
 
-  // Close mobile nav on Escape key
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && mobileNav.classList.contains('open')) {
       window.closeMobile();
