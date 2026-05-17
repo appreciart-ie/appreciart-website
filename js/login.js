@@ -25,6 +25,36 @@
     loginBtn.textContent = on ? 'Signing in…' : 'Sign in';
   }
 
+  // ── Modal ──
+  const accessBtn    = document.getElementById('accessBtn');
+  const accessModal  = document.getElementById('accessModal');
+  const modalClose   = document.getElementById('modalClose');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+  function openModal() {
+    accessModal.classList.add('open');
+    accessModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    accessModal.classList.remove('open');
+    accessModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (accessBtn)     accessBtn.addEventListener('click', openModal);
+  if (modalClose)    modalClose.addEventListener('click', closeModal);
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+
+  accessModal.addEventListener('click', (e) => {
+    if (e.target === accessModal) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && accessModal.classList.contains('open')) closeModal();
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     setError('');

@@ -37,7 +37,7 @@
           <label class="login-checkbox">
             <input id="remember" name="remember" type="checkbox"> Remember me
           </label>
-          <a href="contact-us.html" class="login-forgot">Need access?</a>
+          <button type="button" class="login-forgot" id="accessBtn">Need access?</button>
         </div>
 
         <button id="loginBtn" class="btn btn-primary login-submit" type="submit">Sign in</button>
@@ -48,6 +48,20 @@
 
     </div>
   </main>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="accessModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">&#x2715;</button>
+      <span class="section-label">Artist Portal</span>
+      <h2 class="modal-title" id="modalTitle">How to get access</h2>
+      <p class="modal-body">This portal is for resident and guest artists at Appreciart IE. Resident artists receive their credentials directly from the studio. If you're interested in joining as a guest artist, apply below — we'll be in touch.</p>
+      <div class="modal-actions">
+        <a href="guest-artist.html" class="btn btn-primary">Apply as guest artist</a>
+        <button type="button" class="btn btn-secondary" id="modalCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/utils.js"></script>
   <script src="js/header.js"></script>
