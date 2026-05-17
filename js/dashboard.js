@@ -17,7 +17,6 @@
 
   // ── DOM ──
   const dashName    = document.getElementById('dashName');
-  const logoutBtn   = document.getElementById('logoutBtn');
   const tabs        = document.querySelectorAll('.dash-tab');
   const panels      = document.querySelectorAll('.dash-panel');
   const bookingsList = document.getElementById('bookingsList');
@@ -38,14 +37,6 @@
     });
   });
 
-  // ── Logout ──
-  logoutBtn.addEventListener('click', () => {
-    sessionStorage.removeItem('art_token');
-    sessionStorage.removeItem('art_artist');
-    localStorage.removeItem('art_token');
-    localStorage.removeItem('art_artist');
-    window.location.href = 'login.html';
-  });
 
   // ── Auth fetch helper ──
   async function authFetch(path, options = {}) {
@@ -81,7 +72,7 @@
       `).join('');
 
     } catch {
-      bookingsList.innerHTML = '<p class="dash-empty">Failed to load bookings.</p>';
+      bookingsList.innerHTML = '<p class="dash-empty">Could not load bookings. Please refresh.</p>';
     }
   }
 
