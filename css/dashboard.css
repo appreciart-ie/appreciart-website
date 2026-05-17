@@ -194,8 +194,37 @@
 .cal-dot.booked      { background: var(--black); opacity: 0.4; }
 
 @media (max-width: 600px) {
+  .dash-wrap {
+    padding: 80px var(--px) 60px;
+    overflow-x: hidden;
+  }
+
+  .dash-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
   .booking-card {
     grid-template-columns: 1fr auto;
+    padding: 16px;
   }
+
   .booking-meta { grid-column: 1; }
+
+  .cal-grid { gap: 2px; }
+
+  .cal-day {
+    font-size: 10px;
+  }
+
+  .cal-day-label {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+
+  .cal-legend {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
