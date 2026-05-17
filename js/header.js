@@ -2,6 +2,8 @@
 
 (function () {
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const token = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
+  const isLoggedIn = !!token;
 
   const links = [
     { href: '/#artists',         label: 'Artists' },
@@ -23,6 +25,14 @@
     </div>
   `).join('');
 
+  const authBtnDesktop = isLoggedIn
+    ? `<button class="nav-login" id="navSignOut">Sign out</button>`
+    : `<a href="login.html" class="nav-login">Sign in</a>`;
+
+  const authBtnMobile = isLoggedIn
+    ? `<button class="nav-m-btn nav-m-btn--ghost" id="mobileSignOut">Sign out</button>`
+    : `<a href="login.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">Sign in</a>`;
+
   const html = `
     <nav class="nav" id="nav">
       <a href="/" class="nav-logo" aria-label="Appreciart IE">
@@ -32,7 +42,7 @@
         ${navLinks}
       </ul>
       <div class="nav-actions">
-        <a href="login.html" class="nav-login">Login</a>
+        ${authBtnDesktop}
         <a href="bookings.html" class="nav-book">Book Now</a>
       </div>
       <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
@@ -56,7 +66,7 @@
         <a href="tattoo-consent-form.html" class="nav-m-consent-link" onclick="closeMobile()">Consent Form</a>
       </div>
       <div class="nav-m-bottom">
-        <a href="login.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">Login</a>
+        ${authBtnMobile}
         <a href="bookings.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--solid">Book Now</a>
       </div>
     </div>
@@ -68,6 +78,19 @@
   } else {
     document.body.insertAdjacentHTML('afterbegin', html);
   }
+
+  function signOut() {
+    sessionStorage.removeItem('art_token');
+    sessionStorage.removeItem('art_artist');
+    localStorage.removeItem('art_token');
+    localStorage.removeItem('art_artist');
+    window.location.href = 'index.html';
+  }
+
+  const navSignOut    = document.getElementById('navSignOut');
+  const mobileSignOut = document.getElementById('mobileSignOut');
+  if (navSignOut)    navSignOut.addEventListener('click', signOut);
+  if (mobileSignOut) mobileSignOut.addEventListener('click', signOut);
 
   const nav = document.getElementById('nav');
   if (nav) {
