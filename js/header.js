@@ -2,8 +2,15 @@
 
 (function () {
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  const token = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
-  const isLoggedIn = !!token;
+  const token       = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
+  const stored      = sessionStorage.getItem('art_artist') || localStorage.getItem('art_artist');
+  const isLoggedIn  = !!token;
+  const isDashboard = currentPath === 'dashboard.html';
+
+  let artistName = '';
+  if (isLoggedIn && stored) {
+    try { artistName = JSON.parse(stored).name || ''; } catch {}
+  }
 
   const links = [
     { href: '/#artists',         label: 'Artists' },
@@ -25,12 +32,32 @@
     </div>
   `).join('');
 
+  const dropdownItems = !isDashboard
+    ? `<a href="dashboard.html" class="nav-dropdown-item">My Dashboard</a>
+       <button class="nav-dropdown-item nav-dropdown-signout" id="navSignOut">Sign out</button>`
+    : `<button class="nav-dropdown-item nav-dropdown-signout" id="navSignOut">Sign out</button>`;
+
   const authBtnDesktop = isLoggedIn
-    ? `<button class="nav-login" id="navSignOut">Sign out</button>`
+    ? `<div class="nav-artist" id="navArtist">
+         <button class="nav-artist-btn" id="navArtistBtn">
+           ${artistName.toUpperCase()}
+           <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+             <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+           </svg>
+         </button>
+         <div class="nav-dropdown" id="navDropdown">
+           ${dropdownItems}
+         </div>
+       </div>`
     : `<a href="login.html" class="nav-login">Sign in</a>`;
 
+  const mobileAuthItems = !isDashboard
+    ? `<a href="dashboard.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">My Dashboard</a>`
+    : '';
+
   const authBtnMobile = isLoggedIn
-    ? `<button class="nav-m-btn nav-m-btn--ghost" id="mobileSignOut">Sign out</button>`
+    ? `${mobileAuthItems}
+       <button class="nav-m-btn nav-m-btn--ghost" id="mobileSignOut">Sign out</button>`
     : `<a href="login.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">Sign in</a>`;
 
   const html = `
@@ -84,12 +111,29 @@
     sessionStorage.removeItem('art_artist');
     localStorage.removeItem('art_token');
     localStorage.removeItem('art_artist');
-    toast('Signed out successfully', 'success');
+    if (window.toast) window.toast('Signed out successfully', 'info');
     setTimeout(() => { window.location.href = 'index.html'; }, 500);
   }
 
-  const navSignOut    = document.getElementById('navSignOut');
+  // Dropdown
+  const navArtistBtn = document.getElementById('navArtistBtn');
+  const navDropdown  = document.getElementById('navDropdown');
+  const navSignOut   = document.getElementById('navSignOut');
   const mobileSignOut = document.getElementById('mobileSignOut');
+
+  if (navArtistBtn && navDropdown) {
+    navArtistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = navDropdown.classList.toggle('open');
+      navArtistBtn.classList.toggle('open', open);
+    });
+
+    document.addEventListener('click', () => {
+      navDropdown.classList.remove('open');
+      navArtistBtn.classList.remove('open');
+    });
+  }
+
   if (navSignOut)    navSignOut.addEventListener('click', signOut);
   if (mobileSignOut) mobileSignOut.addEventListener('click', signOut);
 
@@ -100,9 +144,9 @@
     }, { passive: true });
   }
 
-  const hamburger   = document.getElementById('hamburger');
-  const mobileNav   = document.getElementById('mobileNav');
-  const mobileClose = document.getElementById('mobileClose');
+  const hamburger    = document.getElementById('hamburger');
+  const mobileNav    = document.getElementById('mobileNav');
+  const mobileClose  = document.getElementById('mobileClose');
 
   function openMobile() {
     mobileNav.classList.add('open');
@@ -124,8 +168,12 @@
   if (mobileClose) mobileClose.addEventListener('click', window.closeMobile);
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && mobileNav.classList.contains('open')) {
-      window.closeMobile();
+    if (e.key === 'Escape') {
+      if (navDropdown) {
+        navDropdown.classList.remove('open');
+        navArtistBtn.classList.remove('open');
+      }
+      if (mobileNav.classList.contains('open')) window.closeMobile();
     }
   });
 })();
