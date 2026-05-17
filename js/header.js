@@ -70,7 +70,7 @@
       </ul>
       <div class="nav-actions">
         ${authBtnDesktop}
-        <a href="bookings.html" class="nav-book">Book Now</a>
+        ${!isLoggedIn ? `<a href="bookings.html" class="nav-book">Book Now</a>` : ''}
       </div>
       <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
