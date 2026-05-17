@@ -13,7 +13,7 @@
   }
 
   let artist;
-  try { artist = JSON.parse(stored); } catch { window.location.href = 'login.html'; return; }
+  try { artist = JSON.parse(stored); } catch { toast('Invalid session data. Please sign in again.', 'error'); setTimeout(() => { window.location.href = 'login.html'; }, 800); return; }
 
   // ── DOM ──
   const dashName    = document.getElementById('dashName');
@@ -55,7 +55,7 @@
   async function loadBookings() {
     try {
       const res  = await authFetch('/api/artist/bookings');
-      if (res.status === 401) { window.location.href = 'login.html'; return; }
+      if (res.status === 401) { toast('Session expired. Please sign in again.', 'error'); setTimeout(() => { window.location.href = 'login.html'; }, 800); return; }
       const data = await res.json();
 
       if (!data.bookings || data.bookings.length === 0) {
@@ -72,6 +72,7 @@
       `).join('');
 
     } catch {
+      toast('Could not load bookings', 'error');
       bookingsList.innerHTML = '<p class="dash-empty">Could not load bookings. Please refresh.</p>';
     }
   }
@@ -84,11 +85,12 @@
   async function loadAvailability() {
     try {
       const res  = await authFetch('/api/artist/availability');
-      if (res.status === 401) { window.location.href = 'login.html'; return; }
+      if (res.status === 401) { toast('Session expired. Please sign in again.', 'error'); setTimeout(() => { window.location.href = 'login.html'; }, 800); return; }
       const data = await res.json();
       availability = data.availability || [];
       renderCalendar();
     } catch {
+      toast('Could not load availability dates', 'error');
       availability = [];
       renderCalendar();
     }
@@ -150,6 +152,7 @@
       });
 
       if (res.ok) {
+        toast(newState ? 'Date marked as available' : 'Date marked as unavailable', 'success');
         const idx = availability.findIndex(a => a.date.slice(0,10) === date);
         if (idx >= 0) {
           availability[idx].is_available = newState;
@@ -157,8 +160,13 @@
           availability.push({ date, is_available: newState });
         }
         renderCalendar();
+      } else {
+        toast('Failed to update date', 'error');
+        el.style.opacity = '';
+        el.style.pointerEvents = '';
       }
     } catch {
+      toast('Error updating date', 'error');
       el.style.opacity = '';
       el.style.pointerEvents = '';
     }

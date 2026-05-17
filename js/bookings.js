@@ -59,6 +59,7 @@
         artists = (data.artists || []).filter(a => a.is_resident);
         renderArtistSelector(preselect);
       } catch (e) {
+        toast('Could not load artists', 'error');
         artistSelector.innerHTML = '<p class="artists-load-error">Could not load artists. Please try again.</p>';
       }
     }
@@ -182,6 +183,7 @@
             datesGrid.appendChild(grid);
           });
       } catch (e) {
+        toast('Could not load dates', 'error');
         datesGrid.innerHTML = '<div class="dates-empty">Could not load dates. Please refresh.</div>';
       }
     }
@@ -278,6 +280,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Payment setup failed');
 
+        toast('Payment details loaded', 'success');
         clientSecret = data.client_secret;
         bookingId    = data.booking_id;
         depositAmountEl.textContent = `€${data.deposit_amount}`;
@@ -325,7 +328,9 @@
         paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       } catch (err) {
-        paymentError.textContent = err.message || 'Something went wrong. Please try again.';
+        const errMsg = err.message || 'Something went wrong. Please try again.';
+        toast(errMsg, 'error');
+        paymentError.textContent = errMsg;
         paymentError.classList.add('visible');
         proceedBtn.textContent = 'Proceed to Payment';
         proceedBtn.disabled = false;
@@ -347,6 +352,7 @@
       });
 
       if (error) {
+        toast(error.message, 'error');
         paymentError.textContent = error.message;
         paymentError.classList.add('visible');
         submitBtn.disabled = false;

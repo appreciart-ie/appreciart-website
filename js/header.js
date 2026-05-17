@@ -84,7 +84,8 @@
     sessionStorage.removeItem('art_artist');
     localStorage.removeItem('art_token');
     localStorage.removeItem('art_artist');
-    window.location.href = 'index.html';
+    toast('Signed out successfully', 'success');
+    setTimeout(() => { window.location.href = 'index.html'; }, 500);
   }
 
   const navSignOut    = document.getElementById('navSignOut');

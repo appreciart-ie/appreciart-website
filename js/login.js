@@ -88,14 +88,15 @@
       store.setItem('art_token',  data.token);
       store.setItem('art_artist', JSON.stringify(data.artist));
 
-      window.location.href = 'dashboard.html';
+      toast('Signed in successfully', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
 
     } catch (err) {
-      if (err.name === 'TimeoutError') {
-        setError('Request timed out. Please try again.');
-      } else {
-        setError('Something went wrong. Please try again.');
-      }
+      const errMsg = err.name === 'TimeoutError'
+        ? 'Request timed out. Please try again.'
+        : 'Something went wrong. Please try again.';
+      toast(errMsg, 'error');
+      setError(errMsg);
     } finally {
       setLoading(false);
     }

@@ -137,6 +137,7 @@
           const data = await res.json();
 
           if (res.ok && data.ok) {
+            toast('Form submitted successfully', 'success');
             document.getElementById('formWrap').style.display = 'none';
             document.getElementById('successState').classList.add('visible');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -147,6 +148,7 @@
             btn.textContent = 'Submit Form';
           }
         } catch {
+          toast('Connection error. Please try again.', 'error');
           errGen.textContent = 'Connection error. Please check your connection and try again.';
           errGen.style.display = 'block';
           btn.disabled = false;

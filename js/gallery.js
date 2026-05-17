@@ -72,9 +72,12 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Checkout failed');
 
-        window.location.href = data.url;
+        toast('Redirecting to checkout...', 'success');
+        setTimeout(() => { window.location.href = data.url; }, 500);
       } catch (err) {
-        buyError.textContent = err.message || 'Something went wrong. Please try again.';
+        const errMsg = err.message || 'Something went wrong. Please try again.';
+        toast(errMsg, 'error');
+        buyError.textContent = errMsg;
         buyError.classList.add('visible');
         buyBtn.disabled    = false;
         buyBtn.textContent = 'Purchase this Work';

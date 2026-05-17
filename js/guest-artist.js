@@ -57,12 +57,15 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
 
+        toast('Application submitted successfully', 'success');
         formInner.style.display = 'none';
         successEl.classList.add('visible');
         successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       } catch (err) {
-        generalErr.textContent = err.message || 'Something went wrong. Please try again.';
+        const errMsg = err.message || 'Something went wrong. Please try again.';
+        toast(errMsg, 'error');
+        generalErr.textContent = errMsg;
         generalErr.classList.add('visible');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Application';
