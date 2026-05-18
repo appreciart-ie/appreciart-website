@@ -171,6 +171,39 @@
   color: var(--black);
 }
 
+.bookings-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 12px;
+  display: block;
+  margin-top: 24px;
+}
+
+.bookings-list-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--light);
+  border: 1px solid var(--light);
+  margin-bottom: 8px;
+}
+
+.bookings-past { border: none; }
+.bookings-past-toggle { cursor: pointer; list-style: none; }
+.bookings-past-toggle::-webkit-details-marker { display: none; }
+
+.booking-card:hover { background: var(--off-white); }
+
+.booking-modal-detail {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-bottom: 4px;
+}
+
 /* ── CALENDAR ── */
 
 .cal-header {

@@ -66,6 +66,19 @@
   }
 
   // ── Bookings ──
+  const STAGE_LABELS = {
+    'novo_lead':     'New lead',
+    'contactado':    'Contacted',
+    'deposito_pago': 'Deposit paid',
+    'confirmado':    'Confirmed',
+    'concluido':     'Completed',
+    'cancelado':     'Cancelled',
+  };
+
+  const STAGES = Object.keys(STAGE_LABELS);
+
+  function stageLabel(s) { return STAGE_LABELS[s] || s; }
+
   async function loadBookings() {
     try {
       const res = await authFetch('/api/artist/bookings');
@@ -81,27 +94,110 @@
         return;
       }
 
-      const stageLabel = s => ({
-        'novo_lead': 'New lead',
-        'contactado': 'Contacted',
-        'deposito_pago': 'Deposit paid',
-        'confirmado': 'Confirmed',
-        'concluido': 'Completed',
-        'cancelado': 'Cancelled',
-      }[s] || s);
+      const now      = new Date(); now.setHours(0,0,0,0);
+      const upcoming = data.bookings.filter(b => !b.date || new Date(b.date) >= now);
+      const past     = data.bookings.filter(b => b.date && new Date(b.date) < now);
 
-      bookingsList.innerHTML = data.bookings.map(b => `
-        <div class="booking-card">
-          <span class="booking-client">${esc(b.client_name)}</span>
-          <span class="booking-meta">${esc(b.style || '—')} · ${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
-          <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
-        </div>
-      `).join('');
+      function renderCards(list) {
+        return list.map(b => `
+          <div class="booking-card" data-id="${b.id}" style="cursor:pointer">
+            <span class="booking-client">${esc(b.client_name)}</span>
+            <span class="booking-meta">${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
+            <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
+          </div>
+        `).join('');
+      }
+
+      let html = '';
+      if (upcoming.length) {
+        html += `<p class="bookings-section-label">Upcoming</p>
+                 <div class="bookings-list-inner">${renderCards(upcoming)}</div>`;
+      }
+      if (past.length) {
+        html += `<details class="bookings-past">
+                   <summary class="bookings-section-label bookings-past-toggle">Past (${past.length})</summary>
+                   <div class="bookings-list-inner">${renderCards(past)}</div>
+                 </details>`;
+      }
+
+      bookingsList.innerHTML = html;
+
+      bookingsList.querySelectorAll('.booking-card').forEach(card => {
+        const id = card.dataset.id;
+        const booking = data.bookings.find(b => String(b.id) === id);
+        if (booking) card.addEventListener('click', () => showBookingModal(booking));
+      });
 
     } catch {
       window.toast('Could not load bookings', 'error');
       bookingsList.innerHTML = '<p class="dash-empty">Could not load bookings. Please refresh.</p>';
     }
+  }
+
+  function showBookingModal(b) {
+    const existing = document.getElementById('bookingModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'bookingModal';
+    modal.className = 'cal-modal-overlay';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">${esc(b.date ? b.date.slice(0,10) : 'No date')}</p>
+        <p class="cal-modal-title">${esc(b.client_name)}</p>
+        ${b.client_email ? `<p class="booking-modal-detail">${esc(b.client_email)}</p>` : ''}
+        ${b.client_phone ? `<p class="booking-modal-detail">${esc(b.client_phone)}</p>` : ''}
+        ${b.style ? `<p class="booking-modal-detail">${esc(b.style)}</p>` : ''}
+        <div class="cal-modal-field" style="margin-top:20px">
+          <label class="cal-modal-label" for="bmStage">Status</label>
+          <select class="cal-modal-input cal-modal-select" id="bmStage">
+            ${STAGES.map(s => `<option value="${s}"${b.stage === s ? ' selected' : ''}>${stageLabel(s)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="bmNotes">Notes</label>
+          <input class="cal-modal-input" id="bmNotes" type="text" value="${esc(b.notes || '')}" placeholder="Internal notes">
+        </div>
+        <div class="cal-modal-actions">
+          <button class="btn btn-primary btn-sm" id="bmSave">Save</button>
+          <button class="btn btn-secondary btn-sm" id="bmClose">Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    function closeModal() {
+      modal.classList.remove('open');
+      setTimeout(() => modal.remove(), 250);
+      document.removeEventListener('keydown', escHandler);
+    }
+
+    function escHandler(e) { if (e.key === 'Escape') closeModal(); }
+    document.addEventListener('keydown', escHandler);
+
+    document.getElementById('bmClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    document.getElementById('bmSave').addEventListener('click', async () => {
+      const stage = document.getElementById('bmStage').value;
+      const notes = document.getElementById('bmNotes').value.trim();
+      try {
+        const res = await authFetch(`/api/artist/bookings/${b.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ stage, notes }),
+        });
+        if (res.ok) {
+          window.toast('Booking updated', 'success');
+          closeModal();
+          loadBookings();
+        } else {
+          window.toast('Failed to update booking', 'error');
+        }
+      } catch {
+        window.toast('Error updating booking', 'error');
+      }
+    });
   }
 
   // ── Calendar ──
@@ -201,6 +297,9 @@
     calGrid.querySelectorAll('.cal-bar[data-tooltip]').forEach(bar => {
       bar.addEventListener('mouseenter', e => showTooltip(e, bar.dataset.tooltip));
       bar.addEventListener('mouseleave', hideTooltip);
+      if (bar.dataset.mine === 'false') {
+        bar.addEventListener('click', e => e.stopPropagation());
+      }
     });
 
     // Click handlers
