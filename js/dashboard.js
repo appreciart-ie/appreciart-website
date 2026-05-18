@@ -250,7 +250,15 @@
         </div>
         <div class="cal-modal-field">
           <label class="cal-modal-label" for="calSessionTime">Time</label>
-          <input class="cal-modal-input" id="calSessionTime" type="text" placeholder="e.g. 14:00" autocomplete="off" maxlength="5">
+          <select class="cal-modal-input cal-modal-select" id="calSessionTime">
+            <option value="">— Select time —</option>
+            ${Array.from({length: 28}, (_, i) => {
+              const h = Math.floor(i / 2) + 9;
+              const m = i % 2 === 0 ? '00' : '30';
+              const val = `${String(h).padStart(2,'0')}:${m}`;
+              return `<option value="${val}">${val}</option>`;
+            }).join('')}
+          </select>
         </div>
         <div class="cal-modal-actions">
           <button class="btn btn-primary btn-sm" id="calModalConfirm" ${noSlots ? 'disabled' : ''}>Confirm</button>

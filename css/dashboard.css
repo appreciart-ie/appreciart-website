@@ -246,7 +246,7 @@
   flex-direction: column;
   padding: 6px;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid var(--light);
   transition: border-color 0.15s;
   position: relative;
   box-sizing: border-box;
@@ -475,6 +475,15 @@
 
 .cal-modal-input:focus { border-color: var(--black); }
 .cal-modal-input--error { border-color: #e53935; }
+
+.cal-modal-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23636363' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
 
 .cal-modal-actions {
   display: flex;
