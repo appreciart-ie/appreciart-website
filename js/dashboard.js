@@ -304,9 +304,9 @@
         <p class="cal-modal-slots ${noSlots ? 'cal-modal-slots--full' : ''}">
           ${noSlots ? 'No slots available' : `${slotsAvailable} of ${slotsTotal} slots available`}
         </p>
-        <div class="cal-modal-actions" style="flex-direction:column;gap:8px">
-          <button class="btn btn-primary btn-sm" id="calModalMarkAvail">Mark as available</button>
-          <button class="btn btn-secondary btn-sm" id="calModalBookClient" ${noSlots ? 'disabled' : ''}>Book a client</button>
+        <div class="cal-modal-actions">
+          <button class="btn btn-primary btn-sm" id="calModalMarkAvail">Mark available</button>
+          <button class="btn btn-secondary btn-sm" id="calModalBookClient" ${noSlots ? 'disabled' : ''}>Book client</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
       </div>

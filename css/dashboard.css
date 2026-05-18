@@ -367,8 +367,8 @@
 
 .cal-modal-box {
   background: var(--white);
-  padding: 32px;
-  max-width: 360px;
+  padding: 40px;
+  max-width: 460px;
   width: 100%;
   transform: translateY(8px);
   transition: transform 0.2s ease;
