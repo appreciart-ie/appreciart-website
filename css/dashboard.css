@@ -69,7 +69,7 @@
 }
 
 .dash-wrap {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding-top: 100px;
   padding-bottom: 80px;
@@ -241,10 +241,10 @@
 }
 
 .cal-day {
-  min-height: 64px;
+  min-height: 90px;
   display: flex;
   flex-direction: column;
-  padding: 4px;
+  padding: 6px;
   cursor: pointer;
   border: 1px solid transparent;
   transition: border-color 0.15s;
@@ -272,10 +272,10 @@
 }
 
 .cal-bar {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  padding: 2px 4px;
+  padding: 3px 6px;
   border-radius: 2px;
   white-space: nowrap;
   overflow: hidden;
