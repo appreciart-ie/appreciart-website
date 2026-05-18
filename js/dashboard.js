@@ -100,7 +100,7 @@
 
       function renderCards(list) {
         return list.map(b => `
-          <div class="booking-card" data-id="${b.id}" style="cursor:pointer">
+          <div class="booking-card booking-card--clickable" data-id="${b.id}">
             <span class="booking-client">${esc(b.client_name)}</span>
             <span class="booking-meta">${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
             <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
