@@ -8,7 +8,6 @@
   const passInput  = document.getElementById('password');
   const loginBtn   = document.getElementById('loginBtn');
   const errorEl    = document.getElementById('loginError');
-  const remember   = document.getElementById('remember');
 
   if (!form) return;
 
@@ -84,9 +83,8 @@
         return;
       }
 
-      const store = remember.checked ? localStorage : sessionStorage;
-      store.setItem('art_token',  data.token);
-      store.setItem('art_artist', JSON.stringify(data.artist));
+      localStorage.setItem('art_token',  data.token);
+      localStorage.setItem('art_artist', JSON.stringify(data.artist));
 
       toast('Signed in successfully', 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);

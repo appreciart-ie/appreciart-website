@@ -75,6 +75,7 @@
   padding-bottom: 80px;
   padding-left: var(--px);
   padding-right: var(--px);
+  min-height: calc(100vh - 80px);
 }
 
 .dash-top {
