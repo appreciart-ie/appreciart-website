@@ -81,7 +81,7 @@
 
   async function loadBookings() {
     try {
-      const res = await authFetch('/api/artist/bookings');
+      const res = await authFetch('/api/artist/sessions');
       if (res.status === 401) {
         window.toast('Session expired. Please sign in again.', 'error');
         setTimeout(() => { window.location.href = 'login.html'; }, 800);
@@ -89,14 +89,15 @@
       }
       const data = await res.json();
 
-      if (!data.bookings || data.bookings.length === 0) {
+      const data_sessions = data.sessions || data.bookings || [];
+      if (!data_sessions.length) {
         bookingsList.innerHTML = '<p class="dash-empty">No bookings yet.</p>';
         return;
       }
 
       const now      = new Date(); now.setHours(0,0,0,0);
-      const upcoming = data.bookings.filter(b => !b.date || new Date(b.date) >= now);
-      const past     = data.bookings.filter(b => b.date && new Date(b.date) < now);
+      const upcoming = data_sessions.filter(b => !b.date || new Date(b.date) >= now);
+      const past     = data_sessions.filter(b => b.date && new Date(b.date) < now);
 
       function renderCards(list) {
         return list.map(b => `
@@ -124,7 +125,7 @@
 
       bookingsList.querySelectorAll('.booking-card').forEach(card => {
         const id = card.dataset.id;
-        const booking = data.bookings.find(b => String(b.id) === id);
+        const booking = data_sessions.find(b => String(b.id) === id);
         if (booking) card.addEventListener('click', () => showBookingModal(booking));
       });
 
