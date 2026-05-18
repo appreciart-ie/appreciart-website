@@ -264,6 +264,79 @@
 .cal-dot.unavailable { background: var(--black); }
 .cal-dot.booked      { background: var(--black); opacity: 0.4; }
 
+.cal-day.my-available { border: none; }
+.cal-day.neutral { background: transparent; }
+
+.cal-others {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+}
+
+.cal-dot-artist {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── CONFIRM MODAL ── */
+.cal-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cal-modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cal-modal-box {
+  background: var(--white);
+  padding: 32px;
+  max-width: 360px;
+  width: 100%;
+  transform: translateY(8px);
+  transition: transform 0.2s ease;
+}
+
+.cal-modal-overlay.open .cal-modal-box { transform: translateY(0); }
+
+.cal-modal-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  color: var(--black);
+}
+
+.cal-modal-body {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.cal-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
 @media (max-width: 600px) {
   .dash-wrap {
     padding-top: 90px;
