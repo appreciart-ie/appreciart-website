@@ -60,6 +60,9 @@
     es.addEventListener('availability_update', () => {
       loadAvailability(false);
     });
+    es.addEventListener('booking_update', () => {
+      loadBookings();
+    });
     es.onerror = () => {
       setTimeout(initSSE, 10000);
     };
