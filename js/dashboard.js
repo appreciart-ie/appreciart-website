@@ -85,8 +85,11 @@
   }
 
   // ── Calendar ──
-  let currentYear        = new Date().getFullYear();
-  let currentMonth       = new Date().getMonth();
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  let currentYear        = today.getFullYear();
+  let currentMonth       = today.getMonth();
   let studioAvailability = [];
 
   async function loadAvailability() {
@@ -107,7 +110,7 @@
     }
   }
 
-  function getDayData(dateStr) {
+  function getDayEntries(dateStr) {
     return studioAvailability.filter(a => a.date.slice(0, 10) === dateStr);
   }
 
@@ -117,9 +120,6 @@
     calMonth.textContent = `${months[currentMonth]} ${currentYear}`;
 
     const days   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const today  = new Date();
-    today.setHours(0,0,0,0);
-
     const first  = new Date(currentYear, currentMonth, 1);
     const total  = new Date(currentYear, currentMonth + 1, 0).getDate();
     let startDay = first.getDay();
@@ -133,91 +133,127 @@
       const date    = new Date(currentYear, currentMonth, d);
       const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const past    = date < today;
-      const entries = getDayData(dateStr);
-
+      const entries = getDayEntries(dateStr);
       const myEntry = entries.find(e => e.artist_slug === artist.slug);
       const others  = entries.filter(e => e.artist_slug !== artist.slug);
 
-      // Build dots for other artists
-      const dots = others.map(e => {
-        return `<span class="cal-dot-artist" data-slug="${esc(e.artist_slug)}" title="${esc(e.artist_name)}"></span>`;
+      // Build event bars
+      const bars = entries.map(e => {
+        const isMine        = e.artist_slug === artist.slug;
+        const isConsultation = e.type === 'consultation';
+        const label = e.session_time ? e.session_time : '';
+        return `<span class="cal-bar"
+          data-slug="${esc(e.artist_slug)}"
+          data-mine="${isMine}"
+          data-consultation="${isConsultation}"
+          data-tooltip="${esc(e.artist_name)}${e.session_time ? ' · ' + e.session_time : ''}${e.type ? ' · ' + e.type : ''}"
+          >${label}</span>`;
       }).join('');
 
-      let cls       = 'cal-day';
-      let colourKey = '';
-      let readonly  = false;
+      let cls = 'cal-day';
+      if (past) cls += ' past';
+      if (myEntry) cls += ' has-mine';
 
-      if (past) {
-        cls += ' past';
-        readonly = true;
-      } else if (myEntry) {
-        // My day — booked with client
-        const col = getArtistColour(artist.slug);
-        colourKey = `background:${col.bg};color:${col.text};`;
-        cls += ' my-booked';
-      } else {
-        // Empty — available to book
-        cls += ' neutral';
-      }
-
-      if (readonly) {
-        html += `<div class="${cls}" data-date="${dateStr}" data-readonly="true">
-          ${d}${dots ? `<span class="cal-others">${dots}</span>` : ''}
-        </div>`;
-      } else {
-        const clientName = myEntry ? (myEntry.client_name || '') : '';
-        html += `<div class="${cls}" data-date="${dateStr}" data-colour="${colourKey}" data-client="${esc(clientName)}" data-mine="true">
-          ${d}${dots ? `<span class="cal-others">${dots}</span>` : ''}
-        </div>`;
-      }
+      const canClick = !past;
+      html += `<div class="${cls}" data-date="${dateStr}" ${canClick ? '' : 'data-readonly="true"'}>
+        <span class="cal-day-num">${d}</span>
+        ${bars ? `<span class="cal-bars">${bars}</span>` : ''}
+      </div>`;
     }
 
     calGrid.innerHTML = html;
 
-    calGrid.querySelectorAll('.cal-day[data-colour]').forEach(el => {
-      const col = el.dataset.colour;
-      if (col) el.style.cssText = col;
+    // Apply colours via JS (CSP safe)
+    calGrid.querySelectorAll('.cal-bar[data-slug]').forEach(bar => {
+      const col            = getArtistColour(bar.dataset.slug);
+      const isConsultation = bar.dataset.consultation === 'true';
+      bar.style.background = col.bg;
+      bar.style.color      = col.text;
+      if (isConsultation) bar.style.opacity = '0.45';
     });
 
-    calGrid.querySelectorAll('.cal-dot-artist[data-slug]').forEach(dot => {
-      const col = getArtistColour(dot.dataset.slug);
-      dot.style.background = col.bg;
+    // Tooltip
+    calGrid.querySelectorAll('.cal-bar[data-tooltip]').forEach(bar => {
+      bar.addEventListener('mouseenter', e => showTooltip(e, bar.dataset.tooltip));
+      bar.addEventListener('mouseleave', hideTooltip);
     });
 
-    calGrid.querySelectorAll('.cal-day[data-mine="true"]').forEach(el => {
+    // Click handlers
+    calGrid.querySelectorAll('.cal-day:not(.empty):not(.past)').forEach(el => {
       el.addEventListener('click', () => handleDayClick(el));
     });
   }
 
-  function handleDayClick(el) {
-    const date       = el.dataset.date;
-    const isBooked   = el.classList.contains('my-booked');
-    const clientName = el.dataset.client || '';
-    const friendly   = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+  // ── Tooltip ──
+  function showTooltip(e, text) {
+    let tip = document.getElementById('calTooltip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'calTooltip';
+      tip.className = 'cal-tooltip';
+      document.body.appendChild(tip);
+    }
+    tip.textContent = text;
+    tip.style.display = 'block';
+    const r = e.target.getBoundingClientRect();
+    tip.style.left = `${r.left + window.scrollX}px`;
+    tip.style.top  = `${r.top + window.scrollY - tip.offsetHeight - 6}px`;
+  }
 
-    if (isBooked) {
-      showBookedModal(date, friendly, clientName);
+  function hideTooltip() {
+    const tip = document.getElementById('calTooltip');
+    if (tip) tip.style.display = 'none';
+  }
+
+  // ── Day click ──
+  async function handleDayClick(el) {
+    const date    = el.dataset.date;
+    const myEntry = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
+    const friendly = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    if (myEntry) {
+      showViewModal(date, friendly, myEntry);
     } else {
-      showBookModal(date, friendly);
+      // Fetch slots before showing modal
+      try {
+        const res  = await authFetch(`/api/artist/slots/${date}`);
+        const data = await res.json();
+        showBookModal(date, friendly, data.available || 0, data.total || 4);
+      } catch {
+        showBookModal(date, friendly, 4, 4);
+      }
     }
   }
 
-  // ── Modal: book a date ──
-  function showBookModal(date, friendly) {
+  // ── Modal: book ──
+  function showBookModal(date, friendly, slotsAvailable, slotsTotal) {
     removeModal();
+    const noSlots = slotsAvailable === 0;
+
     const modal = document.createElement('div');
     modal.id = 'calModal';
     modal.className = 'cal-modal-overlay';
     modal.innerHTML = `
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
-        <p class="cal-modal-title">Book this date</p>
+        <p class="cal-modal-title">New session</p>
+        <p class="cal-modal-slots ${noSlots ? 'cal-modal-slots--full' : ''}">
+          ${noSlots ? 'No slots available' : `${slotsAvailable} of ${slotsTotal} slots available`}
+        </p>
+        <div class="cal-modal-type">
+          <button class="cal-type-btn active" data-type="booking">Booking</button>
+          <button class="cal-type-btn" data-type="consultation">Consultation</button>
+        </div>
         <div class="cal-modal-field">
           <label class="cal-modal-label" for="calClientName">Client name</label>
           <input class="cal-modal-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
         </div>
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="calSessionTime">Time</label>
+          <input class="cal-modal-input" id="calSessionTime" type="text" placeholder="e.g. 14:00" autocomplete="off" maxlength="5">
+        </div>
         <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="calModalConfirm">Confirm booking</button>
+          <button class="btn btn-primary btn-sm" id="calModalConfirm" ${noSlots ? 'disabled' : ''}>Confirm</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
       </div>
@@ -225,27 +261,44 @@
     document.body.appendChild(modal);
     requestAnimationFrame(() => modal.classList.add('open'));
 
-    const input = document.getElementById('calClientName');
-    setTimeout(() => input.focus(), 200);
+    let selectedType = 'booking';
+
+    modal.querySelectorAll('.cal-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.querySelectorAll('.cal-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedType = btn.dataset.type;
+        // Consultation doesn't block slots — re-enable confirm
+        const confirmBtn = document.getElementById('calModalConfirm');
+        if (selectedType === 'consultation') {
+          confirmBtn.disabled = false;
+        } else {
+          confirmBtn.disabled = noSlots;
+        }
+      });
+    });
+
+    const nameInput = document.getElementById('calClientName');
+    const timeInput = document.getElementById('calSessionTime');
+    setTimeout(() => nameInput.focus(), 200);
 
     document.getElementById('calModalConfirm').addEventListener('click', () => {
-      const name = input.value.trim();
-      if (!name) { input.classList.add('cal-modal-input--error'); return; }
+      const name = nameInput.value.trim();
+      if (!name) { nameInput.classList.add('cal-modal-input--error'); return; }
       removeModal();
-      bookDate(date, name);
+      bookDate(date, name, timeInput.value.trim(), selectedType);
     });
 
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
     document.addEventListener('keydown', onEsc);
 
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('calModalConfirm').click();
-    });
+    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') timeInput.focus(); });
+    timeInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('calModalConfirm').click(); });
   }
 
-  // ── Modal: view/cancel a booked date ──
-  function showBookedModal(date, friendly, clientName) {
+  // ── Modal: view/edit ──
+  function showViewModal(date, friendly, entry) {
     removeModal();
     const modal = document.createElement('div');
     modal.id = 'calModal';
@@ -253,10 +306,11 @@
     modal.innerHTML = `
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
-        <p class="cal-modal-title">Booked</p>
-        ${clientName ? `<p class="cal-modal-client">${esc(clientName)}</p>` : ''}
+        <p class="cal-modal-title">${entry.type === 'consultation' ? 'Consultation' : 'Booking'}</p>
+        ${entry.client_name ? `<p class="cal-modal-client">${esc(entry.client_name)}</p>` : ''}
+        ${entry.session_time ? `<p class="cal-modal-time">${esc(entry.session_time)}</p>` : ''}
         <div class="cal-modal-actions">
-          <button class="btn btn-secondary btn-sm" id="calModalUnbook">Cancel booking</button>
+          <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalDelete">Delete</button>
           <button class="btn btn-primary btn-sm" id="calModalClose">Close</button>
         </div>
       </div>
@@ -264,9 +318,9 @@
     document.body.appendChild(modal);
     requestAnimationFrame(() => modal.classList.add('open'));
 
-    document.getElementById('calModalUnbook').addEventListener('click', () => {
+    document.getElementById('calModalDelete').addEventListener('click', () => {
       removeModal();
-      unbookDate(date);
+      deleteDate(date);
     });
     document.getElementById('calModalClose').addEventListener('click', removeModal);
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
@@ -283,49 +337,49 @@
     document.removeEventListener('keydown', onEsc);
   }
 
-  async function bookDate(date, clientName) {
+  async function bookDate(date, clientName, sessionTime, type) {
     try {
       const res = await authFetch('/api/artist/availability', {
         method: 'POST',
-        body:   JSON.stringify({ date, is_available: true, client_name: clientName }),
+        body:   JSON.stringify({ date, is_available: true, client_name: clientName, session_time: sessionTime || null, type }),
       });
 
+      if (res.status === 409) {
+        window.toast('No slots available for this date', 'error');
+        return;
+      }
+
       if (res.ok) {
-        window.toast(`Booked — ${clientName}`, 'success');
+        window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} added — ${clientName}`, 'success');
         const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
-        if (idx >= 0) {
-          studioAvailability[idx].client_name  = clientName;
-          studioAvailability[idx].is_available = true;
-        } else {
-          studioAvailability.push({ date, is_available: true, client_name: clientName, artist_slug: artist.slug, artist_name: artist.name, has_booking: false });
-        }
+        const entry = { date, is_available: true, client_name: clientName, session_time: sessionTime || null, type, artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
+        if (idx >= 0) { studioAvailability[idx] = { ...studioAvailability[idx], ...entry }; }
+        else { studioAvailability.push(entry); }
         renderCalendar();
       } else {
-        window.toast('Failed to book date', 'error');
+        window.toast('Failed to add session', 'error');
       }
     } catch {
-      window.toast('Error booking date', 'error');
+      window.toast('Error adding session', 'error');
     }
   }
 
-  async function unbookDate(date) {
+  async function deleteDate(date) {
     try {
-      const res = await authFetch(`/api/artist/availability/${date}`, {
-        method: 'DELETE',
-      });
-
+      const res = await authFetch(`/api/artist/availability/${date}`, { method: 'DELETE' });
       if (res.ok) {
-        window.toast('Booking cancelled', 'info');
+        window.toast('Session deleted', 'info');
         studioAvailability = studioAvailability.filter(a => !(a.date.slice(0,10) === date && a.artist_slug === artist.slug));
         renderCalendar();
       } else {
-        window.toast('Failed to cancel booking', 'error');
+        window.toast('Failed to delete session', 'error');
       }
     } catch {
-      window.toast('Error cancelling booking', 'error');
+      window.toast('Error deleting session', 'error');
     }
   }
 
+  // ── Nav ──
   calPrev.addEventListener('click', () => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -337,6 +391,20 @@
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendar();
   });
+
+  // ── Today button ──
+  const calHeader = document.querySelector('.cal-header');
+  if (calHeader) {
+    const todayBtn = document.createElement('button');
+    todayBtn.className = 'cal-today-btn';
+    todayBtn.textContent = 'Today';
+    todayBtn.addEventListener('click', () => {
+      currentYear  = today.getFullYear();
+      currentMonth = today.getMonth();
+      renderCalendar();
+    });
+    calHeader.appendChild(todayBtn);
+  }
 
   loadBookings();
   loadAvailability();
