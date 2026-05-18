@@ -337,10 +337,9 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">Available</p>
-        <p class="cal-modal-slots">This date is open for booking.</p>
-        <div class="cal-modal-actions" style="flex-direction:column;gap:8px">
+        <div class="cal-modal-actions">
           <button class="btn btn-primary btn-sm" id="calModalBookClient">Book a client</button>
-          <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalRemove">Remove availability</button>
+          <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalRemove">Remove</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
       </div>

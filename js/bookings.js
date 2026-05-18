@@ -130,7 +130,7 @@
         const dateImgMap     = new Map((data.date_images || []).map(d => [d.day, d.url]));
         const today          = new Date(); today.setHours(0,0,0,0);
         const allSlots       = (data.availability || []);
-        const availableSlots = allSlots.filter(a => a.is_available);
+        const availableSlots = allSlots.filter(a => !a.booked);
 
         if (!availableSlots.length) {
           datesGrid.innerHTML = '<div class="dates-empty">No dates available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a> to enquire.</div>';
@@ -144,7 +144,7 @@
           const key = `${d.getFullYear()}-${d.getMonth()}`;
           const lbl = d.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
           if (!byMonth[key]) byMonth[key] = { label: lbl, year: d.getFullYear(), month: d.getMonth(), slots: [] };
-          byMonth[key].slots.push({ day: d.getDate(), date: a.date, isPast: d < today, isBooked: !a.is_available });
+          byMonth[key].slots.push({ day: d.getDate(), date: a.date, isPast: d < today, isBooked: !!a.booked });
         });
 
         datesGrid.innerHTML = '';
