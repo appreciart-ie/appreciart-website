@@ -337,6 +337,54 @@
   gap: 10px;
 }
 
+.cal-modal-date {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 4px;
+}
+
+.cal-modal-client {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cal-modal-field {
+  margin-bottom: 24px;
+}
+
+.cal-modal-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+
+.cal-modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--light);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--black);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.cal-modal-input:focus { border-color: var(--black); }
+.cal-modal-input--error { border-color: #e53935; }
+
 @media (max-width: 600px) {
   .dash-wrap {
     padding-top: 90px;
