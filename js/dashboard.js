@@ -140,8 +140,7 @@
 
       // Build dots for other artists
       const dots = others.map(e => {
-        const col = getArtistColour(e.artist_slug);
-        return `<span class="cal-dot-artist" style="background:${col.bg}" title="${esc(e.artist_name)}"></span>`;
+        return `<span class="cal-dot-artist" data-slug="${esc(e.artist_slug)}" title="${esc(e.artist_name)}"></span>`;
       }).join('');
 
       let cls       = 'cal-day';
@@ -178,6 +177,11 @@
     calGrid.querySelectorAll('.cal-day[data-colour]').forEach(el => {
       const col = el.dataset.colour;
       if (col) el.style.cssText = col;
+    });
+
+    calGrid.querySelectorAll('.cal-dot-artist[data-slug]').forEach(dot => {
+      const col = getArtistColour(dot.dataset.slug);
+      dot.style.background = col.bg;
     });
 
     calGrid.querySelectorAll('.cal-day[data-mine="true"]').forEach(el => {
