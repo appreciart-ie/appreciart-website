@@ -18,12 +18,43 @@
     <nav class="dash-tabs">
       <button class="dash-tab active" data-tab="bookings">Bookings</button>
       <button class="dash-tab" data-tab="availability">Availability</button>
+      <button class="dash-tab" data-tab="profile">Profile</button>
     </nav>
 
     <!-- BOOKINGS -->
     <section class="dash-panel active" id="tab-bookings">
       <div id="bookingsList" class="bookings-list">
         <p class="dash-empty">Loading…</p>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="dash-panel" id="tab-profile">
+      <div class="profile-form" id="profileForm">
+
+        <div class="profile-field">
+          <label class="profile-label" for="profileBio">Bio</label>
+          <textarea class="profile-input profile-textarea" id="profileBio" rows="5" placeholder="Your bio..."></textarea>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label" for="profileInstagram">Instagram</label>
+          <input class="profile-input" id="profileInstagram" type="text" placeholder="@yourhandle">
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label">Styles</label>
+          <div class="profile-styles" id="profileStyles"></div>
+          <div class="profile-style-add">
+            <input class="profile-input" id="profileStyleInput" type="text" placeholder="Add style..." maxlength="50">
+            <button class="btn btn-secondary btn-sm" id="profileStyleBtn">Add</button>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="btn btn-primary" id="profileSaveBtn">Save changes</button>
+        </div>
+
       </div>
     </section>
 
