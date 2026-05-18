@@ -176,7 +176,7 @@
         canToggle = true;
       }
 
-      html += `<div class="${cls}" style="${style}" data-date="${dateStr}" ${canToggle && !past ? '' : 'data-readonly="true"'}>
+      html += `<div class="${cls}" data-date="${dateStr}" data-colour="${style}" ${canToggle && !past ? '' : 'data-readonly="true"'}>
         ${d}
         ${dots ? `<span class="cal-others">${dots}</span>` : ''}
       </div>`;
@@ -184,7 +184,12 @@
 
     calGrid.innerHTML = html;
 
-    calGrid.querySelectorAll('.cal-day:not(.empty):not(.past):not(.booked)[data-readonly!="true"]').forEach(el => {
+    calGrid.querySelectorAll('.cal-day[data-colour]').forEach(el => {
+      const col = el.dataset.colour;
+      if (col) el.style.cssText = col;
+    });
+
+    calGrid.querySelectorAll('.cal-day:not(.empty):not(.past):not(.booked):not([data-readonly])').forEach(el => {
       el.addEventListener('click', () => confirmToggle(el));
     });
   }
