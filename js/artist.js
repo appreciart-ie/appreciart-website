@@ -53,7 +53,7 @@
       const today       = new Date(); today.setHours(0,0,0,0);
       const dateImgMap  = new Map(dateImages.map(d => [d.day, d.url]));
 
-      const bookedDays     = new Set(availability.filter(a => !a.is_available).map(a => new Date(a.date).getDate()));
+      const bookedDays     = new Set(availability.filter(a => a.booked).map(a => new Date(a.date).getDate()));
       const availableSlots = availability;
       const byMonth = {};
       availableSlots.forEach(a => {
