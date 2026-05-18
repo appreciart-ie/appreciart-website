@@ -315,33 +315,40 @@
   function updateLegend() {
     const legend = document.querySelector('.cal-legend');
     if (!legend) return;
-    const artistDots = Object.entries(ARTIST_COLOURS).map(([slug, col]) => {
-      return `<span class="cal-legend-item">
-        <span class="cal-dot" style="background:${col.bg}"></span>
-        ${slug.charAt(0).toUpperCase() + slug.slice(1)}
-      </span>`;
-    }).join('');
-    legend.innerHTML = `
-      ${artistDots}
-      <span class="cal-legend-item">
-        <span class="cal-dot" style="background:#1a1a1a;opacity:0.5"></span>
-        Available
-      </span>
-      <span class="cal-legend-item">
-        <span class="cal-dot" style="background:#636363;opacity:0.4"></span>
-        Consultation
-      </span>
-    `;
 
-    // Apply legend dot colours via JS (CSP safe)
-    legend.querySelectorAll('.cal-dot[style]').forEach(dot => {
-      const style = dot.getAttribute('style');
-      dot.removeAttribute('style');
-      const bg      = style.match(/background:([^;]+)/)?.[1];
-      const opacity = style.match(/opacity:([^;]+)/)?.[1];
-      if (bg) dot.style.background = bg.trim();
-      if (opacity) dot.style.opacity = opacity.trim();
+    const artistItems = Object.entries(ARTIST_COLOURS).map(([slug, col]) => {
+      const item = document.createElement('span');
+      item.className = 'cal-legend-item';
+      const dot = document.createElement('span');
+      dot.className = 'cal-dot';
+      dot.style.background = col.bg;
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(' ' + slug.charAt(0).toUpperCase() + slug.slice(1)));
+      return item;
     });
+
+    const availItem = document.createElement('span');
+    availItem.className = 'cal-legend-item';
+    const availDot = document.createElement('span');
+    availDot.className = 'cal-dot';
+    availDot.style.background = '#1a1a1a';
+    availDot.style.opacity = '0.5';
+    availItem.appendChild(availDot);
+    availItem.appendChild(document.createTextNode(' Available'));
+
+    const consultItem = document.createElement('span');
+    consultItem.className = 'cal-legend-item';
+    const consultDot = document.createElement('span');
+    consultDot.className = 'cal-dot';
+    consultDot.style.background = '#636363';
+    consultDot.style.opacity = '0.4';
+    consultItem.appendChild(consultDot);
+    consultItem.appendChild(document.createTextNode(' Consultation'));
+
+    legend.innerHTML = '';
+    artistItems.forEach(item => legend.appendChild(item));
+    legend.appendChild(availItem);
+    legend.appendChild(consultItem);
   }
 
   // ── Tooltip ──

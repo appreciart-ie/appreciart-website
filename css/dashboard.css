@@ -540,4 +540,7 @@
   .cal-day-num { font-size: 10px; }
   .cal-bar { font-size: 8px; padding: 2px 3px; }
   .cal-grid { gap: 1px; }
+  .cal-modal-box { padding: 24px 20px; max-width: 100%; }
+  .cal-modal-actions { flex-wrap: wrap; }
+  .dash-wrap { overflow-x: hidden; }
 }
