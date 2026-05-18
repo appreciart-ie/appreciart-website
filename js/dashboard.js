@@ -257,9 +257,11 @@
         const isMine         = e.artist_slug === artist.slug;
         const isConsultation = e.type === 'consultation';
         const isAvailable    = e.is_available && !e.client_name;
+        const isMine         = e.artist_slug === artist.slug;
         const typeLabel      = e.type === 'consultation' ? 'Consult' : '';
         const timeLabel      = e.session_time || '';
-        const label          = isAvailable ? 'Available' : [timeLabel, typeLabel].filter(Boolean).join(' · ');
+        const nameLabel      = isMine && e.client_name ? e.client_name : '';
+        const label          = isAvailable ? 'Available' : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
         return `<span class="cal-bar${isAvailable ? ' cal-bar--available' : ''}"
           data-slug="${esc(e.artist_slug)}"
           data-mine="${isMine}"
