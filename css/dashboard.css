@@ -543,5 +543,5 @@
   .cal-grid { gap: 1px; }
   .cal-modal-box { padding: 24px 20px; max-width: 100%; }
   .cal-modal-actions { flex-wrap: wrap; }
-  .dash-wrap { overflow-x: hidden; padding-bottom: 40px; }
+  .dash-wrap { overflow-x: hidden; padding-bottom: 40px; min-height: 0; }
 }
