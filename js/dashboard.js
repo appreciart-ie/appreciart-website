@@ -3,8 +3,8 @@
 (function () {
   const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
-  const token  = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
-  const stored = sessionStorage.getItem('art_artist') || localStorage.getItem('art_artist');
+  const token  = localStorage.getItem('art_token');
+  const stored = localStorage.getItem('art_artist');
 
   if (!token || !stored) { window.location.href = 'login.html'; return; }
 
@@ -54,6 +54,17 @@
     });
   }
 
+  // ── SSE ──
+  function initSSE() {
+    const es = new EventSource(`${INTERNAL}/api/events?token=${encodeURIComponent(token)}`);
+    es.addEventListener('availability_update', () => {
+      loadAvailability(false);
+    });
+    es.onerror = () => {
+      setTimeout(initSSE, 10000);
+    };
+  }
+
   // ── Bookings ──
   async function loadBookings() {
     try {
@@ -70,11 +81,20 @@
         return;
       }
 
+      const stageLabel = s => ({
+        'novo_lead': 'New lead',
+        'contactado': 'Contacted',
+        'deposito_pago': 'Deposit paid',
+        'confirmado': 'Confirmed',
+        'concluido': 'Completed',
+        'cancelado': 'Cancelled',
+      }[s] || s);
+
       bookingsList.innerHTML = data.bookings.map(b => `
         <div class="booking-card">
           <span class="booking-client">${esc(b.client_name)}</span>
           <span class="booking-meta">${esc(b.style || '—')} · ${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
-          <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : esc(b.stage || 'novo_lead')}</span>
+          <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
         </div>
       `).join('');
 
@@ -92,7 +112,7 @@
   let currentMonth       = today.getMonth();
   let studioAvailability = [];
 
-  async function loadAvailability() {
+  async function loadAvailability(showToast = true) {
     try {
       const res = await authFetch('/api/artist/studio-availability');
       if (res.status === 401) {
@@ -104,7 +124,7 @@
       studioAvailability = data.availability || [];
       renderCalendar();
     } catch {
-      window.toast('Could not load availability dates', 'error');
+      if (showToast) window.toast('Could not load availability dates', 'error');
       studioAvailability = [];
       renderCalendar();
     }
@@ -135,27 +155,25 @@
       const past    = date < today;
       const entries = getDayEntries(dateStr);
       const myEntry = entries.find(e => e.artist_slug === artist.slug);
-      const others  = entries.filter(e => e.artist_slug !== artist.slug);
 
-      // Build event bars
       const bars = entries.map(e => {
-        const isMine        = e.artist_slug === artist.slug;
+        const isMine         = e.artist_slug === artist.slug;
         const isConsultation = e.type === 'consultation';
-        const label = e.session_time ? e.session_time : '';
-        return `<span class="cal-bar"
+        const isAvailable    = e.is_available && !e.client_name;
+        const label          = isAvailable ? 'Available' : (e.session_time || '');
+        return `<span class="cal-bar${isAvailable ? ' cal-bar--available' : ''}"
           data-slug="${esc(e.artist_slug)}"
           data-mine="${isMine}"
           data-consultation="${isConsultation}"
-          data-tooltip="${esc(e.artist_name)}${e.session_time ? ' · ' + e.session_time : ''}${e.type ? ' · ' + e.type : ''}"
+          data-available="${isAvailable}"
+          data-tooltip="${isAvailable ? esc(e.artist_name) + ' · Available' : esc(e.artist_name) + (e.session_time ? ' · ' + e.session_time : '') + (e.type ? ' · ' + e.type : '')}"
           >${label}</span>`;
       }).join('');
 
       let cls = 'cal-day';
       if (past) cls += ' past';
-      if (myEntry) cls += ' has-mine';
 
-      const canClick = !past;
-      html += `<div class="${cls}" data-date="${dateStr}" ${canClick ? '' : 'data-readonly="true"'}>
+      html += `<div class="${cls}" data-date="${dateStr}" ${past ? 'data-readonly="true"' : ''}>
         <span class="cal-day-num">${d}</span>
         ${bars ? `<span class="cal-bars">${bars}</span>` : ''}
       </div>`;
@@ -165,11 +183,18 @@
 
     // Apply colours via JS (CSP safe)
     calGrid.querySelectorAll('.cal-bar[data-slug]').forEach(bar => {
-      const col            = getArtistColour(bar.dataset.slug);
+      const isAvailable    = bar.dataset.available === 'true';
       const isConsultation = bar.dataset.consultation === 'true';
-      bar.style.background = col.bg;
-      bar.style.color      = col.text;
-      if (isConsultation) bar.style.opacity = '0.45';
+      if (isAvailable) {
+        bar.style.background = '#1a1a1a';
+        bar.style.color      = '#ffffff';
+        bar.style.opacity    = '0.5';
+      } else {
+        const col = getArtistColour(bar.dataset.slug);
+        bar.style.background = col.bg;
+        bar.style.color      = col.text;
+        if (isConsultation) bar.style.opacity = '0.45';
+      }
     });
 
     // Tooltip
@@ -181,6 +206,42 @@
     // Click handlers
     calGrid.querySelectorAll('.cal-day:not(.empty):not(.past)').forEach(el => {
       el.addEventListener('click', () => handleDayClick(el));
+    });
+
+    // Update legend
+    updateLegend();
+  }
+
+  // ── Legend ──
+  function updateLegend() {
+    const legend = document.querySelector('.cal-legend');
+    if (!legend) return;
+    const artistDots = Object.entries(ARTIST_COLOURS).map(([slug, col]) => {
+      return `<span class="cal-legend-item">
+        <span class="cal-dot" style="background:${col.bg}"></span>
+        ${slug.charAt(0).toUpperCase() + slug.slice(1)}
+      </span>`;
+    }).join('');
+    legend.innerHTML = `
+      ${artistDots}
+      <span class="cal-legend-item">
+        <span class="cal-dot" style="background:#1a1a1a;opacity:0.5"></span>
+        Available
+      </span>
+      <span class="cal-legend-item">
+        <span class="cal-dot" style="background:#636363;opacity:0.4"></span>
+        Consultation
+      </span>
+    `;
+
+    // Apply legend dot colours via JS (CSP safe)
+    legend.querySelectorAll('.cal-dot[style]').forEach(dot => {
+      const style = dot.getAttribute('style');
+      dot.removeAttribute('style');
+      const bg      = style.match(/background:([^;]+)/)?.[1];
+      const opacity = style.match(/opacity:([^;]+)/)?.[1];
+      if (bg) dot.style.background = bg.trim();
+      if (opacity) dot.style.opacity = opacity.trim();
     });
   }
 
@@ -207,14 +268,88 @@
 
   // ── Day click ──
   async function handleDayClick(el) {
-    const date    = el.dataset.date;
-    const myEntry = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
+    const date     = el.dataset.date;
+    const myEntry  = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
     const friendly = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
 
     if (myEntry) {
-      showViewModal(date, friendly, myEntry);
+      const isAvailableOnly = myEntry.is_available && !myEntry.client_name;
+      if (isAvailableOnly) {
+        showAvailableModal(date, friendly);
+      } else {
+        showViewModal(date, friendly, myEntry);
+      }
     } else {
-      // Fetch slots before showing modal
+      try {
+        const res  = await authFetch(`/api/artist/slots/${date}`);
+        const data = await res.json();
+        showNewModal(date, friendly, data.available || 0, data.total || 4);
+      } catch {
+        showNewModal(date, friendly, 4, 4);
+      }
+    }
+  }
+
+  // ── Modal: empty day ──
+  function showNewModal(date, friendly, slotsAvailable, slotsTotal) {
+    removeModal();
+    const noSlots = slotsAvailable === 0;
+    const modal = document.createElement('div');
+    modal.id = 'calModal';
+    modal.className = 'cal-modal-overlay';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">${esc(friendly)}</p>
+        <p class="cal-modal-title">Add to calendar</p>
+        <p class="cal-modal-slots ${noSlots ? 'cal-modal-slots--full' : ''}">
+          ${noSlots ? 'No slots available' : `${slotsAvailable} of ${slotsTotal} slots available`}
+        </p>
+        <div class="cal-modal-actions" style="flex-direction:column;gap:8px">
+          <button class="btn btn-primary btn-sm" id="calModalMarkAvail">Mark as available</button>
+          <button class="btn btn-secondary btn-sm" id="calModalBookClient" ${noSlots ? 'disabled' : ''}>Book a client</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    document.getElementById('calModalMarkAvail').addEventListener('click', () => {
+      removeModal();
+      markAvailable(date);
+    });
+    document.getElementById('calModalBookClient').addEventListener('click', () => {
+      removeModal();
+      showBookModal(date, friendly, slotsAvailable, slotsTotal);
+    });
+    document.getElementById('calModalCancel').addEventListener('click', removeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
+    document.addEventListener('keydown', onEsc);
+  }
+
+  // ── Modal: available day (no client) ──
+  function showAvailableModal(date, friendly) {
+    removeModal();
+    const modal = document.createElement('div');
+    modal.id = 'calModal';
+    modal.className = 'cal-modal-overlay';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">${esc(friendly)}</p>
+        <p class="cal-modal-title">Available</p>
+        <p class="cal-modal-slots">This date is open for booking.</p>
+        <div class="cal-modal-actions" style="flex-direction:column;gap:8px">
+          <button class="btn btn-primary btn-sm" id="calModalBookClient">Book a client</button>
+          <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalRemove">Remove availability</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    document.getElementById('calModalBookClient').addEventListener('click', async () => {
+      removeModal();
       try {
         const res  = await authFetch(`/api/artist/slots/${date}`);
         const data = await res.json();
@@ -222,14 +357,20 @@
       } catch {
         showBookModal(date, friendly, 4, 4);
       }
-    }
+    });
+    document.getElementById('calModalRemove').addEventListener('click', () => {
+      removeModal();
+      deleteDate(date);
+    });
+    document.getElementById('calModalCancel').addEventListener('click', removeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
+    document.addEventListener('keydown', onEsc);
   }
 
-  // ── Modal: book ──
+  // ── Modal: book client ──
   function showBookModal(date, friendly, slotsAvailable, slotsTotal) {
     removeModal();
     const noSlots = slotsAvailable === 0;
-
     const modal = document.createElement('div');
     modal.id = 'calModal';
     modal.className = 'cal-modal-overlay';
@@ -270,19 +411,12 @@
     requestAnimationFrame(() => modal.classList.add('open'));
 
     let selectedType = 'booking';
-
     modal.querySelectorAll('.cal-type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         modal.querySelectorAll('.cal-type-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedType = btn.dataset.type;
-        // Consultation doesn't block slots — re-enable confirm
-        const confirmBtn = document.getElementById('calModalConfirm');
-        if (selectedType === 'consultation') {
-          confirmBtn.disabled = false;
-        } else {
-          confirmBtn.disabled = noSlots;
-        }
+        document.getElementById('calModalConfirm').disabled = selectedType === 'booking' && noSlots;
       });
     });
 
@@ -294,15 +428,13 @@
       const name = nameInput.value.trim();
       if (!name) { nameInput.classList.add('cal-modal-input--error'); return; }
       removeModal();
-      bookDate(date, name, timeInput.value.trim(), selectedType);
+      bookDate(date, name, timeInput.value, selectedType);
     });
 
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
     document.addEventListener('keydown', onEsc);
-
     nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') timeInput.focus(); });
-    timeInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('calModalConfirm').click(); });
   }
 
   // ── Modal: view/edit ──
@@ -315,22 +447,57 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">${entry.type === 'consultation' ? 'Consultation' : 'Booking'}</p>
-        ${entry.client_name ? `<p class="cal-modal-client">${esc(entry.client_name)}</p>` : ''}
-        ${entry.session_time ? `<p class="cal-modal-time">${esc(entry.session_time)}</p>` : ''}
-        <div class="cal-modal-actions">
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="calEditName">Client name</label>
+          <input class="cal-modal-input" id="calEditName" type="text" value="${esc(entry.client_name || '')}" autocomplete="off">
+        </div>
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="calEditTime">Time</label>
+          <select class="cal-modal-input cal-modal-select" id="calEditTime">
+            <option value="">— Select time —</option>
+            ${Array.from({length: 28}, (_, i) => {
+              const h = Math.floor(i / 2) + 9;
+              const m = i % 2 === 0 ? '00' : '30';
+              const val = `${String(h).padStart(2,'0')}:${m}`;
+              return `<option value="${val}"${entry.session_time === val ? ' selected' : ''}>${val}</option>`;
+            }).join('')}
+          </select>
+        </div>
+        <div class="cal-modal-type">
+          <button class="cal-type-btn${entry.type !== 'consultation' ? ' active' : ''}" data-type="booking">Booking</button>
+          <button class="cal-type-btn${entry.type === 'consultation' ? ' active' : ''}" data-type="consultation">Consultation</button>
+        </div>
+        <div class="cal-modal-actions" style="margin-top:24px">
+          <button class="btn btn-primary btn-sm" id="calModalSave">Save</button>
           <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalDelete">Delete</button>
-          <button class="btn btn-primary btn-sm" id="calModalClose">Close</button>
         </div>
       </div>
     `;
     document.body.appendChild(modal);
     requestAnimationFrame(() => modal.classList.add('open'));
 
+    let selectedType = entry.type || 'booking';
+    modal.querySelectorAll('.cal-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.querySelectorAll('.cal-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedType = btn.dataset.type;
+      });
+    });
+
+    document.getElementById('calModalSave').addEventListener('click', () => {
+      const name = document.getElementById('calEditName').value.trim();
+      const time = document.getElementById('calEditTime').value;
+      if (!name) { document.getElementById('calEditName').classList.add('cal-modal-input--error'); return; }
+      removeModal();
+      bookDate(date, name, time, selectedType);
+    });
+
     document.getElementById('calModalDelete').addEventListener('click', () => {
       removeModal();
       deleteDate(date);
     });
-    document.getElementById('calModalClose').addEventListener('click', removeModal);
+
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
     document.addEventListener('keydown', onEsc);
   }
@@ -345,30 +512,45 @@
     document.removeEventListener('keydown', onEsc);
   }
 
+  async function markAvailable(date) {
+    try {
+      const res = await authFetch('/api/artist/availability', {
+        method: 'POST',
+        body:   JSON.stringify({ date, is_available: true, client_name: null, session_time: null, type: 'booking' }),
+      });
+      if (res.ok) {
+        window.toast('Date marked as available', 'success');
+        const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
+        const entry = { date, is_available: true, client_name: null, session_time: null, type: 'booking', artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
+        if (idx >= 0) { studioAvailability[idx] = entry; } else { studioAvailability.push(entry); }
+        renderCalendar();
+      } else {
+        window.toast('Failed to mark date', 'error');
+      }
+    } catch {
+      window.toast('Error marking date', 'error');
+    }
+  }
+
   async function bookDate(date, clientName, sessionTime, type) {
     try {
       const res = await authFetch('/api/artist/availability', {
         method: 'POST',
         body:   JSON.stringify({ date, is_available: true, client_name: clientName, session_time: sessionTime || null, type }),
       });
-
-      if (res.status === 409) {
-        window.toast('No slots available for this date', 'error');
-        return;
-      }
-
+      if (res.status === 409) { window.toast('No slots available for this date', 'error'); return; }
       if (res.ok) {
-        window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} added — ${clientName}`, 'success');
+        window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} saved — ${clientName}`, 'success');
         const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
         const entry = { date, is_available: true, client_name: clientName, session_time: sessionTime || null, type, artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
         if (idx >= 0) { studioAvailability[idx] = { ...studioAvailability[idx], ...entry }; }
         else { studioAvailability.push(entry); }
         renderCalendar();
       } else {
-        window.toast('Failed to add session', 'error');
+        window.toast('Failed to save session', 'error');
       }
     } catch {
-      window.toast('Error adding session', 'error');
+      window.toast('Error saving session', 'error');
     }
   }
 
@@ -387,7 +569,6 @@
     }
   }
 
-  // ── Nav ──
   calPrev.addEventListener('click', () => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -400,7 +581,6 @@
     renderCalendar();
   });
 
-  // ── Today button ──
   const calHeader = document.querySelector('.cal-header');
   if (calHeader) {
     const todayBtn = document.createElement('button');
@@ -416,4 +596,5 @@
 
   loadBookings();
   loadAvailability();
+  initSSE();
 })();
