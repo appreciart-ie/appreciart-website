@@ -815,13 +815,13 @@
 
   async function uploadToCloudinary(file, sig) {
     const form = new FormData();
-    form.append('file',       file);
-    form.append('api_key',    sig.apiKey);
-    form.append('timestamp',  sig.timestamp);
-    form.append('signature',  sig.signature);
-    form.append('public_id',  sig.publicId);
-    form.append('folder',     sig.folder);
-    form.append('overwrite',  sig.overwrite ? 'true' : 'false');
+    form.append('file',      file);
+    form.append('api_key',   sig.apiKey);
+    form.append('timestamp', String(sig.timestamp));
+    form.append('signature', sig.signature);
+    form.append('public_id', sig.publicId);
+    form.append('folder',    sig.folder);
+    form.append('overwrite', sig.overwrite ? 'true' : 'false');
 
     const res = await fetch(
       `https://api.cloudinary.com/v1_1/${sig.cloud}/image/upload`,
