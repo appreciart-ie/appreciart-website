@@ -3,10 +3,10 @@
 (function () {
   const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
-  const token  = localStorage.getItem('art_token');
+  let _token = localStorage.getItem('art_token');
   const stored = localStorage.getItem('art_artist');
 
-  if (!token || !stored) { window.location.href = 'login.html'; return; }
+  if (!_token || !stored) { window.location.href = 'login.html'; return; }
 
   let artist;
   try { artist = JSON.parse(stored); } catch {
@@ -43,20 +43,45 @@
   });
 
   async function authFetch(path, options = {}) {
-    return fetch(`${INTERNAL}${path}`, {
+    const doFetch = (t) => fetch(`${INTERNAL}${path}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${t}`,
         ...(options.headers || {}),
       },
       signal: AbortSignal.timeout(12000),
     });
+
+    let res = await doFetch(_token);
+
+    if (res.status === 401) {
+      try {
+        const refreshRes = await fetch(`${INTERNAL}/api/auth/refresh`, {
+          method:      'POST',
+          credentials: 'include',
+          signal:      AbortSignal.timeout(8000),
+        });
+        if (!refreshRes.ok) throw new Error('refresh failed');
+        const refreshData = await refreshRes.json();
+        _token = refreshData.token;
+        localStorage.setItem('art_token', _token);
+        res = await doFetch(_token);
+      } catch {
+        localStorage.removeItem('art_token');
+        localStorage.removeItem('art_artist');
+        window.toast('Session expired. Please sign in again.', 'error');
+        setTimeout(() => { window.location.href = 'login.html'; }, 800);
+        throw new Error('session expired');
+      }
+    }
+
+    return res;
   }
 
   // ── SSE ──
   function initSSE() {
-    const es = new EventSource(`${INTERNAL}/api/events?token=${encodeURIComponent(token)}`);
+    const es = new EventSource(`${INTERNAL}/api/events?token=${encodeURIComponent(_token)}`);
     es.addEventListener('availability_update', () => {
       loadAvailability(false);
     });
@@ -82,14 +107,19 @@
 
   function stageLabel(s) { return STAGE_LABELS[s] || s; }
 
+  function renderCards(list) {
+    return list.map(b => `
+      <div class="booking-card booking-card--clickable" data-id="${b.id}">
+        <span class="booking-client">${esc(b.client_name)}</span>
+        <span class="booking-meta">${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
+        <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
+      </div>
+    `).join('');
+  }
+
   async function loadBookings() {
     try {
-      const res = await authFetch('/api/artist/sessions');
-      if (res.status === 401) {
-        window.toast('Session expired. Please sign in again.', 'error');
-        setTimeout(() => { window.location.href = 'login.html'; }, 800);
-        return;
-      }
+      const res  = await authFetch('/api/artist/sessions');
       const data = await res.json();
 
       const data_sessions = data.sessions || data.bookings || [];
@@ -102,15 +132,7 @@
       const upcoming = data_sessions.filter(b => !b.date || new Date(b.date) >= now);
       const past     = data_sessions.filter(b => b.date && new Date(b.date) < now);
 
-      function renderCards(list) {
-        return list.map(b => `
-          <div class="booking-card booking-card--clickable" data-id="${b.id}">
-            <span class="booking-client">${esc(b.client_name)}</span>
-            <span class="booking-meta">${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
-            <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
-          </div>
-        `).join('');
-      }
+      
 
       let html = '';
       if (upcoming.length) {
@@ -127,8 +149,7 @@
       bookingsList.innerHTML = html;
 
       bookingsList.querySelectorAll('.booking-card').forEach(card => {
-        const id = card.dataset.id;
-        const booking = data_sessions.find(b => String(b.id) === id);
+        const booking = data_sessions.find(b => String(b.id) === card.dataset.id);
         if (booking) card.addEventListener('click', () => showBookingModal(booking));
       });
 
@@ -215,12 +236,7 @@
 
   async function loadAvailability(showToast = true) {
     try {
-      const res = await authFetch('/api/artist/studio-availability');
-      if (res.status === 401) {
-        window.toast('Session expired. Please sign in again.', 'error');
-        setTimeout(() => { window.location.href = 'login.html'; }, 800);
-        return;
-      }
+      const res  = await authFetch('/api/artist/studio-availability');
       const data = await res.json();
       studioAvailability = data.availability || [];
       renderCalendar();
@@ -255,16 +271,14 @@
       const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const past    = date < today;
       const entries = getDayEntries(dateStr);
-      const myEntry = entries.find(e => e.artist_slug === artist.slug);
 
       const bars = entries.map(e => {
         const isMine         = e.artist_slug === artist.slug;
         const isConsultation = e.type === 'consultation';
         const isAvailable    = e.is_available && !e.client_name;
-        const isMyBar        = e.artist_slug === artist.slug;
         const typeLabel      = e.type === 'consultation' ? 'Consult' : '';
         const timeLabel      = e.session_time || '';
-        const nameLabel      = isMyBar && e.client_name ? e.client_name : '';
+        const nameLabel      = isMine && e.client_name ? e.client_name : '';
         const label          = isAvailable ? 'Available' : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
         return `<span class="cal-bar${isAvailable ? ' cal-bar--available' : ''}"
           data-slug="${esc(e.artist_slug)}"
@@ -590,6 +604,7 @@
     document.body.appendChild(modal);
     document.getElementById('calViewActions').style.marginTop = '24px';
     requestAnimationFrame(() => modal.classList.add('open'));
+    document.addEventListener('keydown', onEsc);
 
     let selectedType = entry.type || 'booking';
     modal.querySelectorAll('.cal-type-btn').forEach(btn => {
@@ -737,7 +752,7 @@
     `).join('');
     container.querySelectorAll('.profile-style-remove').forEach(btn => {
       btn.addEventListener('click', () => {
-        profileStyles.splice(parseInt(btn.dataset.idx), 1);
+        profileStyles.splice(parseInt(btn.dataset.idx, 10), 1);
         renderProfileStyles();
       });
     });
