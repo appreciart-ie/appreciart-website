@@ -2,8 +2,8 @@
 
 (function () {
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  const token       = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
-  const stored      = sessionStorage.getItem('art_artist') || localStorage.getItem('art_artist');
+  const token       = localStorage.getItem('art_token');
+  const stored      = localStorage.getItem('art_artist');
   const isLoggedIn  = !!token;
   const isDashboard = window.location.pathname.includes('dashboard');
 
@@ -28,7 +28,7 @@
   const mobileLinks = links.map((l, i) => `
     <div class="nav-m-item">
       <span class="nav-m-num">0${i + 1}</span>
-      <a href="${l.href}" class="nav-m-link" onclick="closeMobile()">${l.label}</a>
+      <a href="${l.href}" class="nav-m-link">${l.label}</a>
     </div>
   `).join('');
 
@@ -52,13 +52,13 @@
     : `<a href="login.html" class="nav-login">Sign in</a>`;
 
   const mobileAuthItems = !isDashboard
-    ? `<a href="dashboard.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">My Dashboard</a>`
+    ? `<a href="dashboard.html" class="nav-m-btn nav-m-btn--ghost">My Dashboard</a>`
     : '';
 
   const authBtnMobile = isLoggedIn
     ? `${mobileAuthItems}
        <button class="nav-m-btn nav-m-btn--ghost" id="mobileSignOut">Sign out</button>`
-    : `<a href="login.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--ghost">Sign in</a>`;
+    : `<a href="login.html" class="nav-m-btn nav-m-btn--ghost">Sign in</a>`;
 
   const html = `
     <nav class="nav" id="nav">
@@ -90,11 +90,11 @@
         ${mobileLinks}
       </div>
       <div class="nav-m-consent">
-        <a href="tattoo-consent-form.html" class="nav-m-consent-link" onclick="closeMobile()">Consent Form</a>
+        <a href="tattoo-consent-form.html" class="nav-m-consent-link">Consent Form</a>
       </div>
       <div class="nav-m-bottom">
         ${authBtnMobile}
-        <a href="bookings.html" onclick="closeMobile()" class="nav-m-btn nav-m-btn--solid">Book Now</a>
+        <a href="bookings.html" class="nav-m-btn nav-m-btn--solid">Book Now</a>
       </div>
     </div>
   `;
@@ -166,6 +166,10 @@
 
   if (hamburger) hamburger.addEventListener('click', openMobile);
   if (mobileClose) mobileClose.addEventListener('click', window.closeMobile);
+
+  // Attach mobile nav close handlers
+  const _mobileCloseEls = document.querySelectorAll('.nav-m-link, .nav-m-consent-link, .nav-m-btn');
+  _mobileCloseEls.forEach(el => el.addEventListener('click', () => { if (typeof window.closeMobile === 'function') window.closeMobile(); }));
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {

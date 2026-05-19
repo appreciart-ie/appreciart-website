@@ -11,7 +11,7 @@
 
   if (!form) return;
 
-  const existing = sessionStorage.getItem('art_token') || localStorage.getItem('art_token');
+  const existing = localStorage.getItem('art_token');
   if (existing) { window.location.href = 'dashboard.html'; return; }
 
   function setError(msg) {
@@ -59,10 +59,15 @@
     setError('');
 
     const email    = emailInput.value.trim().toLowerCase();
-    const password = passInput.value;
+    const password = passInput.value.trim();
 
-    if (!email || !password) {
-      setError('Please enter your email and password.');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
       return;
     }
 
@@ -79,7 +84,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Invalid credentials. Please try again.');
+        setError('Invalid credentials. Please try again.');
         return;
       }
 

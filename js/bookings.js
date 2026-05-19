@@ -278,7 +278,7 @@
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Payment setup failed');
+        if (!res.ok) throw new Error('Payment setup failed. Please try again.');
 
         toast('Payment details loaded', 'success');
         clientSecret = data.client_secret;

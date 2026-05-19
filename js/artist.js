@@ -102,7 +102,7 @@
                </div>
              </div>`
           ).join('')
-        : `<p style="font-size:14px;font-weight:300;color:var(--sec-grey)">Portfolio coming soon.</p>`;
+        : `<p class="portfolio-coming-soon">Portfolio coming soon.</p>`;
 
       root.innerHTML = `
         <div class="artist-hero reveal">
@@ -135,7 +135,7 @@
               ${esc(instaHandle)}
             </a>` : ''}
             <div class="artist-availability-inline">
-              <span class="artist-section-label" style="margin-top:32px;display:block">Available Dates</span>
+              <span class="artist-section-label artist-section-label--avail">Available Dates</span>
               ${availHtml}
             </div>
           </div>
@@ -391,7 +391,7 @@
         <div class="artist-not-found">
           <h1>Artist Not Found</h1>
           <p>This artist doesn't exist or is no longer active.</p>
-          <a href="/#artists" class="btn btn-primary" style="margin-top:16px">Back to Artists</a>
+          <a href="/#artists" class="btn btn-primary btn--mt">Back to Artists</a>
         </div>
       `;
     }

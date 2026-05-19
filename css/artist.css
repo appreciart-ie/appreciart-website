@@ -673,3 +673,7 @@
       .portfolio-item { margin-bottom: 3px; }
     }
 
+.portfolio-coming-soon { font-size: 14px; font-weight: 300; color: var(--sec-grey); }
+.artist-section-label--avail { margin-top: 32px; display: block; }
+.btn--mt { margin-top: 16px; }
+

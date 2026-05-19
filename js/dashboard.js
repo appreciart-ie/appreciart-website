@@ -152,7 +152,7 @@
         ${b.client_email ? `<p class="booking-modal-detail">${esc(b.client_email)}</p>` : ''}
         ${b.client_phone ? `<p class="booking-modal-detail">${esc(b.client_phone)}</p>` : ''}
         ${b.style ? `<p class="booking-modal-detail">${esc(b.style)}</p>` : ''}
-        <div class="cal-modal-field" style="margin-top:20px">
+        <div class="cal-modal-field" id="bmStageField">
           <label class="cal-modal-label" for="bmStage">Status</label>
           <select class="cal-modal-input cal-modal-select" id="bmStage">
             ${STAGES.map(s => `<option value="${s}"${b.stage === s ? ' selected' : ''}>${stageLabel(s)}</option>`).join('')}
@@ -169,6 +169,7 @@
       </div>
     `;
     document.body.appendChild(modal);
+    document.getElementById('bmStageField').style.marginTop = '20px';
     requestAnimationFrame(() => modal.classList.add('open'));
 
     function closeModal() {
@@ -580,13 +581,14 @@
           <button class="cal-type-btn${entry.type !== 'consultation' ? ' active' : ''}" data-type="booking">Booking</button>
           <button class="cal-type-btn${entry.type === 'consultation' ? ' active' : ''}" data-type="consultation">Consultation</button>
         </div>
-        <div class="cal-modal-actions" style="margin-top:24px">
+        <div class="cal-modal-actions" id="calViewActions">
           <button class="btn btn-primary btn-sm" id="calModalSave">Save</button>
           <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalDelete">Delete</button>
         </div>
       </div>
     `;
     document.body.appendChild(modal);
+    document.getElementById('calViewActions').style.marginTop = '24px';
     requestAnimationFrame(() => modal.classList.add('open'));
 
     let selectedType = entry.type || 'booking';
@@ -748,7 +750,7 @@
   if (profileStyleBtn) {
     profileStyleBtn.addEventListener('click', () => {
       const val = profileStyleInput.value.trim();
-      if (!val || profileStyles.includes(val)) return;
+      if (!val || profileStyles.includes(val) || profileStyles.length >= 3) return;
       profileStyles.push(val);
       profileStyleInput.value = '';
       renderProfileStyles();
