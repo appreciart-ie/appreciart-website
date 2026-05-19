@@ -627,6 +627,73 @@
   border-top: 1px solid var(--light);
 }
 
+/* ── PHOTOS ── */
+
+.profile-divider {
+  height: 1px;
+  background: var(--light);
+  margin: 40px 0;
+}
+
+.profile-photos { max-width: 600px; }
+
+.profile-photo-preview {
+  width: 120px;
+  height: 120px;
+  border: 1px solid var(--light);
+  overflow: hidden;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-photo-empty {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--mid);
+}
+
+.profile-photo-file { display: none; }
+
+.profile-photo-count {
+  font-weight: 300;
+  font-size: 9px;
+  color: var(--mid);
+  letter-spacing: 0.1em;
+}
+
+.profile-portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.portfolio-thumb {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--light);
+}
+
+.portfolio-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .profile-portfolio-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 @media (max-width: 600px) {
   .cal-day { min-height: 60px; padding: 4px; }
   .cal-day-num { font-size: 10px; }

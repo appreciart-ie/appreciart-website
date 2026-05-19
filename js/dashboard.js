@@ -800,8 +800,140 @@
     });
   }
 
+  // ── Photos ──
+  async function getUploadSignature(type) {
+    const res = await authFetch('/api/artist/upload-signature', {
+      method: 'POST',
+      body:   JSON.stringify({ type }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Could not get upload signature');
+    }
+    return res.json();
+  }
+
+  async function uploadToCloudinary(file, sig) {
+    const form = new FormData();
+    form.append('file',       file);
+    form.append('api_key',    sig.apiKey);
+    form.append('timestamp',  sig.timestamp);
+    form.append('signature',  sig.signature);
+    form.append('public_id',  sig.publicId);
+    form.append('folder',     sig.folder);
+    form.append('overwrite',  sig.overwrite ? 'true' : 'false');
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${sig.cloud}/image/upload`,
+      { method: 'POST', body: form, signal: AbortSignal.timeout(30000) }
+    );
+    if (!res.ok) throw new Error('Upload to Cloudinary failed');
+    return res.json();
+  }
+
+  async function loadPhotos() {
+    const preview  = document.getElementById('profilePhotoPreview');
+    const grid     = document.getElementById('portfolioGrid');
+    const countEl  = document.getElementById('portfolioCount');
+    const addBtn   = document.getElementById('portfolioPhotoBtn');
+
+    if (grid) grid.innerHTML = '<span class="profile-photo-empty">Loading...</span>';
+
+    try {
+      const res  = await authFetch('/api/artist/photos');
+      const data = await res.json();
+
+      if (preview) {
+        if (data.profileUrl) {
+          const img = document.createElement('img');
+          img.src       = data.profileUrl;
+          img.alt       = 'Profile photo';
+          img.className = 'profile-photo-img';
+          img.addEventListener('error', () => {
+            preview.innerHTML = '<span class="profile-photo-empty">No photo yet</span>';
+          });
+          preview.innerHTML = '';
+          preview.appendChild(img);
+        } else {
+          preview.innerHTML = '<span class="profile-photo-empty">No photo yet</span>';
+        }
+      }
+
+      if (grid) {
+        if (data.portfolio && data.portfolio.length) {
+          grid.innerHTML = data.portfolio.map(p => `
+            <div class="portfolio-thumb">
+              <img src="${esc(p.url)}" alt="Portfolio image" loading="lazy">
+            </div>
+          `).join('');
+        } else {
+          grid.innerHTML = '<span class="profile-photo-empty">No portfolio images yet</span>';
+        }
+      }
+
+      if (countEl) countEl.textContent = `(${data.count}/16)`;
+      if (addBtn)  addBtn.disabled = data.count >= 16;
+
+    } catch {
+      window.toast('Could not load photos', 'error');
+      if (grid) grid.innerHTML = '<span class="profile-photo-empty">Could not load images</span>';
+    }
+  }
+
+  const profilePhotoBtn   = document.getElementById('profilePhotoBtn');
+  const profilePhotoInput = document.getElementById('profilePhotoInput');
+  const portfolioPhotoBtn   = document.getElementById('portfolioPhotoBtn');
+  const portfolioPhotoInput = document.getElementById('portfolioPhotoInput');
+
+  if (profilePhotoBtn) {
+    profilePhotoBtn.addEventListener('click', () => profilePhotoInput.click());
+    profilePhotoInput.addEventListener('change', async () => {
+      const file = profilePhotoInput.files[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
+      profilePhotoBtn.disabled    = true;
+      profilePhotoBtn.textContent = 'Uploading...';
+      try {
+        const sig  = await getUploadSignature('profile');
+        await uploadToCloudinary(file, sig);
+        window.toast('Profile photo updated', 'success');
+        loadPhotos();
+      } catch (err) {
+        window.toast(err.message || 'Upload failed', 'error');
+      } finally {
+        profilePhotoBtn.disabled    = false;
+        profilePhotoBtn.textContent = 'Upload profile photo';
+        profilePhotoInput.value     = '';
+      }
+    });
+  }
+
+  if (portfolioPhotoBtn) {
+    portfolioPhotoBtn.addEventListener('click', () => portfolioPhotoInput.click());
+    portfolioPhotoInput.addEventListener('change', async () => {
+      const file = portfolioPhotoInput.files[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
+      portfolioPhotoBtn.disabled    = true;
+      portfolioPhotoBtn.textContent = 'Uploading...';
+      try {
+        const sig  = await getUploadSignature('portfolio');
+        await uploadToCloudinary(file, sig);
+        window.toast('Portfolio image added', 'success');
+        loadPhotos();
+      } catch (err) {
+        window.toast(err.message || 'Upload failed', 'error');
+      } finally {
+        portfolioPhotoBtn.disabled    = false;
+        portfolioPhotoBtn.textContent = 'Add portfolio image';
+        portfolioPhotoInput.value     = '';
+      }
+    });
+  }
+
   loadBookings();
   loadAvailability();
   loadProfile();
+  loadPhotos();
   initSSE();
 })();

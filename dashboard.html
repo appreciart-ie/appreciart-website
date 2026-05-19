@@ -55,6 +55,26 @@
           <button class="btn btn-primary" id="profileSaveBtn">Save changes</button>
         </div>
 
+        <div class="profile-divider"></div>
+
+        <div class="profile-photos">
+
+          <div class="profile-field">
+            <label class="profile-label">Profile photo</label>
+            <div class="profile-photo-preview" id="profilePhotoPreview"></div>
+            <input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file">
+            <button class="btn btn-secondary btn-sm" id="profilePhotoBtn">Upload profile photo</button>
+          </div>
+
+          <div class="profile-field">
+            <label class="profile-label">Portfolio <span class="profile-photo-count" id="portfolioCount"></span></label>
+            <div class="profile-portfolio-grid" id="portfolioGrid"></div>
+            <input type="file" id="portfolioPhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file">
+            <button class="btn btn-secondary btn-sm" id="portfolioPhotoBtn">Add portfolio image</button>
+          </div>
+
+        </div>
+
       </div>
     </section>
 
