@@ -707,7 +707,84 @@
     calHeader.appendChild(todayBtn);
   }
 
+  // ── Profile ──
+  let profileStyles = [];
+
+  async function loadProfile() {
+    try {
+      const res  = await authFetch('/api/artist/me');
+      const data = await res.json();
+      const a    = data.artist;
+      document.getElementById('profileBio').value       = a.bio || '';
+      document.getElementById('profileInstagram').value = a.instagram || '';
+      profileStyles = a.styles || [];
+      renderProfileStyles();
+    } catch {
+      window.toast('Could not load profile', 'error');
+    }
+  }
+
+  function renderProfileStyles() {
+    const container = document.getElementById('profileStyles');
+    if (!container) return;
+    container.innerHTML = profileStyles.map((s, i) => `
+      <span class="profile-style-tag">
+        ${esc(s)}
+        <button class="profile-style-remove" data-idx="${i}" aria-label="Remove">×</button>
+      </span>
+    `).join('');
+    container.querySelectorAll('.profile-style-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        profileStyles.splice(parseInt(btn.dataset.idx), 1);
+        renderProfileStyles();
+      });
+    });
+  }
+
+  const profileStyleBtn   = document.getElementById('profileStyleBtn');
+  const profileStyleInput = document.getElementById('profileStyleInput');
+  const profileSaveBtn    = document.getElementById('profileSaveBtn');
+
+  if (profileStyleBtn) {
+    profileStyleBtn.addEventListener('click', () => {
+      const val = profileStyleInput.value.trim();
+      if (!val || profileStyles.includes(val)) return;
+      profileStyles.push(val);
+      profileStyleInput.value = '';
+      renderProfileStyles();
+    });
+    profileStyleInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') profileStyleBtn.click();
+    });
+  }
+
+  if (profileSaveBtn) {
+    profileSaveBtn.addEventListener('click', async () => {
+      const bio       = document.getElementById('profileBio').value.trim();
+      const instagram = document.getElementById('profileInstagram').value.trim();
+      profileSaveBtn.disabled    = true;
+      profileSaveBtn.textContent = 'Saving…';
+      try {
+        const res = await authFetch('/api/artist/profile', {
+          method: 'PATCH',
+          body:   JSON.stringify({ bio, instagram, styles: profileStyles }),
+        });
+        if (res.ok) {
+          window.toast('Profile updated', 'success');
+        } else {
+          window.toast('Failed to save profile', 'error');
+        }
+      } catch {
+        window.toast('Error saving profile', 'error');
+      } finally {
+        profileSaveBtn.disabled    = false;
+        profileSaveBtn.textContent = 'Save changes';
+      }
+    });
+  }
+
   loadBookings();
   loadAvailability();
+  loadProfile();
   initSSE();
 })();
