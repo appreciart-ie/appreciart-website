@@ -106,9 +106,14 @@
     document.body.insertAdjacentHTML('afterbegin', html);
   }
 
-  function signOut() {
-    sessionStorage.removeItem('art_token');
-    sessionStorage.removeItem('art_artist');
+  async function signOut() {
+    try {
+      await fetch('https://appreciart-internal-production-ee3c.up.railway.app/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch (_) {}
     localStorage.removeItem('art_token');
     localStorage.removeItem('art_artist');
     if (window.toast) window.toast('Signed out successfully', 'info');

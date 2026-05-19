@@ -15,6 +15,7 @@
     let elements       = null;
     let clientSecret   = null;
     let bookingId      = null;
+    let paymentIntent  = null;
 
     // ── DOM refs ──
     const artistSelector  = document.getElementById('artistSelector');
@@ -283,6 +284,7 @@
         toast('Payment details loaded', 'success');
         clientSecret = data.client_secret;
         bookingId    = data.booking_id;
+        paymentIntent = data.payment_intent;
         depositAmountEl.textContent = `€${data.deposit_amount}`;
 
         // Mount Stripe Payment Element
@@ -346,7 +348,7 @@
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/bookings.html?success=1&booking_id=${bookingId}`,
+          return_url: `${window.location.origin}/bookings.html?success=1&booking_id=${bookingId}&payment_intent=${paymentIntent}`,
         },
         redirect: 'if_required',
       });
