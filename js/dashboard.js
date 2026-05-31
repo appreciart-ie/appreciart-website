@@ -25,6 +25,23 @@
     return ARTIST_COLOURS[slug] || { bg: '#636363', text: '#ffffff' };
   }
 
+  const isGuest = artist.role === 'guest';
+
+  const bookingsTab = document.querySelector('.dash-tab[data-tab="bookings"]');
+  if (isGuest && bookingsTab) {
+    bookingsTab.style.display = 'none';
+    document.getElementById('tab-bookings').style.display = 'none';
+    document.querySelector('.dash-tab[data-tab="availability"]').classList.add('active');
+    document.getElementById('tab-availability').classList.add('active');
+    document.querySelector('.dash-tab[data-tab="bookings"]').classList.remove('active');
+    document.getElementById('tab-bookings').classList.remove('active');
+  }
+
+  const whatsappField = document.getElementById('whatsappField');
+  if (whatsappField) whatsappField.style.display = isGuest ? 'block' : 'none';
+  const bookingUrlField = document.getElementById('bookingUrlField');
+  if (bookingUrlField) bookingUrlField.style.display = isGuest ? 'block' : 'none';
+
   const tabs         = document.querySelectorAll('.dash-tab');
   const panels       = document.querySelectorAll('.dash-panel');
   const bookingsList = document.getElementById('bookingsList');
@@ -734,6 +751,10 @@
       const a    = data.artist;
       document.getElementById('profileBio').value       = a.bio || '';
       document.getElementById('profileInstagram').value = a.instagram || '';
+      const waField = document.getElementById('profileWhatsapp');
+      if (waField) waField.value = a.whatsapp_url || '';
+      const bookingField = document.getElementById('profileBookingUrl');
+      if (bookingField) bookingField.value = a.booking_url || '';
       profileStyles = a.styles || [];
       renderProfileStyles();
     } catch {
@@ -777,14 +798,18 @@
 
   if (profileSaveBtn) {
     profileSaveBtn.addEventListener('click', async () => {
-      const bio       = document.getElementById('profileBio').value.trim();
-      const instagram = document.getElementById('profileInstagram').value.trim();
+      const bio          = document.getElementById('profileBio').value.trim();
+      const instagram    = document.getElementById('profileInstagram').value.trim();
+      const waEl         = document.getElementById('profileWhatsapp');
+      const whatsapp_url = waEl ? waEl.value.trim() : undefined;
+      const bookingEl    = document.getElementById('profileBookingUrl');
+      const booking_url  = bookingEl ? bookingEl.value.trim() : undefined;
       profileSaveBtn.disabled    = true;
       profileSaveBtn.textContent = 'Saving…';
       try {
         const res = await authFetch('/api/artist/profile', {
           method: 'PATCH',
-          body:   JSON.stringify({ bio, instagram, styles: profileStyles }),
+          body:   JSON.stringify({ bio, instagram, styles: profileStyles, whatsapp_url, booking_url }),
         });
         if (res.ok) {
           window.toast('Profile updated', 'success');
@@ -931,7 +956,7 @@
     });
   }
 
-  loadBookings();
+  if (!isGuest) loadBookings();
   loadAvailability();
   loadProfile();
   loadPhotos();

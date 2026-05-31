@@ -15,8 +15,8 @@
 
   <main class="dash-wrap">
 
-    <nav class="dash-tabs">
-      <button class="dash-tab active" data-tab="bookings">Bookings</button>
+    <nav class="dash-tabs" id="dashTabs">
+      <button class="dash-tab active" data-tab="bookings" data-roles="resident,admin">Bookings</button>
       <button class="dash-tab" data-tab="availability">Availability</button>
       <button class="dash-tab" data-tab="profile">Profile</button>
     </nav>
@@ -40,6 +40,18 @@
         <div class="profile-field">
           <label class="profile-label" for="profileInstagram">Instagram</label>
           <input class="profile-input" id="profileInstagram" type="text" placeholder="@yourhandle">
+        </div>
+
+        <div class="profile-field" id="whatsappField">
+          <label class="profile-label" for="profileWhatsapp">WhatsApp link</label>
+          <input class="profile-input" id="profileWhatsapp" type="text" placeholder="https://wa.me/your-number">
+          <p class="profile-hint">Clients will contact you directly here.</p>
+        </div>
+
+        <div class="profile-field" id="bookingUrlField">
+          <label class="profile-label" for="profileBookingUrl">Booking link</label>
+          <input class="profile-input" id="profileBookingUrl" type="text" placeholder="https://your-booking-site.com">
+          <p class="profile-hint">Your own booking page — Calendly, your website, etc.</p>
         </div>
 
         <div class="profile-field">
