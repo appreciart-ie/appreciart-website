@@ -155,7 +155,11 @@
           <span class="section-label">Ready?</span>
           <h2 class="section-title">Book with ${esc(artist.name)}</h2>
           <p class="section-body">Start the conversation — tell us what you have in mind.</p>
-          <a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>
+          ${artist.role === 'guest'
+  ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+     ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener">Book directly</a>` : ''}`
+  : `<a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>`
+}
         </div>
       `;
 
