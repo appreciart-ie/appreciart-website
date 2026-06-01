@@ -945,10 +945,40 @@
       if (grid) {
         if (data.portfolio && data.portfolio.length) {
           grid.innerHTML = data.portfolio.map(p => `
-            <div class="portfolio-thumb">
+            <div class="portfolio-thumb" data-public-id="${esc(p.publicId)}">
               <img src="${esc(p.url)}" alt="Portfolio image" loading="lazy">
+              <button class="portfolio-delete-btn" aria-label="Remove image">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
           `).join('');
+
+          grid.querySelectorAll('.portfolio-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const thumb    = btn.closest('.portfolio-thumb');
+              const publicId = thumb.dataset.publicId;
+              if (!publicId) return;
+
+              btn.disabled = true;
+              try {
+                const res = await authFetch('/api/artist/photos/portfolio', {
+                  method:  'DELETE',
+                  body:    JSON.stringify({ publicId }),
+                });
+                if (res.ok) {
+                  thumb.remove();
+                  window.toast('Image removed', 'info');
+                  loadPhotos();
+                } else {
+                  window.toast('Failed to remove image', 'error');
+                  btn.disabled = false;
+                }
+              } catch {
+                window.toast('Error removing image', 'error');
+                btn.disabled = false;
+              }
+            });
+          });
         } else {
           grid.innerHTML = '<span class="profile-photo-empty">No portfolio images yet</span>';
         }
