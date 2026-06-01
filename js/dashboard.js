@@ -257,16 +257,37 @@
   let currentYear        = today.getFullYear();
   let currentMonth       = today.getMonth();
   let studioAvailability = [];
+  let guestSlotMap       = {};
 
   async function loadAvailability(showToast = true) {
     try {
       const res  = await authFetch('/api/artist/studio-availability');
       const data = await res.json();
       studioAvailability = data.availability || [];
+
+      if (isGuest && artist.guest_start_date && artist.guest_end_date) {
+        try {
+          const from = artist.guest_start_date.slice(0, 10);
+          const to   = artist.guest_end_date.slice(0, 10);
+          const slotsRes  = await fetch(
+            `${INTERNAL}/api/public/slots/range?from=${from}&to=${to}`,
+            { signal: AbortSignal.timeout(8000) }
+          );
+          const slotsData = await slotsRes.json();
+          guestSlotMap = {};
+          if (slotsData.days && Array.isArray(slotsData.days)) {
+            slotsData.days.forEach(d => { guestSlotMap[d.date] = d.available; });
+          }
+        } catch {
+          guestSlotMap = {};
+        }
+      }
+
       renderCalendar();
     } catch {
       if (showToast) window.toast('Could not load availability dates', 'error');
       studioAvailability = [];
+      guestSlotMap = {};
       renderCalendar();
     }
   }
@@ -294,9 +315,28 @@
       const date    = new Date(currentYear, currentMonth, d);
       const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const past    = date < today;
+      let bars = '';
+      let cls = 'cal-day';
+
+      if (isGuest) {
+        const guestStart  = artist.guest_start_date ? artist.guest_start_date.slice(0, 10) : null;
+        const guestEnd    = artist.guest_end_date   ? artist.guest_end_date.slice(0, 10)   : null;
+        const inPeriod    = guestStart && guestEnd && dateStr >= guestStart && dateStr <= guestEnd;
+        const available   = guestSlotMap[dateStr] ?? null;
+
+        if (!inPeriod) {
+          cls += ' cal-day--blocked';
+        } else if (available === 0) {
+          cls += ' cal-day--full';
+          bars = `<span class="cal-guest-slots cal-guest-slots--full">Full</span>`;
+        } else if (available !== null) {
+          bars = `<span class="cal-guest-slots">${available} slot${available === 1 ? '' : 's'}</span>`;
+        }
+      } else {
+
       const entries = getDayEntries(dateStr);
 
-      const bars = entries.map(e => {
+      bars = entries.map(e => {
         const isMine         = e.artist_slug === artist.slug;
         const isConsultation = e.type === 'consultation';
         const isAvailable    = e.is_available && !e.client_name;
@@ -312,8 +352,8 @@
           data-tooltip="${isAvailable ? esc(e.artist_name) + ' · Available' : esc(e.artist_name) + (e.session_time ? ' · ' + e.session_time : '') + (e.type ? ' · ' + e.type : '')}"
           >${label}</span>`;
       }).join('');
+      } // end isGuest else
 
-      let cls = 'cal-day';
       if (past) cls += ' past';
 
       html += `<div class="${cls}" data-date="${dateStr}" ${past ? 'data-readonly="true"' : ''}>
