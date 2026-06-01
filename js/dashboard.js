@@ -29,7 +29,7 @@
   };
 
   function getArtistColour(slug) {
-    return ARTIST_COLOURS[slug] || { bg: '#636363', text: '#ffffff' };
+    return ARTIST_COLOURS[slug] || { bg: '#B8860B', text: '#ffffff' };
   }
 
   const isGuest = artist.role === 'guest';
@@ -889,10 +889,10 @@
       const modal = document.createElement('div');
       modal.className = 'dash-modal-overlay open';
       modal.innerHTML = `
-        <div class="dash-modal" style="max-width:360px">
+        <div class="dash-modal dash-modal--sm">
           <p class="dash-modal-tag">Confirm</p>
-          <p class="dash-modal-title" style="font-size:16px">${message}</p>
-          <div class="dash-modal-actions" style="display:flex;gap:10px">
+          <p class="dash-modal-title dash-modal-title--sm">${message}</p>
+          <div class="dash-modal-actions dash-modal-actions--row">
             <button class="btn btn-secondary" id="confirmCancel">${cancelLabel}</button>
             <button class="btn btn-primary" id="confirmOk">${confirmLabel}</button>
           </div>
