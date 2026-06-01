@@ -463,8 +463,22 @@
   // ── Day click ──
   async function handleDayClick(el) {
     const date     = el.dataset.date;
-    const myEntry  = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
     const friendly = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    if (isGuest) {
+      // Guests: skip intermediate modal, go straight to booking
+      const available = guestSlotMap[date] ?? null;
+      if (available === 0) return; // Full — do nothing
+      const myEntry = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
+      if (myEntry && myEntry.client_name) {
+        showViewModal(date, friendly, myEntry);
+      } else {
+        showGuestBookModal(date, friendly);
+      }
+      return;
+    }
+
+    const myEntry  = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
 
     if (myEntry) {
       const isAvailableOnly = myEntry.is_available && !myEntry.client_name;
@@ -482,6 +496,58 @@
         showNewModal(date, friendly, 4, 4);
       }
     }
+  }
+
+  // ── Modal: guest booking ──
+  function showGuestBookModal(date, friendly) {
+    removeModal();
+    const modal = document.createElement('div');
+    modal.id = 'calModal';
+    modal.className = 'cal-modal-overlay';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">${esc(friendly)}</p>
+        <p class="cal-modal-title">Add client</p>
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="calClientName">Client name</label>
+          <input class="cal-modal-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
+        </div>
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="calSessionTime">Time</label>
+          <select class="cal-modal-input cal-modal-select" id="calSessionTime">
+            <option value="">— Select time —</option>
+            ${Array.from({length: 28}, (_, i) => {
+              const h = Math.floor(i / 2) + 9;
+              const m = i % 2 === 0 ? '00' : '30';
+              const val = `${String(h).padStart(2,'0')}:${m}`;
+              return `<option value="${val}">${val}</option>`;
+            }).join('')}
+          </select>
+        </div>
+        <div class="cal-modal-actions">
+          <button class="btn btn-primary btn-sm" id="calModalConfirm">Confirm</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    const nameInput = document.getElementById('calClientName');
+    const timeInput = document.getElementById('calSessionTime');
+    setTimeout(() => nameInput.focus(), 200);
+
+    document.getElementById('calModalConfirm').addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (!name) { nameInput.classList.add('cal-modal-input--error'); return; }
+      removeModal();
+      bookDate(date, name, timeInput.value, 'booking');
+    });
+
+    document.getElementById('calModalCancel').addEventListener('click', () => { removeModal(); document.removeEventListener('keydown', onEsc); });
+    modal.addEventListener('click', e => { if (e.target === modal) { removeModal(); document.removeEventListener('keydown', onEsc); } });
+    document.addEventListener('keydown', onEsc);
+    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') timeInput.focus(); });
   }
 
   // ── Modal: empty day ──
