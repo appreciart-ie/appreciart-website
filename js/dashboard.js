@@ -328,9 +328,9 @@
           cls += ' cal-day--blocked';
         } else if (available === 0) {
           cls += ' cal-day--full';
-          bars = `<span class="cal-guest-slots cal-guest-slots--full">Full</span>`;
+          bars = `<span class="cal-guest-slots cal-guest-slots--full"><span class="cal-guest-slots-num">0</span><span class="cal-guest-slots-label">Full</span></span>`;
         } else if (available !== null) {
-          bars = `<span class="cal-guest-slots">${available} slot${available === 1 ? '' : 's'}</span>`;
+          bars = `<span class="cal-guest-slots"><span class="cal-guest-slots-num">${available}</span><span class="cal-guest-slots-label">slot${available === 1 ? '' : 's'}</span></span>`;
         }
       } else {
 
@@ -402,6 +402,7 @@
   function updateLegend() {
     const legend = document.querySelector('.cal-legend');
     if (!legend) return;
+    if (isGuest) { legend.style.display = 'none'; return; }
 
     const artistItems = Object.entries(ARTIST_COLOURS).map(([slug, col]) => {
       const item = document.createElement('span');
