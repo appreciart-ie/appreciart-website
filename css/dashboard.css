@@ -383,7 +383,8 @@
 .cal-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
   z-index: 400;
   display: flex;
   align-items: center;
@@ -391,7 +392,7 @@
   padding: 20px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cal-modal-overlay.open {
@@ -404,11 +405,14 @@
   padding: 40px;
   max-width: 460px;
   width: 100%;
-  transform: translateY(8px);
-  transition: transform 0.2s ease;
+  transform: translateY(12px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
 }
 
-.cal-modal-overlay.open .cal-modal-box { transform: translateY(0); }
+.cal-modal-overlay.open .cal-modal-box {
+  transform: translateY(0) scale(1);
+}
 
 .cal-modal-date {
   font-size: 10px;
@@ -665,7 +669,8 @@
 .dash-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
   z-index: 500;
   display: flex;
   align-items: center;
@@ -673,7 +678,7 @@
   padding: 20px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dash-modal-overlay.open {
@@ -686,12 +691,13 @@
   max-width: 480px;
   width: 100%;
   padding: 48px;
-  transform: translateY(16px);
-  transition: transform 0.25s ease;
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
 }
 
 .dash-modal-overlay.open .dash-modal {
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .dash-modal-tag {
@@ -784,6 +790,22 @@
   color: var(--mid);
   min-width: 24px;
   padding-top: 2px;
+}
+
+.dash-modal-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border: 1px solid var(--light);
+  color: var(--black);
+  flex-shrink: 0;
+}
+
+.dash-modal-step-icon svg {
+  display: block;
 }
 
 .dash-modal-step-content h4 {
