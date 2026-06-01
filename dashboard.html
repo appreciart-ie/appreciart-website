@@ -34,31 +34,33 @@
 
         <div class="profile-field">
           <label class="profile-label" for="profileBio">Bio</label>
-          <textarea class="profile-input profile-textarea" id="profileBio" rows="5" placeholder="Your bio..."></textarea>
+          <textarea class="profile-input profile-textarea" id="profileBio" rows="5" maxlength="600" placeholder="Tell clients what makes your work unique — your style, influences, and what to expect from a session."></textarea>
+          <p class="profile-hint">Shown publicly on your profile. 2–4 sentences works best. Max 600 characters.</p>
         </div>
 
         <div class="profile-field">
           <label class="profile-label" for="profileInstagram">Instagram</label>
-          <input class="profile-input" id="profileInstagram" type="text" placeholder="@yourhandle">
+          <input class="profile-input" id="profileInstagram" type="text" placeholder="@yourusername" maxlength="100">
+          <p class="profile-hint">Your handle without instagram.com — e.g. @moreirart</p>
         </div>
 
         <div class="profile-field" id="whatsappField">
-          <label class="profile-label" for="profileWhatsapp">WhatsApp link</label>
-          <input class="profile-input" id="profileWhatsapp" type="text" placeholder="https://wa.me/your-number">
-          <p class="profile-hint">Clients will contact you directly here.</p>
+          <label class="profile-label" for="profileWhatsapp">WhatsApp</label>
+          <input class="profile-input" id="profileWhatsapp" type="text" placeholder="353871234567" maxlength="20">
+          <p class="profile-hint">Your number in international format, no + or spaces — e.g. 353871234567 for an Irish number. Clients tap this to message you directly.</p>
         </div>
 
         <div class="profile-field" id="bookingUrlField">
           <label class="profile-label" for="profileBookingUrl">Booking link</label>
-          <input class="profile-input" id="profileBookingUrl" type="text" placeholder="https://your-booking-site.com">
-          <p class="profile-hint">Your own booking page — Calendly, your website, etc.</p>
+          <input class="profile-input" id="profileBookingUrl" type="text" placeholder="https://calendly.com/yourname" maxlength="200">
+          <p class="profile-hint">Where clients book you directly — Calendly, Instagram, your own site. Must start with https://</p>
         </div>
 
         <div class="profile-field">
-          <label class="profile-label">Styles</label>
+          <label class="profile-label">Styles <span class="profile-hint-inline" id="stylesHint">Add up to 3</span></label>
           <div class="profile-styles" id="profileStyles"></div>
           <div class="profile-style-add">
-            <input class="profile-input" id="profileStyleInput" type="text" placeholder="Add style..." maxlength="50">
+            <input class="profile-input" id="profileStyleInput" type="text" placeholder="e.g. Fine Line, Blackwork, Realism" maxlength="50">
             <button class="btn btn-secondary btn-sm" id="profileStyleBtn">Add</button>
           </div>
         </div>
@@ -76,10 +78,12 @@
             <div class="profile-photo-preview" id="profilePhotoPreview"></div>
             <input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file">
             <button class="btn btn-secondary btn-sm" id="profilePhotoBtn">Upload profile photo</button>
+            <p class="profile-hint">Square photo recommended — min 400×400px. JPG, PNG or WEBP, max 10MB.</p>
           </div>
 
           <div class="profile-field">
             <label class="profile-label">Portfolio <span class="profile-photo-count" id="portfolioCount"></span></label>
+            <p class="profile-hint">Upload your best work — shown publicly on your artist profile.</p>
             <div class="profile-portfolio-grid" id="portfolioGrid"></div>
             <input type="file" id="portfolioPhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file">
             <button class="btn btn-secondary btn-sm" id="portfolioPhotoBtn">Add portfolio image</button>

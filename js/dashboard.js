@@ -800,7 +800,10 @@
       document.getElementById('profileBio').value       = a.bio || '';
       document.getElementById('profileInstagram').value = a.instagram || '';
       const waField = document.getElementById('profileWhatsapp');
-      if (waField) waField.value = a.whatsapp_url || '';
+      if (waField) {
+        const waNum = a.whatsapp_url ? a.whatsapp_url.replace('https://wa.me/', '') : '';
+        waField.value = waNum;
+      }
       const bookingField = document.getElementById('profileBookingUrl');
       if (bookingField) bookingField.value = a.booking_url || '';
       profileStyles = a.styles || [];
@@ -833,10 +836,16 @@
 
   if (profileStyleBtn) {
     profileStyleBtn.addEventListener('click', () => {
-      const val = profileStyleInput.value.trim();
-      if (!val || profileStyles.includes(val) || profileStyles.length >= 3) return;
+      const val      = profileStyleInput.value.trim();
+      const hintEl   = document.getElementById('stylesHint');
+      if (profileStyles.length >= 3) {
+        if (hintEl) hintEl.textContent = '3 styles max — remove one to add another';
+        return;
+      }
+      if (!val || profileStyles.includes(val)) return;
       profileStyles.push(val);
       profileStyleInput.value = '';
+      if (hintEl) hintEl.textContent = profileStyles.length >= 3 ? '3 styles max — remove one to add another' : 'Add up to 3';
       renderProfileStyles();
     });
     profileStyleInput.addEventListener('keydown', e => {
@@ -849,7 +858,8 @@
       const bio          = document.getElementById('profileBio').value.trim();
       const instagram    = document.getElementById('profileInstagram').value.trim();
       const waEl         = document.getElementById('profileWhatsapp');
-      const whatsapp_url = waEl ? waEl.value.trim() : undefined;
+      const waRaw        = waEl ? waEl.value.trim().replace(/\D/g, '') : '';
+      const whatsapp_url = waRaw ? `https://wa.me/${waRaw}` : undefined;
       const bookingEl    = document.getElementById('profileBookingUrl');
       const booking_url  = bookingEl ? bookingEl.value.trim() : undefined;
       profileSaveBtn.disabled    = true;

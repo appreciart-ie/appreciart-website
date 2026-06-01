@@ -378,7 +378,7 @@
   justify-content: center;
   padding: 6px 4px;
   background: #FFC107;
-  color: #ffffff;
+  color: #000000;
   width: 100%;
   box-sizing: border-box;
   gap: 1px;
@@ -680,6 +680,15 @@
   font-weight: 300;
   color: var(--mid);
   line-height: 1.5;
+}
+
+.profile-hint-inline {
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-left: 8px;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ── Onboarding + Password modals ── */
