@@ -884,10 +884,30 @@
   }
 
   // ── Photos ──
-  async function getUploadSignature(type) {
+  function showConfirmModal(message, confirmLabel = 'Confirm', cancelLabel = 'Cancel') {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.className = 'dash-modal-overlay open';
+      modal.innerHTML = `
+        <div class="dash-modal" style="max-width:360px">
+          <p class="dash-modal-tag">Confirm</p>
+          <p class="dash-modal-title" style="font-size:16px">${message}</p>
+          <div class="dash-modal-actions" style="display:flex;gap:10px">
+            <button class="btn btn-secondary" id="confirmCancel">${cancelLabel}</button>
+            <button class="btn btn-primary" id="confirmOk">${confirmLabel}</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.querySelector('#confirmOk').addEventListener('click', () => { modal.remove(); resolve(true); });
+      modal.querySelector('#confirmCancel').addEventListener('click', () => { modal.remove(); resolve(false); });
+    });
+  }
+
+  async function getUploadSignature(type, existingPublicId = null) {
     const res = await authFetch('/api/artist/upload-signature', {
       method: 'POST',
-      body:   JSON.stringify({ type }),
+      body:   JSON.stringify({ type, existingPublicId }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -947,17 +967,53 @@
           grid.innerHTML = data.portfolio.map(p => `
             <div class="portfolio-thumb" data-public-id="${esc(p.publicId)}">
               <img src="${esc(p.url)}" alt="Portfolio image" loading="lazy">
-              <button class="portfolio-delete-btn" aria-label="Remove image">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
+              <div class="portfolio-overlay">
+                <button class="portfolio-replace-btn" aria-label="Replace image">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="portfolio-delete-btn" aria-label="Remove image">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
             </div>
           `).join('');
+
+          grid.querySelectorAll('.portfolio-replace-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const thumb    = btn.closest('.portfolio-thumb');
+              const publicId = thumb.dataset.publicId;
+              if (!publicId) return;
+
+              const input = document.createElement('input');
+              input.type   = 'file';
+              input.accept = 'image/jpeg,image/png,image/webp';
+              input.addEventListener('change', async () => {
+                const file = input.files[0];
+                if (!file) return;
+                if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
+                btn.disabled = true;
+                try {
+                  const sig = await getUploadSignature('portfolio', publicId);
+                  await uploadToCloudinary(file, sig);
+                  window.toast('Image replaced', 'success');
+                  loadPhotos();
+                } catch (err) {
+                  window.toast(err.message || 'Replace failed', 'error');
+                  btn.disabled = false;
+                }
+              });
+              input.click();
+            });
+          });
 
           grid.querySelectorAll('.portfolio-delete-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
               const thumb    = btn.closest('.portfolio-thumb');
               const publicId = thumb.dataset.publicId;
               if (!publicId) return;
+
+              const confirmed = await showConfirmModal('Remove this image from your portfolio?', 'Remove', 'Cancel');
+              if (!confirmed) return;
 
               btn.disabled = true;
               try {

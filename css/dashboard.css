@@ -951,29 +951,42 @@
   opacity: 0.7;
 }
 
-.portfolio-delete-btn {
+.portfolio-overlay {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 24px;
-  height: 24px;
-  background: var(--black);
-  color: var(--white);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  background: rgba(0,0,0,0.35);
+}
+
+.portfolio-thumb:hover .portfolio-overlay {
+  opacity: 1;
+}
+
+.portfolio-delete-btn,
+.portfolio-replace-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--white);
+  color: var(--black);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s;
   padding: 0;
+  transition: background 0.15s;
 }
 
-.portfolio-thumb:hover .portfolio-delete-btn {
-  opacity: 1;
-}
+.portfolio-delete-btn:hover  { background: #e53935; color: var(--white); }
+.portfolio-replace-btn:hover { background: var(--black); color: var(--white); }
 
-.portfolio-delete-btn:disabled {
+.portfolio-delete-btn:disabled,
+.portfolio-replace-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
