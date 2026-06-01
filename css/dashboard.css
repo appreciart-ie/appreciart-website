@@ -661,6 +661,153 @@
   margin: 0;
 }
 
+/* ── ONBOARDING + PASSWORD MODALS ── */
+.dash-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.dash-modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.dash-modal {
+  background: var(--white);
+  max-width: 480px;
+  width: 100%;
+  padding: 48px;
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+
+.dash-modal-overlay.open .dash-modal {
+  transform: translateY(0);
+}
+
+.dash-modal-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin: 0 0 16px;
+}
+
+.dash-modal-title {
+  font-size: 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--black);
+  line-height: 1.2;
+  margin: 0 0 32px;
+}
+
+.dash-modal-field {
+  margin-bottom: 16px;
+}
+
+.dash-modal-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+
+.dash-modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--light);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--black);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  background: var(--white);
+}
+
+.dash-modal-input:focus { border-color: var(--black); }
+
+.dash-modal-err {
+  font-size: 11px;
+  font-weight: 400;
+  color: #e53935;
+  margin: 8px 0 0;
+  display: none;
+}
+
+.dash-modal-actions {
+  margin-top: 32px;
+}
+
+.dash-modal-actions .btn {
+  width: 100%;
+}
+
+.dash-modal-divider {
+  height: 1px;
+  background: var(--light);
+  margin: 28px 0;
+}
+
+.dash-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dash-modal-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.dash-modal-step-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--mid);
+  min-width: 24px;
+  padding-top: 2px;
+}
+
+.dash-modal-step-content h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dash-modal-step-content p {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .dash-modal { padding: 28px 20px; }
+  .dash-modal-title { font-size: 18px; }
+}
+
 /* ── PHOTOS ── */
 
 .profile-divider {

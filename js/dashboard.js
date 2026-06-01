@@ -973,23 +973,22 @@
   function showChangePasswordModal() {
     const modal = document.createElement('div');
     modal.id = 'pwModal';
-    modal.className = 'cal-modal-overlay open';
+    modal.className = 'dash-modal-overlay open';
     modal.innerHTML = `
-      <div class="cal-modal-box">
-        <p class="cal-modal-date">Welcome to Appreciart IE</p>
-        <p class="cal-modal-title">Set your password</p>
-        <p class="booking-modal-detail">Before you get started, please set a new password for your account.</p>
-        <div class="cal-modal-field modal-field-spaced">
-          <label class="cal-modal-label" for="pwNew">New password</label>
-          <input class="cal-modal-input" type="password" id="pwNew" placeholder="Minimum 8 characters" autocomplete="new-password">
+      <div class="dash-modal">
+        <p class="dash-modal-tag">Welcome to Appreciart IE</p>
+        <h2 class="dash-modal-title">Set your password</h2>
+        <div class="dash-modal-field">
+          <label class="dash-modal-label" for="pwNew">New password</label>
+          <input class="dash-modal-input" type="password" id="pwNew" placeholder="Minimum 8 characters" autocomplete="new-password">
         </div>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="pwConfirm">Confirm password</label>
-          <input class="cal-modal-input" type="password" id="pwConfirm" placeholder="Repeat password" autocomplete="new-password">
+        <div class="dash-modal-field">
+          <label class="dash-modal-label" for="pwConfirm">Confirm password</label>
+          <input class="dash-modal-input" type="password" id="pwConfirm" placeholder="Repeat password" autocomplete="new-password">
         </div>
-        <p class="modal-err" id="pwErr"></p>
-        <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="pwSave">Save password</button>
+        <p class="dash-modal-err" id="pwErr"></p>
+        <div class="dash-modal-actions">
+          <button class="btn btn-primary" id="pwSave">Save password</button>
         </div>
       </div>
     `;
@@ -1002,6 +1001,7 @@
 
       if (pw.length < 8) { err.textContent = 'Password must be at least 8 characters'; err.style.display = 'block'; return; }
       if (pw !== pw2)    { err.textContent = 'Passwords do not match'; err.style.display = 'block'; return; }
+      err.style.display = 'none';
 
       try {
         const res = await authFetch('/api/artist/change-password', {
@@ -1024,6 +1024,7 @@
       } catch {
         err.textContent = 'Something went wrong. Please try again.';
         err.style.display = 'block';
+        err.classList.add('dash-modal-err');
       }
     });
   }
@@ -1032,19 +1033,44 @@
   function showOnboardingModal() {
     const modal = document.createElement('div');
     modal.id = 'onboardingModal';
-    modal.className = 'cal-modal-overlay open';
+    modal.className = 'dash-modal-overlay open';
     modal.innerHTML = `
-      <div class="cal-modal-box">
-        <p class="cal-modal-date">Guest Artist</p>
-        <p class="cal-modal-title">You're in — here's how it works.</p>
-        <div class="onboarding-body">
-          <p><strong>Complete your profile</strong><br>Add your bio, photo, and portfolio so we can start promoting your visit right away.</p>
-          <p><strong>Mark your sessions</strong><br>When you book a client, come back here and add their name and time to your calendar. This keeps the studio updated.</p>
-          <p><strong>Clients contact you directly</strong><br>We don't handle bookings for guests — your WhatsApp and booking link on your profile are how clients reach you.</p>
-          <p><strong>Questions?</strong><br>Reply to the email we sent or reach us on WhatsApp anytime.</p>
+      <div class="dash-modal">
+        <p class="dash-modal-tag">Guest Artist</p>
+        <h2 class="dash-modal-title">You're in — here's how it works.</h2>
+        <div class="dash-modal-divider"></div>
+        <div class="dash-modal-body">
+          <div class="dash-modal-step">
+            <span class="dash-modal-step-num">01</span>
+            <div class="dash-modal-step-content">
+              <h4>Complete your profile</h4>
+              <p>Add your bio, photo, and portfolio so we can start promoting your visit right away.</p>
+            </div>
+          </div>
+          <div class="dash-modal-step">
+            <span class="dash-modal-step-num">02</span>
+            <div class="dash-modal-step-content">
+              <h4>Mark your sessions</h4>
+              <p>When you book a client, come back here and add their name and time to your calendar. This keeps the studio updated.</p>
+            </div>
+          </div>
+          <div class="dash-modal-step">
+            <span class="dash-modal-step-num">03</span>
+            <div class="dash-modal-step-content">
+              <h4>Clients contact you directly</h4>
+              <p>We don't handle bookings for guests — your WhatsApp and booking link on your profile are how clients reach you.</p>
+            </div>
+          </div>
+          <div class="dash-modal-step">
+            <span class="dash-modal-step-num">04</span>
+            <div class="dash-modal-step-content">
+              <h4>Questions?</h4>
+              <p>Reply to the email we sent or reach us on WhatsApp anytime.</p>
+            </div>
+          </div>
         </div>
-        <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="onboardingDone">Got it — let's go</button>
+        <div class="dash-modal-actions">
+          <button class="btn btn-primary" id="onboardingDone">Got it — let's go</button>
         </div>
       </div>
     `;
