@@ -73,6 +73,65 @@
     });
   }
 
+  // ── SLOTS CALENDAR ──
+  const dateFromEl   = document.getElementById('gaDateFrom');
+  const dateToEl     = document.getElementById('gaDateTo');
+  const slotsPreview = document.getElementById('gaSlotsPreview');
+
+  async function loadSlots() {
+    const from = dateFromEl?.value;
+    const to   = dateToEl?.value;
+    if (!from || !to || !slotsPreview) return;
+    if (new Date(to) < new Date(from)) return;
+
+    slotsPreview.innerHTML = '<p class="ga-slots-loading">Checking availability...</p>';
+    slotsPreview.style.display = 'block';
+
+    try {
+      const res  = await fetch(`${INTERNAL}/api/public/slots/range?from=${from}&to=${to}`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      const data = await res.json();
+
+      if (!data.days || !data.days.length) {
+        slotsPreview.innerHTML = '<p class="ga-slots-empty">No data available for this range.</p>';
+        return;
+      }
+
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const days   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+      let html = '<p class="ga-slots-label">Available slots for your selected dates</p>';
+      html += '<div class="ga-slots-grid">';
+
+      data.days.forEach(({ date, available }) => {
+        const d       = new Date(date + 'T00:00:00');
+        const dayName = days[(d.getDay() + 6) % 7];
+        const dayNum  = d.getDate();
+        const month   = months[d.getMonth()];
+        const full    = available === 0;
+        const cls     = full ? 'ga-slot-day ga-slot-day--full' : available <= 1 ? 'ga-slot-day ga-slot-day--low' : 'ga-slot-day';
+
+        html += `<div class="${cls}">
+          <span class="ga-slot-weekday">${dayName}</span>
+          <span class="ga-slot-num">${dayNum}</span>
+          <span class="ga-slot-month">${month}</span>
+          <span class="ga-slot-count">${full ? 'Full' : available === 1 ? '1 slot' : `${available} slots`}</span>
+        </div>`;
+      });
+
+      html += '</div>';
+      html += '<p class="ga-slots-note">Slots reflect studio availability — residents have priority. Final dates confirmed after review.</p>';
+      slotsPreview.innerHTML = html;
+
+    } catch {
+      slotsPreview.innerHTML = '<p class="ga-slots-empty">Could not load availability. Please try again.</p>';
+    }
+  }
+
+  if (dateFromEl) dateFromEl.addEventListener('change', loadSlots);
+  if (dateToEl)   dateToEl.addEventListener('change', loadSlots);
+
   // ── STUDIO CAROUSEL ──
   const studioTrack = document.getElementById('gaStudioTrack');
   const studioPrev  = document.getElementById('gaStudioPrev');
