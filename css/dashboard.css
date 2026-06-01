@@ -635,6 +635,32 @@
   line-height: 1.5;
 }
 
+/* ── Onboarding + Password modals ── */
+.modal-field-spaced { margin-top: 20px; }
+
+.modal-err {
+  color: #e53935;
+  display: none;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.onboarding-body {
+  margin-top: 16px;
+  line-height: 1.8;
+}
+
+.onboarding-body p {
+  margin: 0 0 12px;
+}
+
+.onboarding-body p:last-child {
+  margin: 0;
+}
+
 /* ── PHOTOS ── */
 
 .profile-divider {

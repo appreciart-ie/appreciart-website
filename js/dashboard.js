@@ -15,6 +15,13 @@
     return;
   }
 
+  // ── Onboarding / password change ──
+  if (artist.must_change_password) {
+    showChangePasswordModal();
+  } else if (artist.role === 'guest' && !artist.onboarding_done) {
+    showOnboardingModal();
+  }
+
   const ARTIST_COLOURS = {
     'moreirart': { bg: '#2E7D32', text: '#ffffff' },
     'marina':    { bg: '#E64A19', text: '#ffffff' },
@@ -961,4 +968,96 @@
   loadProfile();
   loadPhotos();
   initSSE();
+
+  // ── Change Password Modal ──
+  function showChangePasswordModal() {
+    const modal = document.createElement('div');
+    modal.id = 'pwModal';
+    modal.className = 'cal-modal-overlay open';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">Welcome to Appreciart IE</p>
+        <p class="cal-modal-title">Set your password</p>
+        <p class="booking-modal-detail">Before you get started, please set a new password for your account.</p>
+        <div class="cal-modal-field modal-field-spaced">
+          <label class="cal-modal-label" for="pwNew">New password</label>
+          <input class="cal-modal-input" type="password" id="pwNew" placeholder="Minimum 8 characters" autocomplete="new-password">
+        </div>
+        <div class="cal-modal-field">
+          <label class="cal-modal-label" for="pwConfirm">Confirm password</label>
+          <input class="cal-modal-input" type="password" id="pwConfirm" placeholder="Repeat password" autocomplete="new-password">
+        </div>
+        <p class="modal-err" id="pwErr"></p>
+        <div class="cal-modal-actions">
+          <button class="btn btn-primary btn-sm" id="pwSave">Save password</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('pwSave').addEventListener('click', async () => {
+      const pw  = document.getElementById('pwNew').value;
+      const pw2 = document.getElementById('pwConfirm').value;
+      const err = document.getElementById('pwErr');
+
+      if (pw.length < 8) { err.textContent = 'Password must be at least 8 characters'; err.style.display = 'block'; return; }
+      if (pw !== pw2)    { err.textContent = 'Passwords do not match'; err.style.display = 'block'; return; }
+
+      try {
+        const res = await authFetch('/api/artist/change-password', {
+          method: 'POST',
+          body:   JSON.stringify({ password: pw }),
+        });
+        if (!res.ok) { err.textContent = 'Failed to save password'; err.style.display = 'block'; return; }
+
+        // Update stored artist
+        const stored = JSON.parse(localStorage.getItem('art_artist') || '{}');
+        stored.must_change_password = false;
+        localStorage.setItem('art_artist', JSON.stringify(stored));
+
+        modal.remove();
+        window.toast('Password updated', 'success');
+
+        if (artist.role === 'guest' && !artist.onboarding_done) {
+          showOnboardingModal();
+        }
+      } catch {
+        err.textContent = 'Something went wrong. Please try again.';
+        err.style.display = 'block';
+      }
+    });
+  }
+
+  // ── Onboarding Modal ──
+  function showOnboardingModal() {
+    const modal = document.createElement('div');
+    modal.id = 'onboardingModal';
+    modal.className = 'cal-modal-overlay open';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">Guest Artist</p>
+        <p class="cal-modal-title">You're in — here's how it works.</p>
+        <div class="onboarding-body">
+          <p><strong>Complete your profile</strong><br>Add your bio, photo, and portfolio so we can start promoting your visit right away.</p>
+          <p><strong>Mark your sessions</strong><br>When you book a client, come back here and add their name and time to your calendar. This keeps the studio updated.</p>
+          <p><strong>Clients contact you directly</strong><br>We don't handle bookings for guests — your WhatsApp and booking link on your profile are how clients reach you.</p>
+          <p><strong>Questions?</strong><br>Reply to the email we sent or reach us on WhatsApp anytime.</p>
+        </div>
+        <div class="cal-modal-actions">
+          <button class="btn btn-primary btn-sm" id="onboardingDone">Got it — let's go</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('onboardingDone').addEventListener('click', async () => {
+      try {
+        await authFetch('/api/artist/onboarding-done', { method: 'POST' });
+        const stored = JSON.parse(localStorage.getItem('art_artist') || '{}');
+        stored.onboarding_done = true;
+        localStorage.setItem('art_artist', JSON.stringify(stored));
+      } catch {}
+      modal.remove();
+    });
+  }
 })();
