@@ -891,12 +891,15 @@ function updateCompleteness() {
     const el = document.getElementById('cStep-' + k);
     if (el) el.classList.toggle('completeness-step--done', checks[k]);
   });
+  const publishBtn = document.getElementById('profilePublishBtn');
   if (done === keys.length) {
     label.textContent = '✓ Profile complete';
     bar.classList.add('completeness-bar--ready');
+    if (publishBtn && isGuest && !_profilePublished) publishBtn.style.display = '';
   } else {
     label.textContent = done + ' of ' + keys.length + ' complete';
     bar.classList.remove('completeness-bar--ready');
+    if (publishBtn) publishBtn.style.display = 'none';
   }
 }
 
@@ -921,6 +924,7 @@ async function loadProfile() {
         whatsapp_url: a.whatsapp_url || '',
         booking_url:  a.booking_url  || '',
       };
+      _profilePublished = !!a.active;
       updateCompleteness();
       snapshotProfile();
     } catch {
@@ -968,8 +972,9 @@ async function loadProfile() {
     });
   }
 
-  let _profileSnapshot = null;
-  let _profileDirty    = false;
+  let _profileSnapshot  = null;
+  let _profileDirty     = false;
+  let _profilePublished = false;
 
   function snapshotProfile() {
     const bioEl     = document.getElementById('profileBio');
@@ -1020,6 +1025,32 @@ async function loadProfile() {
       e.returnValue = '';
     }
   });
+
+  const profilePublishBtn = document.getElementById('profilePublishBtn');
+  if (profilePublishBtn) {
+    profilePublishBtn.addEventListener('click', async () => {
+      profilePublishBtn.disabled    = true;
+      profilePublishBtn.textContent = 'Publishing…';
+      try {
+        const res = await authFetch('/api/artist/publish-profile', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          _profilePublished = true;
+          profilePublishBtn.style.display = 'none';
+          window.toast('Profile published', 'success');
+        } else {
+          const missing = data.missing ? ' Missing: ' + data.missing.join(', ') + '.' : '';
+          window.toast((data.error || 'Could not publish') + missing, 'error');
+          profilePublishBtn.disabled    = false;
+          profilePublishBtn.textContent = 'Publish profile';
+        }
+      } catch {
+        window.toast('Error publishing profile', 'error');
+        profilePublishBtn.disabled    = false;
+        profilePublishBtn.textContent = 'Publish profile';
+      }
+    });
+  }
 
   if (profileSaveBtn) {
     profileSaveBtn.addEventListener('click', async () => {
