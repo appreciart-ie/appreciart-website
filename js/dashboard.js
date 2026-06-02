@@ -922,6 +922,7 @@ async function loadProfile() {
         booking_url:  a.booking_url  || '',
       };
       updateCompleteness();
+      snapshotProfile();
     } catch {
       window.toast('Could not load profile', 'error');
     }
@@ -967,6 +968,59 @@ async function loadProfile() {
     });
   }
 
+  let _profileSnapshot = null;
+  let _profileDirty    = false;
+
+  function snapshotProfile() {
+    const bioEl     = document.getElementById('profileBio');
+    const igEl      = document.getElementById('profileInstagram');
+    const waEl      = document.getElementById('profileWhatsapp');
+    const bookEl    = document.getElementById('profileBookingUrl');
+    _profileSnapshot = {
+      bio:         bioEl    ? bioEl.value.trim()  : '',
+      instagram:   igEl     ? igEl.value.trim()   : '',
+      whatsapp:    waEl     ? waEl.value.trim()   : '',
+      booking_url: bookEl   ? bookEl.value.trim() : '',
+      styles:      JSON.stringify(profileStyles),
+    };
+    _profileDirty = false;
+    if (profileSaveBtn) profileSaveBtn.disabled = true;
+  }
+
+  function checkDirty() {
+    if (!_profileSnapshot) return;
+    const bioEl  = document.getElementById('profileBio');
+    const igEl   = document.getElementById('profileInstagram');
+    const waEl   = document.getElementById('profileWhatsapp');
+    const bookEl = document.getElementById('profileBookingUrl');
+    const current = {
+      bio:         bioEl    ? bioEl.value.trim()  : '',
+      instagram:   igEl     ? igEl.value.trim()   : '',
+      whatsapp:    waEl     ? waEl.value.trim()   : '',
+      booking_url: bookEl   ? bookEl.value.trim() : '',
+      styles:      JSON.stringify(profileStyles),
+    };
+    _profileDirty = Object.keys(current).some(k => current[k] !== _profileSnapshot[k]);
+    if (profileSaveBtn) profileSaveBtn.disabled = !_profileDirty;
+  }
+
+  const _profileFields = ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl'];
+  _profileFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      updateCompleteness();
+      checkDirty();
+    });
+  });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (_profileDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
   if (profileSaveBtn) {
     profileSaveBtn.addEventListener('click', async () => {
       const bio          = document.getElementById('profileBio').value.trim();
@@ -985,13 +1039,14 @@ async function loadProfile() {
         });
         if (res.ok) {
           window.toast('Profile updated', 'success');
+          snapshotProfile();
         } else {
           window.toast('Failed to save profile', 'error');
         }
       } catch {
         window.toast('Error saving profile', 'error');
       } finally {
-        profileSaveBtn.disabled    = false;
+        profileSaveBtn.disabled    = !_profileDirty;
         profileSaveBtn.textContent = 'Save changes';
       }
     });
