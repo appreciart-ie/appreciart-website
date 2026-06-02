@@ -500,9 +500,9 @@
       try {
         const res  = await authFetch(`/api/artist/slots/${date}`);
         const data = await res.json();
-        showNewModal(date, friendly, data.available || 0, data.total || 4);
+        showNewModal(date, friendly, data.available || 0, data.total || 4, data.available_reservations || 0);
       } catch {
-        showNewModal(date, friendly, 4, 4);
+        showNewModal(date, friendly, 4, 4, 0);
       }
     }
   }
@@ -560,9 +560,10 @@
   }
 
   // ── Modal: empty day ──
-  function showNewModal(date, friendly, slotsAvailable, slotsTotal) {
+  function showNewModal(date, friendly, slotsAvailable, slotsTotal, availReservations = 0) {
     removeModal();
-    const noSlots = slotsAvailable === 0;
+    const noSlots      = slotsAvailable === 0;
+    const canReserve   = availReservations < 2;
     const modal = document.createElement('div');
     modal.id = 'calModal';
     modal.className = 'cal-modal-overlay';
@@ -574,7 +575,7 @@
           ${noSlots ? 'No slots available' : `${slotsAvailable} of ${slotsTotal} slots available`}
         </p>
         <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="calModalMarkAvail">Mark available</button>
+          ${canReserve ? `<button class="btn btn-primary btn-sm" id="calModalMarkAvail">Mark available</button>` : ''}
           <button class="btn btn-secondary btn-sm" id="calModalBookClient" ${noSlots ? 'disabled' : ''}>Book client</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
