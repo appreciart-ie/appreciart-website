@@ -553,8 +553,8 @@
       bookDate(date, name, timeInput.value, 'booking');
     });
 
-    document.getElementById('calModalCancel').addEventListener('click', () => { removeModal(); document.removeEventListener('keydown', onEsc); });
-    modal.addEventListener('click', e => { if (e.target === modal) { removeModal(); document.removeEventListener('keydown', onEsc); } });
+    document.getElementById('calModalCancel').addEventListener('click', removeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
     document.addEventListener('keydown', onEsc);
     nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') timeInput.focus(); });
   }
@@ -771,7 +771,6 @@
     });
 
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
-    document.addEventListener('keydown', onEsc);
   }
 
   function onEsc(e) {
