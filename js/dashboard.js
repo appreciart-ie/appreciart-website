@@ -399,7 +399,7 @@
     });
 
     // Click handlers
-    calGrid.querySelectorAll('.cal-day:not(.empty):not(.past)').forEach(el => {
+    calGrid.querySelectorAll('.cal-day:not(.empty):not(.past):not(.cal-day--full):not(.cal-day--blocked)').forEach(el => {
       el.addEventListener('click', () => handleDayClick(el));
     });
 
@@ -584,7 +584,8 @@
     document.body.appendChild(modal);
     requestAnimationFrame(() => modal.classList.add('open'));
 
-    document.getElementById('calModalMarkAvail').addEventListener('click', () => {
+    const markAvailBtn = document.getElementById('calModalMarkAvail');
+    if (markAvailBtn) markAvailBtn.addEventListener('click', () => {
       removeModal();
       markAvailable(date);
     });
