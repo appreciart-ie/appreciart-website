@@ -25,8 +25,7 @@
           const guests = data.guests || [];
 
           if (!guests.length) {
-            if (empty)   empty.style.display   = '';
-            if (section) section.style.display = 'none';
+            if (empty) empty.style.display = '';
             return;
           }
 
