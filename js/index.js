@@ -68,7 +68,7 @@
           });
         })
         .catch(() => {
-          if (section) section.style.display = 'none';
+          if (empty) empty.style.display = 'block';
         });
     }
   })();
