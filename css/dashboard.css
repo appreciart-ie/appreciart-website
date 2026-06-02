@@ -575,6 +575,58 @@
   max-width: 600px;
 }
 
+.completeness-bar {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--light);
+}
+
+.completeness-steps {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 10px;
+}
+
+.completeness-step {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mid);
+  transition: color 0.2s;
+}
+
+.completeness-step--done {
+  color: var(--black);
+  font-weight: 600;
+}
+
+.completeness-track {
+  height: 2px;
+  background: var(--light);
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.completeness-fill {
+  height: 100%;
+  background: var(--black);
+  transition: width 0.4s ease;
+}
+
+.completeness-label {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--mid);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.completeness-bar--ready .completeness-label {
+  color: var(--black);
+  font-weight: 600;
+}
+
 .profile-field {
   margin-bottom: 24px;
 }

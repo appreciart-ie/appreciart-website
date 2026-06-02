@@ -868,7 +868,39 @@
   // ── Profile ──
   let profileStyles = [];
 
-  async function loadProfile() {
+  let _completenessProfile = null;
+let _completenessPhotos  = null;
+
+function updateCompleteness() {
+  if (!_completenessProfile || !_completenessPhotos) return;
+  const checks = {
+    bio:       !!(_completenessProfile.bio || '').trim(),
+    photo:     !!_completenessPhotos.profileUrl,
+    portfolio: (_completenessPhotos.portfolio || []).length > 0,
+    contact:   !!(_completenessProfile.whatsapp_url || _completenessProfile.booking_url),
+  };
+  const keys    = Object.keys(checks);
+  const done    = keys.filter(k => checks[k]).length;
+  const pct     = Math.round((done / keys.length) * 100);
+  const fill    = document.getElementById('completenessFill');
+  const label   = document.getElementById('completenessLabel');
+  const bar     = document.getElementById('completenessBar');
+  if (!fill || !label || !bar) return;
+  fill.style.width = pct + '%';
+  keys.forEach(k => {
+    const el = document.getElementById('cStep-' + k);
+    if (el) el.classList.toggle('completeness-step--done', checks[k]);
+  });
+  if (done === keys.length) {
+    label.textContent = '✓ Profile complete';
+    bar.classList.add('completeness-bar--ready');
+  } else {
+    label.textContent = done + ' of ' + keys.length + ' complete';
+    bar.classList.remove('completeness-bar--ready');
+  }
+}
+
+async function loadProfile() {
     try {
       const res  = await authFetch('/api/artist/me');
       const data = await res.json();
@@ -884,6 +916,12 @@
       if (bookingField) bookingField.value = a.booking_url || '';
       profileStyles = a.styles || [];
       renderProfileStyles();
+      _completenessProfile = {
+        bio:          a.bio          || '',
+        whatsapp_url: a.whatsapp_url || '',
+        booking_url:  a.booking_url  || '',
+      };
+      updateCompleteness();
     } catch {
       window.toast('Could not load profile', 'error');
     }
@@ -1021,6 +1059,8 @@
     try {
       const res  = await authFetch('/api/artist/photos');
       const data = await res.json();
+      _completenessPhotos = { profileUrl: data.profileUrl || null, portfolio: data.portfolio || [] };
+      updateCompleteness();
 
       if (preview) {
         if (data.profileUrl) {

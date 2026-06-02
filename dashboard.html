@@ -32,6 +32,19 @@
     <section class="dash-panel" id="tab-profile">
       <div class="profile-form" id="profileForm">
 
+        <div class="completeness-bar" id="completenessBar">
+          <div class="completeness-steps">
+            <span class="completeness-step" id="cStep-bio">Bio</span>
+            <span class="completeness-step" id="cStep-photo">Photo</span>
+            <span class="completeness-step" id="cStep-portfolio">Portfolio</span>
+            <span class="completeness-step" id="cStep-contact">Contact</span>
+          </div>
+          <div class="completeness-track">
+            <div class="completeness-fill" id="completenessFill"></div>
+          </div>
+          <p class="completeness-label" id="completenessLabel"></p>
+        </div>
+
         <div class="profile-field">
           <label class="profile-label" for="profileBio">Bio</label>
           <textarea class="profile-input profile-textarea" id="profileBio" rows="5" maxlength="600" placeholder="Tell clients what makes your work unique — your style, influences, and what to expect from a session."></textarea>
