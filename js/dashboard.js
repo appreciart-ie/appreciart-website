@@ -323,14 +323,17 @@
         const guestEnd    = artist.guest_end_date   ? artist.guest_end_date.slice(0, 10)   : null;
         const inPeriod    = guestStart && guestEnd && dateStr >= guestStart && dateStr <= guestEnd;
         const available   = guestSlotMap[dateStr] ?? null;
+        const myEntry     = studioAvailability.find(e => e.date.slice(0, 10) === dateStr && e.artist_slug === artist.slug);
 
         if (!inPeriod) {
           cls += ' cal-day--blocked';
-        } else if (available === 0) {
+        } else if (available === 0 && !myEntry) {
           cls += ' cal-day--full';
-          bars = `<span class="cal-guest-slots cal-guest-slots--full"><span class="cal-guest-slots-num">0</span><span class="cal-guest-slots-label">Full</span></span>`;
-        } else if (available !== null) {
-          bars = `<span class="cal-guest-slots"><span class="cal-guest-slots-num">${available}</span><span class="cal-guest-slots-label">slot${available === 1 ? '' : 's'}</span></span>`;
+          bars = `<span class="cal-guest-empty cal-guest-empty--full">Full</span>`;
+        } else if (myEntry && myEntry.client_name) {
+          bars = `<span class="cal-bar cal-bar--guest">${esc(myEntry.client_name)}${myEntry.session_time ? ' · ' + myEntry.session_time : ''}</span>`;
+        } else if (inPeriod) {
+          bars = `<span class="cal-guest-empty">Tap to log a session</span>`;
         }
       } else {
 
@@ -378,6 +381,12 @@
         bar.style.color      = col.text;
         if (isConsultation) bar.style.opacity = '0.45';
       }
+    });
+
+    // Guest bar colour
+    calGrid.querySelectorAll('.cal-bar--guest').forEach(bar => {
+      bar.style.background = '#B8860B';
+      bar.style.color      = '#ffffff';
     });
 
     // Tooltip
