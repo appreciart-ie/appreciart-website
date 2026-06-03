@@ -25,7 +25,7 @@
           const guests = data.guests || [];
 
           if (!guests.length) {
-            if (empty) empty.style.display = '';
+            if (empty) empty.style.display = 'block';
             return;
           }
 
@@ -34,7 +34,7 @@
               ? new Date(guest.guest_start_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
               : '';
             const endDate = guest.guest_end_date
-              ? new Date(guest.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'Short' })
+              ? new Date(guest.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
               : '';
             const dateRange = startDate && endDate ? `${startDate} – ${endDate}` : '';
             const month = guest.guest_start_date
