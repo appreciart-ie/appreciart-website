@@ -57,8 +57,42 @@
       try {
         const res  = await fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(10000) });
         const data = await res.json();
-        artists = (data.artists || []).filter(a => a.is_resident);
+        artists = data.residents || [];
         renderArtistSelector(preselect);
+
+        const guests = data.guests || [];
+        const guestSection = document.getElementById('guestArtistsSection');
+        const guestGrid    = document.getElementById('guestArtistsGrid');
+        if (guestSection && guestGrid && guests.length) {
+          guestSection.style.display = '';
+          guests.forEach(guest => {
+            const styles = Array.isArray(guest.styles) ? guest.styles.join(' · ') : '';
+            const href   = 'artist.html?slug=' + encodeURIComponent(guest.slug);
+            const card   = document.createElement('a');
+            card.className = 'guest-artist-card';
+            card.href      = href;
+            card.innerHTML =
+              '<div class="guest-artist-photo" id="gap-' + esc(guest.slug) + '">' +
+                '<span class="guest-artist-initials">' + esc(guest.name.charAt(0)) + '</span>' +
+              '</div>' +
+              '<div class="guest-artist-info">' +
+                '<p class="guest-artist-name">' + esc(guest.name) + '</p>' +
+                (styles ? '<p class="guest-artist-styles">' + esc(styles) + '</p>' : '') +
+              '</div>' +
+              '<span class="guest-artist-cta">View Profile →</span>';
+            guestGrid.appendChild(card);
+
+            fetch(INTERNAL_API + '/api/public/artists/' + encodeURIComponent(guest.slug), { signal: AbortSignal.timeout(8000) })
+              .then(r => r.json())
+              .then(d => {
+                const photoWrap = document.getElementById('gap-' + guest.slug);
+                if (photoWrap && d.artist && d.artist.profile_url) {
+                  photoWrap.innerHTML = '<img src="' + esc(d.artist.profile_url) + '" alt="' + esc(guest.name) + '">';
+                }
+              })
+              .catch(() => {});
+          });
+        }
       } catch (e) {
         toast('Could not load artists', 'error');
         artistSelector.innerHTML = '<p class="artists-load-error">Could not load artists. Please try again.</p>';
