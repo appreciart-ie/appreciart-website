@@ -34,6 +34,7 @@
       if (!email || !emailRe.test(email)) { document.getElementById('gaEmailErr').classList.add('visible');     valid = false; }
       if (!instagram)                 { document.getElementById('gaInstagramErr').classList.add('visible'); valid = false; }
       if (!valid) return;
+      if (honeypot) return;
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';
@@ -82,7 +83,11 @@
     const from = dateFromEl?.value;
     const to   = dateToEl?.value;
     if (!from || !to || !slotsPreview) return;
-    if (new Date(to) < new Date(from)) return;
+    if (new Date(to) < new Date(from)) {
+      slotsPreview.innerHTML = '<p class="ga-slots-empty">End date must be after start date.</p>';
+      slotsPreview.style.display = 'block';
+      return;
+    }
 
     slotsPreview.innerHTML = '<p class="ga-slots-loading">Checking availability...</p>';
     slotsPreview.style.display = 'block';
@@ -91,6 +96,7 @@
       const res  = await fetch(`${INTERNAL}/api/public/slots/range?from=${from}&to=${to}`, {
         signal: AbortSignal.timeout(8000),
       });
+      if (!res.ok) throw new Error('Failed to load slots');
       const data = await res.json();
 
       if (!data.days || !data.days.length) {
@@ -116,7 +122,7 @@
           <span class="ga-slot-weekday">${dayName}</span>
           <span class="ga-slot-num">${dayNum}</span>
           <span class="ga-slot-month">${month}</span>
-          <span class="ga-slot-count">${full ? 'Full' : available === 1 ? '1 slot' : `${available} slots`}</span>
+          <span class="ga-slot-count">${full ? 'Full' : available === 1 ? '1 slot' : `${esc(String(available))} slots`}</span>
         </div>`;
       });
 
@@ -156,7 +162,7 @@
   const nextBtn  = document.getElementById('gaNext');
 
   if (track && prevBtn && nextBtn) {
-    const scrollBy = 330;
+    const scrollBy = track.querySelector('.ga-review')?.offsetWidth || 330;
 
     nextBtn.addEventListener('click', () => {
       track.scrollBy({ left: scrollBy, behavior: 'smooth' });

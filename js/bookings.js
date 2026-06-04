@@ -56,6 +56,7 @@
     async function loadArtists(preselect) {
       try {
         const res  = await fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(10000) });
+        if (!res.ok) throw new Error('Failed to load artists');
         const data = await res.json();
         artists = data.residents || [];
         renderArtistSelector(preselect);
@@ -147,7 +148,7 @@
       checkProceedButton();
 
       document.querySelectorAll('.artist-btn').forEach(b => b.classList.remove('active'));
-      const btn = btnEl || artistSelector.querySelector(`[data-slug="${artist.slug}"]`);
+      const btn = btnEl || artistSelector.querySelector(`[data-slug="${CSS.escape(artist.slug)}"]`);
       if (btn) btn.classList.add('active');
 
       loadAvailability(artist.slug);
@@ -168,7 +169,7 @@
         const availableSlots = allSlots.filter(a => !a.booked);
 
         if (!availableSlots.length) {
-          datesGrid.innerHTML = '<div class="dates-empty">No dates available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a> to enquire.</div>';
+          datesGrid.innerHTML = '<div class="dates-empty">No dates available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</div>';
           return;
         }
 
@@ -196,7 +197,6 @@
 
             slots.sort((a,b) => a.day - b.day).forEach(({ day, date, isPast, isBooked }) => {
               const url      = dateImgMap.get(day) || '';
-              const disabled = isPast || isBooked;
               const cell        = document.createElement('div');
               const cellDateObj = new Date(date);
               const cellLabel   = cellDateObj.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -208,10 +208,10 @@
               cell.setAttribute('aria-label', cellDisabled ? `Unavailable — ${cellLabel}` : `Select ${cellLabel}`);
               if (cellDisabled) cell.setAttribute('aria-disabled', 'true');
               cell.innerHTML = (url
-                ? `<img src="${url}" alt="Day ${day}" loading="lazy">`
+                ? `<img src="${esc(url)}" alt="Day ${day}" loading="lazy">`
                 : `<span class="date-num-fallback">${String(day).padStart(2,'0')}</span>`) +
                 `<div class="date-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>`;
-              if (!disabled) cell.addEventListener('click', () => pickDay(day, date, cell));
+              if (!cellDisabled) cell.addEventListener('click', () => pickDay(day, date, cell));
               grid.appendChild(cell);
             });
 
@@ -292,7 +292,7 @@
       proceedBtn.disabled = true;
       proceedBtn.textContent = 'Setting up payment...';
 
-      const dateStr = selectedDate || `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
+      const dateStr = selectedDate;
 
       try {
         const res  = await fetch(`${INTERNAL_API}/api/public/bookings/payment-intent`, {
@@ -382,7 +382,7 @@
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/bookings.html?success=1&booking_id=${bookingId}&payment_intent=${paymentIntent}`,
+          return_url: `${window.location.origin}/bookings.html?success=1&booking_id=${encodeURIComponent(bookingId)}&payment_intent=${encodeURIComponent(paymentIntent)}`,
         },
         redirect: 'if_required',
       });

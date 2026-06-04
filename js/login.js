@@ -59,7 +59,7 @@
     setError('');
 
     const email    = emailInput.value.trim().toLowerCase();
-    const password = passInput.value.trim();
+    const password = passInput.value;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
@@ -89,7 +89,17 @@
       }
 
       localStorage.setItem('art_token',  data.token);
-      localStorage.setItem('art_artist', JSON.stringify(data.artist));
+      localStorage.setItem('art_artist', JSON.stringify({
+        id:                   data.artist.id,
+        name:                 data.artist.name,
+        slug:                 data.artist.slug,
+        role:                 data.artist.role,
+        is_resident:          data.artist.is_resident,
+        must_change_password: data.artist.must_change_password,
+        onboarding_done:      data.artist.onboarding_done,
+        guest_start_date:     data.artist.guest_start_date,
+        guest_end_date:       data.artist.guest_end_date,
+      }));
 
       toast('Signed in successfully', 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);

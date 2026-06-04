@@ -113,6 +113,7 @@
       loadBookings();
     });
     es.onerror = () => {
+      es.close();
       setTimeout(initSSE, 10000);
     };
   }
@@ -344,15 +345,15 @@
         const isConsultation = e.type === 'consultation';
         const isAvailable    = e.is_available && !e.client_name;
         const typeLabel      = e.type === 'consultation' ? 'Consult' : '';
-        const timeLabel      = e.session_time || '';
-        const nameLabel      = isMine && e.client_name ? e.client_name : '';
+        const timeLabel      = e.session_time ? esc(e.session_time) : '';
+        const nameLabel      = isMine && e.client_name ? esc(e.client_name) : '';
         const label          = isAvailable ? 'Available' : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
         return `<span class="cal-bar${isAvailable ? ' cal-bar--available' : ''}"
           data-slug="${esc(e.artist_slug)}"
           data-mine="${isMine}"
           data-consultation="${isConsultation}"
           data-available="${isAvailable}"
-          data-tooltip="${isAvailable ? esc(e.artist_name) + ' · Available' : esc(e.artist_name) + (e.session_time ? ' · ' + e.session_time : '') + (e.type ? ' · ' + e.type : '')}"
+          data-tooltip="${isAvailable ? esc(e.artist_name) + ' · Available' : esc(e.artist_name) + (e.session_time ? ' · ' + esc(e.session_time) : '') + (e.type ? ' · ' + esc(e.type) : '')}"
           >${label}</span>`;
       }).join('');
       } // end isGuest else
@@ -1014,6 +1015,14 @@ async function loadProfile() {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener('input', () => {
+      if (_completenessProfile) {
+        const waEl   = document.getElementById('profileWhatsapp');
+        const bookEl = document.getElementById('profileBookingUrl');
+        const waNum  = waEl ? waEl.value.trim() : '';
+        _completenessProfile.bio          = (document.getElementById('profileBio')?.value || '').trim();
+        _completenessProfile.whatsapp_url = waNum ? 'https://wa.me/' + waNum : '';
+        _completenessProfile.booking_url  = bookEl ? bookEl.value.trim() : '';
+      }
       updateCompleteness();
       checkDirty();
     });
@@ -1091,13 +1100,14 @@ async function loadProfile() {
       modal.innerHTML = `
         <div class="dash-modal dash-modal--sm">
           <p class="dash-modal-tag">Confirm</p>
-          <p class="dash-modal-title dash-modal-title--sm">${message}</p>
+          <p class="dash-modal-title dash-modal-title--sm" id="confirmMessage"></p>
           <div class="dash-modal-actions dash-modal-actions--row">
             <button class="btn btn-secondary" id="confirmCancel">${cancelLabel}</button>
             <button class="btn btn-primary" id="confirmOk">${confirmLabel}</button>
           </div>
         </div>
       `;
+      modal.querySelector('#confirmMessage').textContent = message;
       document.body.appendChild(modal);
       modal.querySelector('#confirmOk').addEventListener('click', () => { modal.remove(); resolve(true); });
       modal.querySelector('#confirmCancel').addEventListener('click', () => { modal.remove(); resolve(false); });
@@ -1151,7 +1161,9 @@ async function loadProfile() {
       if (preview) {
         if (data.profileUrl) {
           const img = document.createElement('img');
-          img.src       = data.profileUrl;
+          if (data.profileUrl && data.profileUrl.startsWith('https://')) {
+            img.src = data.profileUrl;
+          }
           img.alt       = 'Profile photo';
           img.className = 'profile-photo-img';
           img.addEventListener('error', () => {

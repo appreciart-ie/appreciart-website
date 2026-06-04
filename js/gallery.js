@@ -45,7 +45,7 @@
     function closeLightbox() {
       lightbox.classList.remove('open');
       document.body.style.overflow = '';
-      lightboxImg.src = '';
+      lightboxImg.removeAttribute('src');
       currentPriceId  = null;
     }
 
@@ -71,9 +71,11 @@
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Checkout failed');
+        if (!data.url || !data.url.startsWith('https://checkout.stripe.com/')) {
+          throw new Error('Checkout failed. Please try again.');
+        }
 
-        toast('Redirecting to checkout...', 'success');
-        setTimeout(() => { window.location.href = data.url; }, 500);
+        window.location.href = data.url;
       } catch (err) {
         const errMsg = err.message || 'Something went wrong. Please try again.';
         toast(errMsg, 'error');

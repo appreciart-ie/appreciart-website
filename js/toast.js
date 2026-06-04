@@ -18,11 +18,13 @@
 
   window.toast = function (message, type = 'info') {
     const el = document.createElement('div');
-    el.className = `toast toast--${type}`;
+    const safeType = ['success', 'error', 'info'].includes(type) ? type : 'info';
+    el.className = `toast toast--${safeType}`;
     el.innerHTML = `
       <span class="toast-icon">${ICONS[type] || ICONS.info}</span>
-      <span class="toast-msg">${message}</span>
+      <span class="toast-msg"></span>
     `;
+    el.querySelector('.toast-msg').textContent = message;
 
     container.appendChild(el);
 
@@ -33,6 +35,7 @@
     setTimeout(() => {
       el.classList.remove('toast--visible');
       el.addEventListener('transitionend', () => el.remove(), { once: true });
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 600);
     }, DURATION);
   };
 })();

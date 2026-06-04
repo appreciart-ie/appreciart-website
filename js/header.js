@@ -40,7 +40,7 @@
   const authBtnDesktop = isLoggedIn
     ? `<div class="nav-artist" id="navArtist">
          <button class="nav-artist-btn" id="navArtistBtn">
-           ${artistName.toUpperCase()}
+           ${esc(artistName).toUpperCase()}
            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
            </svg>
@@ -180,9 +180,9 @@
     if (e.key === 'Escape') {
       if (navDropdown) {
         navDropdown.classList.remove('open');
-        navArtistBtn.classList.remove('open');
+        if (navArtistBtn) navArtistBtn.classList.remove('open');
       }
-      if (mobileNav.classList.contains('open')) window.closeMobile();
+      if (mobileNav && mobileNav.classList.contains('open')) window.closeMobile();
     }
   });
 })();

@@ -64,6 +64,7 @@
 
         const btn    = document.getElementById('submitBtn');
         const errGen = document.getElementById('err-general');
+        if (document.getElementById('_honeypot').value) return;
         let valid    = true;
 
         ['first_name','last_name','email','phone','artist_name','signature','session-confirm'].forEach(clearError);
@@ -111,16 +112,16 @@
           email,
           phone,
           date_of_birth:      document.getElementById('date_of_birth').value || null,
-          eircode:            document.getElementById('eircode').value.trim(),
+          eircode:            document.getElementById('eircode').value.trim() || null,
           artist_name:        artistName,
           instagram:          document.getElementById('instagram').value.trim(),
           referral_source:    document.getElementById('referral_source').value,
           has_medical:        hasMedical,
-          medical_details:    hasMedical ? document.getElementById('medical_details').value.trim() : '',
+          medical_details:    hasMedical ? document.getElementById('medical_details').value.trim() : null,
           has_medications:    hasMedications,
-          medication_details: hasMedications ? document.getElementById('medication_details').value.trim() : '',
+          medication_details: hasMedications ? document.getElementById('medication_details').value.trim() : null,
           has_bloodborne:     hasBloodborne,
-          bloodborne_details: hasBloodborne ? document.getElementById('bloodborne_details').value.trim() : '',
+          bloodborne_details: hasBloodborne ? document.getElementById('bloodborne_details').value.trim() : null,
           photo_consent:      photoConsent,
           signature,
           _honeypot:          document.getElementById('_honeypot').value,

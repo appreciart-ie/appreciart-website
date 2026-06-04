@@ -18,8 +18,14 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 document.querySelectorAll('[data-drag]').forEach(el => {
   let isDown = false, startX, scrollLeft;
-  el.addEventListener('mousedown', e => { isDown = true; el.classList.add('grabbing'); startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; });
-  document.addEventListener('mouseup', () => { isDown = false; el.classList.remove('grabbing'); });
+  const onMouseUp = () => { isDown = false; el.classList.remove('grabbing'); };
+  el.addEventListener('mousedown', e => {
+    isDown = true;
+    el.classList.add('grabbing');
+    startX = e.pageX - el.offsetLeft;
+    scrollLeft = el.scrollLeft;
+    document.addEventListener('mouseup', onMouseUp, { once: true });
+  });
   el.addEventListener('mousemove', e => { if (!isDown) return; e.preventDefault(); el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX) * 1.4; });
   el.addEventListener('touchstart', e => { startX = e.touches[0].pageX - el.offsetLeft; scrollLeft = el.scrollLeft; }, { passive: true });
   el.addEventListener('touchmove',  e => { el.scrollLeft = scrollLeft - (e.touches[0].pageX - el.offsetLeft - startX); }, { passive: true });

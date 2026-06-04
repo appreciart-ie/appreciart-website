@@ -3,6 +3,10 @@
 
     const slug = new URLSearchParams(window.location.search).get('slug');
     const root = document.getElementById('artist-root');
+    if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
+      if (root) root.innerHTML = '<p class="artist-not-found">Artist not found.</p>';
+      return;
+    }
 
     if (!slug) {
       renderNotFound();
@@ -53,7 +57,7 @@
       const today       = new Date(); today.setHours(0,0,0,0);
       const dateImgMap  = new Map(dateImages.map(d => [d.day, d.url]));
 
-      const bookedDays     = new Set(availability.filter(a => a.booked).map(a => new Date(a.date).getDate()));
+      const bookedDays     = new Set(availability.filter(a => a.booked).map(a => a.date.slice(0, 10)));
       const availableSlots = availability;
       const byMonth = {};
       availableSlots.forEach(a => {
@@ -69,14 +73,14 @@
         .map(({ label, year, month, slots }) => {
           const cells = slots.sort((a,b) => a.day - b.day).map(({ day, date, isPast }) => {
             const url = dateImgMap.get(day) || '';
-            const isBooked = bookedDays && bookedDays.has(day);
+            const isBooked = bookedDays && bookedDays.has(date.slice(0, 10));
             const disabled = isPast || isBooked;
             const dateObj   = new Date(date);
             const dayLabel  = dateObj.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
             const ariaLabel = disabled
               ? `Unavailable — ${dayLabel}`
-              : `Book session on ${dayLabel} with ${artist.name}`;
-            return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" role="button" aria-label="${ariaLabel}"${disabled ? ' aria-disabled="true"' : ''} data-day="${day}" data-date="${date}" data-url="${url}" data-artist="${artist.slug}" data-artist-name="${artist.name}">
+              : `Book session on ${dayLabel} with ${esc(artist.name)}`;
+            return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" role="button" aria-label="${esc(ariaLabel)}"${disabled ? ' aria-disabled="true"' : ''} data-day="${day}" data-date="${esc(date)}" data-url="${esc(url)}" data-artist="${esc(artist.slug)}" data-artist-name="${esc(artist.name)}">
               ${url ? `<img src="${url}" alt="Day ${day}" loading="lazy" class="avail-date-img">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
               <div class="avail-lock">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -89,12 +93,12 @@
 
       const availHtml = availableSlots.length > 0
         ? `${monthBlocks}<p class="availability-hint">Tap a date to book your session.</p>`
-        : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener">WhatsApp</a> to enquire.</p>`;
+        : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</p>`;
 
       const portfolioHtml = portfolio.length > 0
         ? portfolio.map((img, idx) =>
-            `<div class="portfolio-item" role="button" aria-label="View portfolio image ${idx + 1} by ${artist.name}" data-full="${img.urlFull}">
-               <img src="${img.url}" alt="${artist.name} — portfolio" loading="lazy">
+            `<div class="portfolio-item" role="button" aria-label="View portfolio image ${idx + 1} by ${esc(artist.name)}" data-full="${esc(img.urlFull)}">
+               <img src="${esc(img.url)}" alt="${esc(artist.name)} — portfolio" loading="lazy">
                <div class="portfolio-item-icon">
                  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                    <path d="M15 3h6m0 0v6m0-6-7 7M9 21H3m0 0v-6m0 6 7-7"/>
@@ -110,8 +114,8 @@
             <div class="artist-profile-img-wrap">
               <img
                 class="artist-profile-img"
-                src="${profileImgUrl || ''}"
-                alt="${artist.name}"
+                src="${esc(profileImgUrl || '')}"
+                alt="${esc(artist.name)}"
                 id="artistProfileImg"
               >
             </div>
@@ -126,7 +130,7 @@
             <div class="artist-styles">${styles}</div>
             <p class="artist-bio">${esc(artist.bio || '')}</p>
             ${instaHandle ? `
-            <a class="artist-insta" href="${esc(instaUrl)}" target="_blank" rel="noopener" aria-label="${esc(artist.name)} Instagram">
+            <a class="artist-insta" href="${esc(instaUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(artist.name)} Instagram">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="2" y="2" width="20" height="20" rx="5"/>
                 <circle cx="12" cy="12" r="4"/>
@@ -156,8 +160,8 @@
           <h2 class="section-title">Book with ${esc(artist.name)}</h2>
           <p class="section-body">Start the conversation — tell us what you have in mind.</p>
           ${artist.role === 'guest'
-  ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener">WhatsApp</a>` : ''}
-     ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener">Book directly</a>` : ''}`
+  ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
+     ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
   : `<a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>`
 }
         </div>
@@ -218,7 +222,7 @@
       function closeLightbox() {
         lightbox.classList.remove('open');
         document.body.style.overflow = '';
-        lightboxImg.src = '';
+        lightboxImg.removeAttribute('src');
       }
     }
 
