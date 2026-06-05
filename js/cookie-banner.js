@@ -102,4 +102,10 @@
     init();
   }
 
+  document.addEventListener('appreciart:manage-cookies', function () {
+    var existing = document.getElementById('cookieBanner');
+    if (existing) return;
+    showBanner();
+  });
+
 })();

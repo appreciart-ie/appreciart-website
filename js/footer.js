@@ -53,6 +53,7 @@
         <div class="footer-bottom-links">
           <a href="privacy-policy.html">Privacy Policy</a>
           <a href="terms-of-use.html">Terms of Use</a>
+          <button class="footer-cookies-btn" id="footerCookiesBtn">Manage cookies</button>
         </div>
       </div>
     </footer>
@@ -62,6 +63,13 @@
     container.innerHTML = html;
   } else {
     document.body.insertAdjacentHTML('beforeend', html);
+  }
+
+  const cookiesBtn = document.getElementById('footerCookiesBtn');
+  if (cookiesBtn) {
+    cookiesBtn.addEventListener('click', function () {
+      document.dispatchEvent(new CustomEvent('appreciart:manage-cookies'));
+    });
   }
 
   const wave = document.getElementById('footerWave');
