@@ -51,6 +51,7 @@
       display: block;
       filter: grayscale(15%);
       transition: filter 0.4s;
+      border-radius: 8px;
     }
 
     .artist-profile-img-wrap:hover .artist-profile-img { filter: grayscale(0%); }
