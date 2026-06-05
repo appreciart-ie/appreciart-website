@@ -1,6 +1,15 @@
 (function () {
     document.querySelectorAll('.exh-item-play').forEach(btn => {
+      const wrap   = btn.closest('.exh-item-iframe-wrap');
+      const iframe = wrap ? wrap.querySelector('iframe[data-src]') : null;
+
       btn.addEventListener('click', () => {
+        // Load inline iframe on first play
+        if (iframe && iframe.dataset.src && !iframe.src) {
+          iframe.src = iframe.dataset.src;
+        }
+
+        // Open lightbox with autoplay version
         const src = btn.dataset.video;
         if (!src) return;
         document.getElementById('exhLightboxVideo').src = src;
