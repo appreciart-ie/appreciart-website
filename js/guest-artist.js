@@ -207,6 +207,15 @@
 
   renderCal();
 
+  // Load initial slot availability for next 3 months
+  (function() {
+    var now   = new Date();
+    var from  = toISO(now.getFullYear(), now.getMonth(), now.getDate());
+    var end   = new Date(now.getFullYear(), now.getMonth() + 3, 0);
+    var to    = toISO(end.getFullYear(), end.getMonth(), end.getDate());
+    fetchSlots(from, to);
+  })();
+
   // ── STUDIO CAROUSEL ──
   const studioTrack = document.getElementById('gaStudioTrack');
   const studioPrev  = document.getElementById('gaStudioPrev');
