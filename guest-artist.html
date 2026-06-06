@@ -447,20 +447,23 @@
 
           <div class="ga-form-group">
             <label class="ga-form-label">Preferred Dates</label>
-            <div class="ga-date-range">
-              <div class="ga-date-range-field">
-                <span class="ga-date-range-label">From</span>
-                <input class="ga-form-input ga-date-input" type="date" id="gaDateFrom">
+            <p class="ga-cal-hint">Select your arrival date, then your departure date.</p>
+            <div class="ga-cal-wrap" id="gaCalWrap">
+              <div class="ga-cal-nav">
+                <button type="button" class="ga-cal-nav-btn" id="gaCalPrev">&#8592;</button>
+                <span class="ga-cal-month-label" id="gaCalMonthLabel"></span>
+                <button type="button" class="ga-cal-nav-btn" id="gaCalNext">&#8594;</button>
               </div>
-              <div class="ga-date-range-sep">—</div>
-              <div class="ga-date-range-field">
-                <span class="ga-date-range-label">To</span>
-                <input class="ga-form-input ga-date-input" type="date" id="gaDateTo">
+              <div class="ga-cal-weekdays">
+                <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
               </div>
+              <div class="ga-cal-grid" id="gaCalGrid"></div>
             </div>
+            <div class="ga-cal-selection" id="gaCalSelection"></div>
+            <p class="ga-cal-group-note">Coming as a group? <a href="https://www.instagram.com/appreciart.ie/" target="_blank" rel="noopener noreferrer">Contact us on Instagram</a> — we'll organise it together.</p>
+            <input type="hidden" id="gaDateFrom">
+            <input type="hidden" id="gaDateTo">
           </div>
-
-          <div id="gaSlotsPreview" style="display:none;"></div>
 
           <div class="ga-form-submit-row">
             <button class="btn btn-primary" id="gaSubmitBtn">Submit Application</button>

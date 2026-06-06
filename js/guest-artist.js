@@ -74,69 +74,138 @@
     });
   }
 
-  // ── SLOTS CALENDAR ──
-  const dateFromEl   = document.getElementById('gaDateFrom');
-  const dateToEl     = document.getElementById('gaDateTo');
-  const slotsPreview = document.getElementById('gaSlotsPreview');
+  // ── CALENDAR RANGE PICKER ──
+  const dateFromEl  = document.getElementById('gaDateFrom');
+  const dateToEl    = document.getElementById('gaDateTo');
+  const calGrid     = document.getElementById('gaCalGrid');
+  const calLabel    = document.getElementById('gaCalMonthLabel');
+  const calPrev     = document.getElementById('gaCalPrev');
+  const calNext     = document.getElementById('gaCalNext');
+  const calSel      = document.getElementById('gaCalSelection');
 
-  async function loadSlots() {
-    const from = dateFromEl?.value;
-    const to   = dateToEl?.value;
-    if (!from || !to || !slotsPreview) return;
-    if (new Date(to) < new Date(from)) {
-      slotsPreview.innerHTML = '<p class="ga-slots-empty">End date must be after start date.</p>';
-      slotsPreview.style.display = 'block';
-      return;
-    }
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-    slotsPreview.innerHTML = '<p class="ga-slots-loading">Checking availability...</p>';
-    slotsPreview.style.display = 'block';
+  var calYear   = new Date().getFullYear();
+  var calMonth  = new Date().getMonth();
+  var rangeStart = null;
+  var rangeEnd   = null;
+  var slotMap    = {};
 
-    try {
-      const res  = await fetch(`${INTERNAL}/api/public/slots/range?from=${from}&to=${to}`, {
-        signal: AbortSignal.timeout(8000),
-      });
-      if (!res.ok) throw new Error('Failed to load slots');
-      const data = await res.json();
+  function toISO(y, m, d) {
+    return y + '-' + String(m + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+  }
 
-      if (!data.days || !data.days.length) {
-        slotsPreview.innerHTML = '<p class="ga-slots-empty">No data available for this range.</p>';
-        return;
-      }
+  function updateHiddenInputs() {
+    if (dateFromEl) dateFromEl.value = rangeStart || '';
+    if (dateToEl)   dateToEl.value   = rangeEnd   || '';
+  }
 
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const days   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-
-      let html = '<p class="ga-slots-label">Available slots for your selected dates</p>';
-      html += '<div class="ga-slots-grid">';
-
-      data.days.forEach(({ date, available }) => {
-        const d       = new Date(date + 'T00:00:00');
-        const dayName = days[(d.getDay() + 6) % 7];
-        const dayNum  = d.getDate();
-        const month   = months[d.getMonth()];
-        const full    = available === 0;
-        const cls     = full ? 'ga-slot-day ga-slot-day--full' : available <= 1 ? 'ga-slot-day ga-slot-day--low' : 'ga-slot-day';
-
-        html += `<div class="${cls}">
-          <span class="ga-slot-weekday">${dayName}</span>
-          <span class="ga-slot-num">${dayNum}</span>
-          <span class="ga-slot-month">${month}</span>
-          <span class="ga-slot-count">${full ? 'Full' : available === 1 ? '1 slot' : `${esc(String(available))} slots`}</span>
-        </div>`;
-      });
-
-      html += '</div>';
-      html += '<p class="ga-slots-note">Slots reflect studio availability — residents have priority. Final dates confirmed after review.</p>';
-      slotsPreview.innerHTML = html;
-
-    } catch {
-      slotsPreview.innerHTML = '<p class="ga-slots-empty">Could not load availability. Please try again.</p>';
+  function updateSelectionLabel() {
+    if (!calSel) return;
+    if (!rangeStart) {
+      calSel.textContent = '';
+    } else if (!rangeEnd) {
+      calSel.textContent = 'Arrival: ' + rangeStart + ' — select departure date';
+    } else {
+      calSel.textContent = rangeStart + ' → ' + rangeEnd;
     }
   }
 
-  if (dateFromEl) dateFromEl.addEventListener('change', loadSlots);
-  if (dateToEl)   dateToEl.addEventListener('change', loadSlots);
+  async function fetchSlots(from, to) {
+    try {
+      const res = await fetch(INTERNAL + '/api/public/slots/range?from=' + from + '&to=' + to, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      slotMap = {};
+      (data.days || []).forEach(function(d) { slotMap[d.date] = d.available; });
+      renderCal();
+    } catch (_) {}
+  }
+
+  function renderCal() {
+    if (!calGrid || !calLabel) return;
+    calLabel.textContent = MONTHS[calMonth] + ' ' + calYear;
+
+    var today    = new Date(); today.setHours(0,0,0,0);
+    var todayISO = toISO(today.getFullYear(), today.getMonth(), today.getDate());
+
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var offset   = (firstDay + 6) % 7;
+    var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+    var cells = '';
+    for (var i = 0; i < offset; i++) cells += '<div class="ga-cal-cell ga-cal-cell--empty"></div>';
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var iso      = toISO(calYear, calMonth, d);
+      var isPast   = iso < todayISO;
+      var isToday  = iso === todayISO;
+      var slots    = slotMap[iso];
+      var isFull   = slots === 0;
+      var isLow    = slots === 1;
+      var inRange  = rangeStart && rangeEnd && iso >= rangeStart && iso <= rangeEnd;
+      var isStart  = iso === rangeStart;
+      var isEnd    = iso === rangeEnd;
+
+      var cls = 'ga-cal-cell';
+      if (isPast)   cls += ' ga-cal-cell--past';
+      if (isToday)  cls += ' ga-cal-cell--today';
+      if (isFull && !isPast) cls += ' ga-cal-cell--full';
+      if (isLow  && !isPast) cls += ' ga-cal-cell--low';
+      if (inRange)  cls += ' ga-cal-cell--range';
+      if (isStart)  cls += ' ga-cal-cell--start';
+      if (isEnd)    cls += ' ga-cal-cell--end';
+
+      var disabled = isPast || isFull;
+      var dot = isLow && !isPast ? '<span class="ga-cal-dot"></span>' : '';
+
+      cells += '<div class="' + cls + '"' + (disabled ? '' : ' data-iso="' + iso + '"') + '>' +
+        '<span class="ga-cal-day-num">' + d + '</span>' + dot +
+        '</div>';
+    }
+
+    calGrid.innerHTML = cells;
+
+    calGrid.querySelectorAll('.ga-cal-cell[data-iso]').forEach(function(cell) {
+      cell.addEventListener('click', function() {
+        var iso = cell.dataset.iso;
+        if (!rangeStart || (rangeStart && rangeEnd)) {
+          rangeStart = iso;
+          rangeEnd   = null;
+        } else {
+          if (iso < rangeStart) {
+            rangeEnd   = rangeStart;
+            rangeStart = iso;
+          } else if (iso === rangeStart) {
+            rangeStart = null;
+            rangeEnd   = null;
+          } else {
+            rangeEnd = iso;
+          }
+        }
+        updateHiddenInputs();
+        updateSelectionLabel();
+        renderCal();
+        if (rangeStart && rangeEnd) fetchSlots(rangeStart, rangeEnd);
+      });
+    });
+  }
+
+  if (calPrev) calPrev.addEventListener('click', function() {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCal();
+  });
+
+  if (calNext) calNext.addEventListener('click', function() {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCal();
+  });
+
+  renderCal();
 
   // ── STUDIO CAROUSEL ──
   const studioTrack = document.getElementById('gaStudioTrack');
