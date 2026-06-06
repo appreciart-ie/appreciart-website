@@ -198,15 +198,15 @@
         ${b.client_email ? `<p class="booking-modal-detail">${esc(b.client_email)}</p>` : ''}
         ${b.client_phone ? `<p class="booking-modal-detail">${esc(b.client_phone)}</p>` : ''}
         ${b.style ? `<p class="booking-modal-detail">${esc(b.style)}</p>` : ''}
-        <div class="cal-modal-field" id="bmStageField">
-          <label class="cal-modal-label" for="bmStage">Status</label>
-          <select class="cal-modal-input cal-modal-select" id="bmStage">
+        <div class="form-field" id="bmStageField">
+          <label class="form-label" for="bmStage">Status</label>
+          <select class="form-input form-select" id="bmStage">
             ${STAGES.map(s => `<option value="${s}"${b.stage === s ? ' selected' : ''}>${stageLabel(s)}</option>`).join('')}
           </select>
         </div>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="bmNotes">Notes</label>
-          <input class="cal-modal-input" id="bmNotes" type="text" value="${esc(b.notes || '')}" placeholder="Internal notes">
+        <div class="form-field">
+          <label class="form-label" for="bmNotes">Notes</label>
+          <input class="form-input" id="bmNotes" type="text" value="${esc(b.notes || '')}" placeholder="Internal notes">
         </div>
         <div class="cal-modal-actions">
           <button class="btn btn-primary btn-sm" id="bmSave">Save</button>
@@ -518,13 +518,13 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">Add client</p>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="calClientName">Client name</label>
-          <input class="cal-modal-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
+        <div class="form-field">
+          <label class="form-label" for="calClientName">Client name</label>
+          <input class="form-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
         </div>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="calSessionTime">Time</label>
-          <select class="cal-modal-input cal-modal-select" id="calSessionTime">
+        <div class="form-field">
+          <label class="form-label" for="calSessionTime">Time</label>
+          <select class="form-input form-select" id="calSessionTime">
             <option value="">— Select time —</option>
             ${Array.from({length: 28}, (_, i) => {
               const h = Math.floor(i / 2) + 9;
@@ -549,7 +549,7 @@
 
     document.getElementById('calModalConfirm').addEventListener('click', () => {
       const name = nameInput.value.trim();
-      if (!name) { nameInput.classList.add('cal-modal-input--error'); return; }
+      if (!name) { nameInput.classList.add('form-input--error'); return; }
       removeModal();
       bookDate(date, name, timeInput.value, 'booking');
     });
@@ -656,13 +656,13 @@
           <button class="cal-type-btn active" data-type="booking">Booking</button>
           <button class="cal-type-btn" data-type="consultation">Consultation</button>
         </div>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="calClientName">Client name</label>
-          <input class="cal-modal-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
+        <div class="form-field">
+          <label class="form-label" for="calClientName">Client name</label>
+          <input class="form-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
         </div>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="calSessionTime">Time</label>
-          <select class="cal-modal-input cal-modal-select" id="calSessionTime">
+        <div class="form-field">
+          <label class="form-label" for="calSessionTime">Time</label>
+          <select class="form-input form-select" id="calSessionTime">
             <option value="">— Select time —</option>
             ${Array.from({length: 28}, (_, i) => {
               const h = Math.floor(i / 2) + 9;
@@ -697,7 +697,7 @@
 
     document.getElementById('calModalConfirm').addEventListener('click', () => {
       const name = nameInput.value.trim();
-      if (!name) { nameInput.classList.add('cal-modal-input--error'); return; }
+      if (!name) { nameInput.classList.add('form-input--error'); return; }
       removeModal();
       bookDate(date, name, timeInput.value, selectedType);
     });
@@ -718,13 +718,13 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">${entry.type === 'consultation' ? 'Consultation' : 'Booking'}</p>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="calEditName">Client name</label>
-          <input class="cal-modal-input" id="calEditName" type="text" value="${esc(entry.client_name || '')}" autocomplete="off">
+        <div class="form-field">
+          <label class="form-label" for="calEditName">Client name</label>
+          <input class="form-input" id="calEditName" type="text" value="${esc(entry.client_name || '')}" autocomplete="off">
         </div>
-        <div class="cal-modal-field">
-          <label class="cal-modal-label" for="calEditTime">Time</label>
-          <select class="cal-modal-input cal-modal-select" id="calEditTime">
+        <div class="form-field">
+          <label class="form-label" for="calEditTime">Time</label>
+          <select class="form-input form-select" id="calEditTime">
             <option value="">— Select time —</option>
             ${Array.from({length: 28}, (_, i) => {
               const h = Math.floor(i / 2) + 9;
@@ -761,7 +761,7 @@
     document.getElementById('calModalSave').addEventListener('click', () => {
       const name = document.getElementById('calEditName').value.trim();
       const time = document.getElementById('calEditTime').value;
-      if (!name) { document.getElementById('calEditName').classList.add('cal-modal-input--error'); return; }
+      if (!name) { document.getElementById('calEditName').classList.add('form-input--error'); return; }
       removeModal();
       bookDate(date, name, time, selectedType);
     });
@@ -1329,13 +1329,13 @@ async function loadProfile() {
       <div class="dash-modal">
         <p class="dash-modal-tag">Welcome to Appreciart IE</p>
         <h2 class="dash-modal-title">Set your password</h2>
-        <div class="dash-modal-field">
-          <label class="dash-modal-label" for="pwNew">New password</label>
-          <input class="dash-modal-input" type="password" id="pwNew" placeholder="Minimum 8 characters" autocomplete="new-password">
+        <div class="form-field">
+          <label class="form-label" for="pwNew">New password</label>
+          <input class="form-input" type="password" id="pwNew" placeholder="Minimum 8 characters" autocomplete="new-password">
         </div>
-        <div class="dash-modal-field">
-          <label class="dash-modal-label" for="pwConfirm">Confirm password</label>
-          <input class="dash-modal-input" type="password" id="pwConfirm" placeholder="Repeat password" autocomplete="new-password">
+        <div class="form-field">
+          <label class="form-label" for="pwConfirm">Confirm password</label>
+          <input class="form-input" type="password" id="pwConfirm" placeholder="Repeat password" autocomplete="new-password">
         </div>
         <p class="dash-modal-err" id="pwErr"></p>
         <div class="dash-modal-actions">

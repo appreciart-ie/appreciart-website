@@ -514,8 +514,26 @@
   margin-bottom: 24px;
 }
 
+.form-field {
+  margin-bottom: 16px;
+}
+
+.form-field--spacious {
+  margin-bottom: 24px;
+}
+
 .cal-modal-field {
   margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 8px;
 }
 
 .cal-modal-label {
@@ -526,6 +544,43 @@
   text-transform: uppercase;
   color: var(--mid);
   margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--mid);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--black);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  background: var(--white);
+}
+
+.form-input:focus {
+  border-color: var(--black);
+  outline: 2px solid rgba(0,0,0,0.08);
+  outline-offset: 0;
+}
+
+.form-input--error { border-color: #e53935; }
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23636363' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
 }
 
 .cal-modal-input {
