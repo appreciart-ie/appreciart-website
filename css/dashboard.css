@@ -117,6 +117,20 @@
 .dash-panel { display: none; }
 .dash-panel.active { display: block; }
 
+.bio-counter {
+  display: block;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-top: 4px;
+  transition: color 0.2s;
+}
+
+.bio-counter--warn {
+  color: #c8a400;
+}
+
 .btn-spinner {
   width: 14px;
   height: 14px;

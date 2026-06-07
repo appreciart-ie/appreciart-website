@@ -912,6 +912,8 @@ async function loadProfile() {
       const data = await res.json();
       const a    = data.artist;
       document.getElementById('profileBio').value       = a.bio || '';
+      const _bioCounter = document.getElementById('bioCounter');
+      if (_bioCounter) _bioCounter.textContent = (a.bio || '').length + ' / 600';
       document.getElementById('profileInstagram').value = a.instagram || '';
       const waField = document.getElementById('profileWhatsapp');
       if (waField) {
@@ -1010,6 +1012,19 @@ async function loadProfile() {
     };
     _profileDirty = Object.keys(current).some(k => current[k] !== _profileSnapshot[k]);
     if (profileSaveBtn) profileSaveBtn.disabled = !_profileDirty;
+  }
+
+  const _bioEl = document.getElementById('profileBio');
+  const _bioCounterEl = document.getElementById('bioCounter');
+  if (_bioEl && _bioCounterEl) {
+    _bioEl.addEventListener('input', () => {
+      _bioCounterEl.textContent = _bioEl.value.length + ' / 600';
+      if (_bioEl.value.length > 540) {
+        _bioCounterEl.classList.add('bio-counter--warn');
+      } else {
+        _bioCounterEl.classList.remove('bio-counter--warn');
+      }
+    });
   }
 
   const _profileFields = ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl'];
