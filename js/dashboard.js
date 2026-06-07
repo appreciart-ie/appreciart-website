@@ -34,15 +34,6 @@
 
   const isGuest = artist.role === 'guest';
 
-  const bookingsTab = document.querySelector('.dash-tab[data-tab="bookings"]');
-  if (isGuest && bookingsTab) {
-    bookingsTab.style.display = 'none';
-    document.getElementById('tab-bookings').style.display = 'none';
-    document.querySelector('.dash-tab[data-tab="availability"]').classList.add('active');
-    document.getElementById('tab-availability').classList.add('active');
-    document.querySelector('.dash-tab[data-tab="bookings"]').classList.remove('active');
-    document.getElementById('tab-bookings').classList.remove('active');
-  }
 
   const whatsappField = document.getElementById('whatsappField');
   if (whatsappField) whatsappField.style.display = isGuest ? 'block' : 'none';
@@ -1331,7 +1322,7 @@ async function loadProfile() {
     });
   }
 
-  if (!isGuest) loadBookings();
+  loadBookings();
   loadAvailability();
   loadProfile();
   loadPhotos();
