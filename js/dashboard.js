@@ -123,11 +123,22 @@
 
   function stageLabel(s) { return STAGE_LABELS[s] || s; }
 
+  function relativeDate(dateStr) {
+    if (!dateStr) return 'TBD';
+    const today = new Date(); today.setHours(0,0,0,0);
+    const d     = new Date(dateStr); d.setHours(0,0,0,0);
+    const diff  = Math.round((d - today) / 86400000);
+    if (diff === 0)  return 'Today';
+    if (diff === 1)  return 'Tomorrow';
+    if (diff === -1) return 'Yesterday';
+    return d.toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: d.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
+  }
+
   function renderCards(list) {
     return list.map(b => `
       <div class="booking-card booking-card--clickable" data-id="${b.id}">
         <span class="booking-client">${esc(b.client_name)}</span>
-        <span class="booking-meta">${esc(b.date ? b.date.slice(0,10) : 'TBD')}</span>
+        <span class="booking-meta">${esc(relativeDate(b.date))}</span>
         <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
       </div>
     `).join('');
