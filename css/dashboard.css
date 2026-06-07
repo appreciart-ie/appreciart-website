@@ -290,7 +290,7 @@
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 4px;
   margin-bottom: 24px;
 }
 
@@ -394,6 +394,11 @@
 .cal-day--blocked {
   opacity: 0.2;
   pointer-events: none;
+}
+
+.cal-day--today {
+  outline: 2px solid var(--black);
+  outline-offset: -2px;
 }
 
 .cal-day--full {

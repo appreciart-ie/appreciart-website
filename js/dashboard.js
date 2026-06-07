@@ -316,6 +316,7 @@
       const date    = new Date(currentYear, currentMonth, d);
       const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const past    = date < today;
+      const isToday = date.getTime() === today.getTime();
       let bars = '';
       let cls = 'cal-day';
 
@@ -358,7 +359,8 @@
       }).join('');
       } // end isGuest else
 
-      if (past) cls += ' past';
+      if (past)    cls += ' past';
+      if (isToday) cls += ' cal-day--today';
 
       html += `<div class="${cls}" data-date="${dateStr}" ${past ? 'data-readonly="true"' : ''}>
         <span class="cal-day-num">${d}</span>
