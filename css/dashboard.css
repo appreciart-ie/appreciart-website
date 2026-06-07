@@ -117,6 +117,28 @@
 .dash-panel { display: none; }
 .dash-panel.active { display: block; }
 
+.dash-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--light);
+}
+
+.dash-panel-header span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+}
+
+.dash-panel-header svg {
+  color: var(--mid);
+  flex-shrink: 0;
+}
+
 .bio-counter {
   display: block;
   text-align: right;
