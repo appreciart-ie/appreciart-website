@@ -121,7 +121,24 @@
   font-size: 13px;
   font-weight: 300;
   color: var(--mid);
-  padding: 40px 0;
+  padding: 48px 0;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.dash-empty-icon {
+  display: block;
+  margin: 0 auto 12px;
+  opacity: 0.25;
+}
+
+.dash-empty-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-top: 6px;
+  opacity: 0.7;
 }
 
 /* ── BOOKINGS ── */
@@ -907,6 +924,9 @@
   font-size: 11px;
   font-weight: 300;
   color: var(--mid);
+  text-align: center;
+  padding: 20px 12px;
+  line-height: 1.5;
 }
 
 .profile-photo-file { display: none; }
