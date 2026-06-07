@@ -1038,8 +1038,8 @@ async function loadProfile() {
   const profilePublishBtn = document.getElementById('profilePublishBtn');
   if (profilePublishBtn) {
     profilePublishBtn.addEventListener('click', async () => {
-      profilePublishBtn.disabled    = true;
-      profilePublishBtn.textContent = 'Publishing…';
+      profilePublishBtn.disabled   = true;
+      profilePublishBtn.innerHTML  = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Publishing…';
       try {
         const res = await authFetch('/api/artist/publish-profile', { method: 'POST' });
         const data = await res.json();
@@ -1070,8 +1070,8 @@ async function loadProfile() {
       const whatsapp_url = waRaw ? `https://wa.me/${waRaw}` : undefined;
       const bookingEl    = document.getElementById('profileBookingUrl');
       const booking_url  = bookingEl ? bookingEl.value.trim() : undefined;
-      profileSaveBtn.disabled    = true;
-      profileSaveBtn.textContent = 'Saving…';
+      profileSaveBtn.disabled  = true;
+      profileSaveBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Saving…';
       try {
         const res = await authFetch('/api/artist/profile', {
           method: 'PATCH',
@@ -1274,8 +1274,8 @@ async function loadProfile() {
       const file = profilePhotoInput.files[0];
       if (!file) return;
       if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
-      profilePhotoBtn.disabled    = true;
-      profilePhotoBtn.textContent = 'Uploading...';
+      profilePhotoBtn.disabled  = true;
+      profilePhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
         const sig  = await getUploadSignature('profile');
         await uploadToCloudinary(file, sig);
@@ -1297,8 +1297,8 @@ async function loadProfile() {
       const file = portfolioPhotoInput.files[0];
       if (!file) return;
       if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
-      portfolioPhotoBtn.disabled    = true;
-      portfolioPhotoBtn.textContent = 'Uploading...';
+      portfolioPhotoBtn.disabled  = true;
+      portfolioPhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
         const sig  = await getUploadSignature('portfolio');
         await uploadToCloudinary(file, sig);
