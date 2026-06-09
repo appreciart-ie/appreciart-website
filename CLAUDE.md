@@ -1,121 +1,30 @@
-# Appreciart IE — Design System & Project Reference
+# Appreciart IE — Frontend Instructions
+**Repo:** appreciart-ie · Cloudflare Pages  
+**Version:** 3.0 — June 2026
 
-## Project
+---
 
-- **Name:** Appreciart IE
-- **Description:** Public website for a private tattoo studio and gallery in Ballsbridge, Dublin
-- **Frontend repo:** https://github.com/appreciart-ie/appreciart-website.git
-- **Backend repo:** https://github.com/appreciart-ie/appreciart-internal.git
-- **Stack:** Vanilla JS, HTML, CSS — no frameworks, no build tools
-- **Frontend host:** Cloudflare Pages
-- **Backend host:** Railway (Node.js + PostgreSQL)
+## Context
 
-## Folder Structure
+Public site + artist dashboard for Appreciart IE, a private tattoo studio in Ballsbridge, Dublin.  
+**Backend:** https://appreciart-internal-production-ee3c.up.railway.app  
+**Frontend:** https://appreciart-website.pages.dev  
+**Domain:** `appreciart.ie` on Cloudflare (not yet pointed to Pages)
 
-```
-/css
-  main.css          — design system base
-  {page}.css        — page-specific styles
-/js
-  main.js           — scroll reveal, drag, carousel
-  header.js         — nav injected
-  footer.js         — footer injected
-  utils.js          — esc() XSS sanitisation
-  {page}.js         — page-specific logic
-/images
-  /logos
-  /resident-artists
-  /studio
-  /gallery
-  /guest-artist
-  /dates
-```
+---
 
-## Typography
+## Work Rules — Never Violate
 
-- **Font family:** Poppins (Google Fonts)
-- **Weights used:**
-  - 300 — Light (body, secondary text)
-  - 400 — Regular (body, general content)
-  - 700 — Bold (titles, headings)
-  - 900 — Black (hero titles, strong emphasis)
-- **Hierarchy:** Strong contrast between weights — titles in 700/900, body in 300/400
+1. Read the file before any change — ask Copilot for exact lines first
+2. One surgical change per prompt — find → replace exact string
+3. Never mix repos in the same code prompt
+4. Never invent function names, variables, or endpoints
+5. If Copilot reports STOP — fix the string before continuing
+6. Files < 150 lines → send complete. Files > 150 lines → find/replace prompts
+7. Smoke test before every commit — only commit when stable
+8. Single-purpose commits — one logical change per commit
 
-## Colours
-
-| Name           | Hex       | CSS Variable   | Usage                        |
-|----------------|-----------|----------------|------------------------------|
-| Black          | `#000000` | `--black`      | Primary text, headings       |
-| White          | `#ffffff` | `--white`      | Backgrounds                  |
-| Mid Grey       | `#636363` | `--mid`        | Secondary text, UI elements  |
-| Secondary Grey | `#9a9a9a` | `--sec-grey`   | Tertiary text, subtle detail |
-| Off White      | `#f5f5f5` | `--off-white`  | Section backgrounds          |
-| Light          | `#e0e0e0` | `--light`      | Borders, dividers            |
-
-## Tone & Visual Direction
-
-- Editorial, gallery, magazine aesthetic
-- Clean white backgrounds
-- High contrast black type
-- Minimal colour use — black/white/grey only
-- No rounded corners (border-radius: 0)
-- Typography-driven layout
-
-## Pages
-
-| Page | File | Description |
-|------|------|-------------|
-| Homepage | index.html | Hero, residents, guests, gallery preview, reviews |
-| Artist profile | artist.html | Dynamic by ?slug=, Cloudinary portfolio, booking modal |
-| Bookings | bookings.html | Artist selector, availability grid, Stripe Payment Element |
-| Gallery | gallery.html | 4 works, lightbox, Stripe Checkout |
-| Gallery success | gallery-success.html | Post-purchase confirmation |
-| Exhibitions | exhibitions.html | 2 YouTube embeds, lightbox |
-| Be a Guest | guest-artist.html | Application form, reviews, studio carousel |
-| Consent Form | tattoo-consent-form.html | Full medical consent form |
-| About | about.html | Studio story |
-| FAQs | faqs.html | |
-| Contact | contact-us.html | |
-| Privacy Policy | privacy-policy.html | |
-| Terms of Use | terms-of-use.html | |
-
-## CSS Patterns
-
-```css
-/* Spacing */
---sv: 80px;        /* section vertical padding */
---px: clamp(16px, 5vw, 80px); /* horizontal padding */
---max: 1280px;     /* max content width */
-
-/* Sections always follow this pattern */
-.section {
-  padding: var(--sv) var(--px);
-  max-width: var(--max);
-  margin: 0 auto;
-}
-```
-
-## JS Patterns
-
-```javascript
-// XSS sanitisation — always use on API data injected into innerHTML
-esc(str) // defined in js/utils.js, loaded before all page scripts
-
-// Fetch pattern
-const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-
-// Error handling — never console.error in production
-```
-
-## Security Rules
-
-- `esc()` on all API values injected into innerHTML
-- No inline `style=` or `onclick=` attributes
-- No API keys in frontend code
-- All CSS and JS in external files
-- CSP configured in `_headers` (Cloudflare Pages)
-
-## Copilot Prompt Format (ALWAYS)
+### Copilot Prompt Format — Always Use This
 
 ```
 STRICT INSTRUCTIONS — READ BEFORE ACTING:
@@ -126,32 +35,256 @@ Apply only what is explicitly written below. Nothing more.
 If you cannot find the exact string, STOP and report.
 
 In [FILE], find this exact string:
-[EXACT CODE]
+[EXACT STRING]
 Replace with:
-[NEW CODE]
+[NEW STRING]
 ```
 
-## Backend API (appreciart-internal)
+---
 
-Base URL: `https://appreciart-internal-production-ee3c.up.railway.app`
+## Security Rules
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| /api/public/artists | GET | — | List resident artists |
-| /api/public/artists/:slug | GET | — | Artist profile + portfolio |
-| /api/public/availability/:slug | GET | — | Available dates + date images |
-| /api/public/bookings/payment-intent | POST | — | Create Stripe PaymentIntent |
-| /api/public/gallery/checkout | POST | — | Create Stripe Checkout Session |
-| /api/public/consent | POST | — | Submit consent form |
-| /api/public/guests/apply | POST | — | Submit guest artist application |
-| /api/auth/login | POST | — | Artist login → JWT |
-| /api/auth/verify | POST | Bearer JWT | Verify token |
-| /api/webhooks/stripe | POST | Stripe sig | Payment webhook |
-| /api/agent/message | POST | x-webhook-secret | WhatsApp agent |
+### Never
+- Use `innerHTML` with unescaped external data — always use `esc()` or `textContent`
+- Hardcode API keys or secrets in any JS file
+- Add inline `style=` or `onclick=` attributes in HTML
+- Add `'unsafe-inline'` to `script-src` in CSP
+- Use `localStorage` for sensitive data beyond what's necessary
+- Log tokens, passwords, or PII to console
 
-## Cloudinary
+### Always
+- Use `esc()` on all API-derived values injected into innerHTML or HTML attributes
+- Add `rel="noopener noreferrer"` to all external `target="_blank"` links
+- Use `AbortSignal.timeout()` on all fetch calls
+- Check `res.ok` before parsing JSON on all fetch calls
+- Use `textContent` instead of `innerHTML` for plain text
+- Validate URL schemes (`https://`) before assigning to `img.src` or `href`
 
-- Cloud name: `dji3wtp20`
-- Mode: Dynamic Folder Mode
-- URLs require version number: `/v{version}/{public_id}.webp`
-- Folders: `appreciart/moreirart/`, `appreciart/marina/`, `appreciart/renan/`, `appreciart/dates/`, `appreciart/reviews/`, `appreciart/studio/`
+---
+
+## Script Load Order — Every Page
+
+```html
+<script src="js/utils.js"></script>       <!-- esc(), helpers — FIRST -->
+<script src="js/toast.js"></script>        <!-- window.toast() -->
+<script src="js/header.js"></script>       <!-- IIFE, nav, auth state -->
+<script src="js/footer.js"></script>       <!-- IIFE, footer HTML -->
+<script src="js/main.js"></script>         <!-- scroll reveal, drag -->
+<script src="js/cookie-banner.js"></script>
+<script src="js/{page}.js"></script>       <!-- page-specific LAST -->
+```
+
+**Critical:** `utils.js` and `toast.js` must load before `header.js`. Missing these breaks the header on that page.
+
+---
+
+## Key Patterns
+
+### XSS-safe HTML injection
+```js
+// Safe — use esc() for innerHTML
+element.innerHTML = `<p>${esc(data.name)}</p>`;
+
+// Always safe — no esc needed
+element.textContent = data.name;
+
+// Attributes — always esc()
+div.innerHTML = `<img src="${esc(url)}" alt="${esc(name)}">`;
+```
+
+### Auth fetch (dashboard pages)
+```js
+const res = await authFetch('/api/artist/me');
+if (!res.ok) throw new Error('Failed');
+const data = await res.json();
+```
+
+### Toast notifications
+```js
+window.toast('Message', 'success'); // success | error | info
+```
+
+### Confirm modal (dashboard)
+```js
+const confirmed = await showConfirmModal('Are you sure?', 'Delete', 'Cancel');
+if (!confirmed) return;
+```
+
+### Loading spinner on buttons
+```js
+btn.disabled = true;
+btn.innerHTML = '<svg class="btn-spinner" ...></svg> Saving…';
+// in finally:
+btn.disabled = false;
+btn.textContent = 'Save changes';
+```
+
+---
+
+## CSS Classes (Design System)
+
+### Form elements (unified — use these everywhere)
+```
+.form-input           — text inputs, selects, textareas
+.form-label           — field labels (9px, uppercase, 0.2em letter-spacing)
+.form-field           — field wrapper (margin-bottom: 16px)
+.form-field--spacious — field wrapper (margin-bottom: 24px)
+.form-textarea        — textarea modifier (resize: vertical, min-height: 120px)
+.form-select          — select modifier (custom chevron arrow)
+.form-input--error    — error state (red border)
+```
+
+### Dashboard components
+```
+.dash-empty           — empty state (centred text, padding: 48px)
+.dash-empty-icon      — SVG icon above empty state text
+.dash-empty-sub       — subtitle below empty state text
+.dash-panel-header    — section header (icon + uppercase label + border-bottom)
+.btn-spinner          — rotating SVG inside loading buttons
+.bio-counter          — character counter below bio textarea
+.bio-counter--warn    — yellow colour when > 540/600 chars
+```
+
+### Buttons
+```
+.btn.btn-primary      — black background, white text
+.btn.btn-secondary    — white background, black border
+.btn.btn-sm           — smaller padding variant
+```
+
+### CSS variables
+```
+--white       #ffffff
+--off-white   #f5f5f5
+--black       #0a0a0a
+--mid         #636363
+--light       #e0e0e0
+--sec-grey    #9a9a9a
+--font        'Poppins', sans-serif
+--max         1200px
+--px          clamp(20px, 5vw, 80px)
+--sv          clamp(60px, 10vw, 120px)
+```
+
+---
+
+## Pages
+
+### Public
+```
+index.html            — homepage (resident + guest artist cards, reviews, collab)
+about.html            — studio story
+faqs.html             — FAQs
+contact-us.html       — contact + maps
+artist.html           — dynamic artist profile by ?slug=, Stripe booking modal
+bookings.html         — booking form + Stripe Payment Element
+gallery.html          — ecommerce (4 works)
+gallery-success.html  — post-purchase confirmation
+exhibitions.html      — YouTube videos with lightbox (iframes deferred)
+tattoo-consent-form.html — consent form (GDPR-compliant)
+guest-artist.html     — guest application + calendar range picker
+privacy-policy.html   — GDPR privacy policy
+terms-of-use.html     — terms of use
+```
+
+### Internal (auth-gated)
+```
+login.html            — artist login
+dashboard.html        — artist dashboard (residents + guests)
+admin.html            — admin panel (TODO)
+```
+
+---
+
+## Dashboard Features
+
+```
+Auth:       accessToken (15m) + refreshToken httpOnly cookie (30d)
+Tabs:       Sessions · Availability · Profile (all roles)
+Calendar:   mark available/booked, slot bars with artist colours
+Sessions:   upcoming + past, relative dates (Today/Tomorrow/Yesterday)
+Profile:    bio (600 char counter), instagram, whatsapp, booking_url, styles
+Portfolio:  upload, delete, replace (Cloudinary)
+SSE:        availability_update + booking_update real-time events
+Modals:     backdrop blur, spring animation cubic-bezier
+Toast:      SVG icons (success/error/info)
+Onboarding: 4-step modal (guests, first login)
+Password:   forced change modal (must_change_password=true)
+```
+
+### Artist Colours (Calendar)
+```js
+const ARTIST_COLOURS = {
+  'moreirart': { bg: '#2E7D32', text: '#ffffff' }, // green
+  'marina':    { bg: '#E64A19', text: '#ffffff' }, // orange
+  'renan':     { bg: '#1565C0', text: '#ffffff' }, // blue
+};
+// Guest fallback: { bg: '#B8860B', text: '#ffffff' } // gold
+```
+
+---
+
+## Cloudinary (Frontend)
+```
+Cloud name:    dji3wtp20
+Upload preset: appreciart_unsigned (unsigned, for direct browser uploads)
+Folders:       appreciart/{slug}/           — profile photo
+               appreciart/{slug}/portfolio/ — portfolio images
+Dynamic Folder Mode: URLs require version number /v{version}/{public_id}.webp
+```
+
+---
+
+## CSP (_headers — Cloudflare)
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com;
+  style-src 'self';
+  font-src 'self';
+  img-src 'self' data: https://res.cloudinary.com;
+  connect-src 'self' https://appreciart-internal-production-ee3c.up.railway.app
+    https://api.stripe.com https://m.stripe.com https://m.stripe.network
+    https://api.cloudinary.com
+    https://www.google-analytics.com https://analytics.google.com
+    https://stats.g.doubleclick.net;
+  frame-src https://js.stripe.com https://hooks.stripe.com
+    https://www.youtube.com https://www.youtube-nocookie.com;
+  form-action 'self';
+  object-src 'none';
+  base-uri 'self';
+```
+
+---
+
+## GDPR (Frontend)
+```
+Cookie consent: localStorage key 'appreciart_cookie_consent', version '1.0'
+GA ID:          G-ZEW2BJBRGQ (only loads after explicit consent)
+GA config:      anonymize_ip: true
+Withdraw:       "Manage cookies" button in footer → reopens banner
+                dispatches CustomEvent('appreciart:manage-cookies')
+```
+
+---
+
+## What's Next
+
+1. **Admin panel** (`admin.html` + `js/admin.js` + `css/admin.css`)
+   - Sidebar navigation (desktop) / bottom nav (mobile)
+   - Sections: Overview · Applications · Artists · Bookings · Consent Forms · Studio Calendar
+   - Paginated tables (10/page), filters, modals for detail views
+   - Protected by Cloudflare Zero Trust
+2. **Re-application flow** — returning guest artists
+3. **PWA** — dashboard installable on mobile (manifest + service worker)
+4. **Landing page polish** — hero photo, WhatsApp CTA (when studio assets ready)
+5. **Point `appreciart.ie`** to Cloudflare Pages
+
+---
+
+## Test Accounts
+```
+Admin: id=4, slug='Matth', role='admin'
+Guest: id=5, email='contatonegostando@gmail.com'
+       guest_start_date: 2026-06-22, guest_end_date: 2026-06-23
+```

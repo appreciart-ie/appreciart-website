@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Appreciart IE</title>
+  <link rel="icon" href="/images/favicon/favicon.ico">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <aside id="adminSidebar">
+    <div class="admin-sidebar-brand">
+      <img src="images/logo.png" alt="Appreciart">
+    </div>
+
+    <nav class="admin-nav">
+      <button class="admin-nav-btn" data-section="overview">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <rect x="3" y="3" width="9" height="9"></rect>
+          <rect x="12" y="3" width="9" height="9"></rect>
+          <rect x="3" y="12" width="9" height="9"></rect>
+          <rect x="12" y="12" width="9" height="9"></rect>
+        </svg>
+        <span>Overview</span>
+      </button>
+
+      <button class="admin-nav-btn" data-section="applications">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        <span>Applications</span>
+        <span class="admin-badge" id="badgePending"></span>
+      </button>
+
+      <button class="admin-nav-btn" data-section="artists">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path>
+        </svg>
+        <span>Artists</span>
+      </button>
+
+      <button class="admin-nav-btn" data-section="studio">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <rect x="3" y="4" width="18" height="18"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>Studio</span>
+      </button>
+
+      <button class="admin-nav-btn" data-section="bookings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"></path>
+          <line x1="12" y1="11" x2="12" y2="17"></line>
+          <line x1="9" y1="14" x2="15" y2="14"></line>
+        </svg>
+        <span>Bookings</span>
+      </button>
+
+      <button class="admin-nav-btn" data-section="consent">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <line x1="10" y1="9" x2="8" y2="9"></line>
+        </svg>
+        <span>Consent Forms</span>
+      </button>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <a href="https://appreciart-website.pages.dev" class="admin-nav-back" rel="noopener noreferrer" target="_blank">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;flex-shrink:0;opacity:0.55;"></i>
+        <span>Back to site</span>
+      </a>
+      <button class="admin-nav-btn admin-nav-signout" id="adminSignOut">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4 M16 17l5-5-5-5 M21 12H9"></path>
+        </svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main id="adminMain">
+    <header id="adminHeader">
+      <h1 class="admin-page-title" id="adminPageTitle">Overview</h1>
+      <div class="admin-header-right">
+        <span id="adminArtistName"></span>
+        <span class="admin-role-badge">Admin</span>
+      </div>
+    </header>
+
+    <div id="adminContent">
+      <section class="admin-section active" id="section-overview">
+        <div class="admin-section-inner"></div>
+      </section>
+      <section class="admin-section" id="section-applications">
+        <div class="admin-section-inner"></div>
+      </section>
+      <section class="admin-section" id="section-artists">
+        <div class="admin-section-inner"></div>
+      </section>
+      <section class="admin-section" id="section-studio">
+        <div class="admin-section-inner"></div>
+      </section>
+      <section class="admin-section" id="section-bookings">
+        <div class="admin-section-inner"></div>
+      </section>
+      <section class="admin-section" id="section-consent">
+        <div class="admin-section-inner"></div>
+      </section>
+    </div>
+  </main>
+
+  <nav id="adminBottomNav">
+    <button class="admin-bottom-btn" data-section="overview">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <rect x="3" y="3" width="9" height="9"></rect>
+        <rect x="12" y="3" width="9" height="9"></rect>
+        <rect x="3" y="12" width="9" height="9"></rect>
+        <rect x="12" y="12" width="9" height="9"></rect>
+      </svg>
+      <span>Overview</span>
+    </button>
+
+    <button class="admin-bottom-btn" data-section="applications">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+      </svg>
+      <span>Applications</span>
+    </button>
+
+    <button class="admin-bottom-btn" data-section="artists">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path>
+      </svg>
+      <span>Artists</span>
+    </button>
+
+    <button class="admin-bottom-btn" data-section="bookings">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+        <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"></path>
+        <line x1="12" y1="11" x2="12" y2="17"></line>
+        <line x1="9" y1="14" x2="15" y2="14"></line>
+      </svg>
+      <span>Bookings</span>
+    </button>
+
+    <button class="admin-bottom-btn" data-section="consent">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <line x1="10" y1="9" x2="8" y2="9"></line>
+      </svg>
+      <span>Consent</span>
+    </button>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
