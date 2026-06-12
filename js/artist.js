@@ -8,11 +8,6 @@
       return;
     }
 
-    if (!slug) {
-      renderNotFound();
-      return;
-    }
-
     // Load artist data (includes profile_url + portfolio from backend) + availability in parallel
     Promise.all([
       fetchArtist(slug),
