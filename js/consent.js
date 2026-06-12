@@ -123,6 +123,8 @@
           has_bloodborne:     hasBloodborne,
           bloodborne_details: hasBloodborne ? document.getElementById('bloodborne_details').value.trim() : null,
           photo_consent:      photoConsent,
+          confirm_not_fasting: notFasting,
+          confirm_no_alcohol:  noAlcohol,
           signature,
           _honeypot:          document.getElementById('_honeypot').value,
         };
