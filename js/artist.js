@@ -41,8 +41,10 @@
     }
 
     function renderArtist(artist, availability, dateImages) {
-      // Update page title
+      // Update page title + meta description
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', `${artist.name} — tattoo artist at Appreciart IE, Ballsbridge, Dublin. View portfolio and book a session.`);
 
       const portfolio     = artist.portfolio || [];
       const profileImgUrl = isSafeUrl(artist.profile_url) ? artist.profile_url : `images/resident-artists/${artist.slug}-profile.webp`;
