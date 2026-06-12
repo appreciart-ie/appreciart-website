@@ -13,6 +13,7 @@
     let currentMonth   = new Date().getMonth();
     let stripe         = null;
     let elements       = null;
+    let paymentElement = null;
     let clientSecret   = null;
     let bookingId      = null;
     let paymentIntent  = null;
@@ -162,6 +163,7 @@
           `${INTERNAL_API}/api/public/availability/${slug}`,
           { signal: AbortSignal.timeout(10000) }
         );
+        if (!res.ok) throw new Error('Failed to load availability');
         const data = await res.json();
         const dateImgMap     = new Map((data.date_images || []).map(d => [d.day, d.url]));
         const today          = new Date(); today.setHours(0,0,0,0);
@@ -313,7 +315,7 @@
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error('Payment setup failed. Please try again.');
+        if (!res.ok) throw new Error(data.error || 'Payment setup failed. Please try again.');
 
         toast('Payment details loaded', 'success');
         clientSecret = data.client_secret;
@@ -321,7 +323,12 @@
         paymentIntent = data.payment_intent;
         depositAmountEl.textContent = `€${data.deposit_amount}`;
 
-        // Mount Stripe Payment Element
+        // Mount Stripe Payment Element — destroy any previous one first
+        if (paymentElement) {
+          paymentElement.destroy();
+          paymentElement = null;
+          submitBtn.disabled = true;
+        }
         elements = stripe.elements({
           clientSecret,
           appearance: {
@@ -343,7 +350,7 @@
           },
         });
 
-        const paymentEl = elements.create('payment', {
+        paymentElement = elements.create('payment', {
           layout: {
             type: 'accordion',
             defaultCollapsed: false,
@@ -353,8 +360,8 @@
           paymentMethodOrder: ['apple_pay', 'google_pay', 'klarna', 'card'],
         });
 
-        paymentEl.mount('#payment-element');
-        paymentEl.on('ready', () => { submitBtn.disabled = false; });
+        paymentElement.mount('#payment-element');
+        paymentElement.on('ready', () => { submitBtn.disabled = false; });
 
         paymentSection.classList.add('visible');
         proceedBtn.textContent = 'Change Details';
@@ -379,13 +386,19 @@
       submitBtn.textContent = 'Processing...';
       paymentError.classList.remove('visible');
 
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/bookings.html?success=1&booking_id=${encodeURIComponent(bookingId)}&payment_intent=${encodeURIComponent(paymentIntent)}`,
-        },
-        redirect: 'if_required',
-      });
+      let result;
+      try {
+        result = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/bookings.html?success=1&booking_id=${encodeURIComponent(bookingId)}&payment_intent=${encodeURIComponent(paymentIntent)}`,
+          },
+          redirect: 'if_required',
+        });
+      } catch (err) {
+        result = { error: { message: 'Connection problem — your payment was not completed. Please check your connection and try again.' } };
+      }
+      const { error } = result;
 
       if (error) {
         toast(error.message, 'error');
@@ -410,7 +423,13 @@
     // ── Handle return from Stripe redirect ──
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === '1') {
-      showSuccess();
+      const redirectStatus = params.get('redirect_status');
+      if (!redirectStatus || redirectStatus === 'succeeded' || redirectStatus === 'processing') {
+        showSuccess();
+      } else {
+        toast('Payment was not completed — no money was taken. Please try again.', 'error');
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     }
 
     // ── Start ──

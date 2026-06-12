@@ -245,7 +245,7 @@
       bmMonth      = d.getMonth();
       const monthName = d.toLocaleString('en-IE', { month: 'long' });
 
-      document.getElementById('bmTitle').textContent    = `Book with ${esc(artistName)}`;
+      document.getElementById('bmTitle').textContent    = `Book with ${artistName}`;
       document.getElementById('bmSubtitle').textContent = `${day} ${monthName} ${bmYear}`;
       document.getElementById('bmOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -365,11 +365,17 @@
       btn.textContent = 'Processing...';
       document.getElementById('bmPayErr').classList.remove('visible');
 
-      const { error } = await bmStripe.confirmPayment({
-        elements: bmElements,
-        confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${encodeURIComponent(bmArtistSlug)}&paid=1` },
-        redirect: 'if_required',
-      });
+      let result;
+      try {
+        result = await bmStripe.confirmPayment({
+          elements: bmElements,
+          confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${encodeURIComponent(bmArtistSlug)}&paid=1` },
+          redirect: 'if_required',
+        });
+      } catch (err) {
+        result = { error: { message: 'Connection problem — your payment was not completed. Please check your connection and try again.' } };
+      }
+      const { error } = result;
 
       if (error) {
         document.getElementById('bmPayErr').textContent = error.message;
@@ -384,14 +390,21 @@
     });
 
     // Handle return from Stripe redirect (3DS / Klarna)
-    if (new URLSearchParams(window.location.search).get('paid') === '1') {
-      Promise.all([fetchArtist(slug), fetchAvailability(slug)])
-        .then(([artist, availData]) => {
-          if (artist) renderArtist(artist, availData.availability, availData.date_images);
-          document.getElementById('bmFormBody').style.display = 'none';
-          document.getElementById('bmSuccess').classList.add('visible');
-          document.getElementById('bmOverlay').classList.add('open');
-        });
+    const returnParams = new URLSearchParams(window.location.search);
+    if (returnParams.get('paid') === '1') {
+      const redirectStatus = returnParams.get('redirect_status');
+      if (!redirectStatus || redirectStatus === 'succeeded' || redirectStatus === 'processing') {
+        Promise.all([fetchArtist(slug), fetchAvailability(slug)])
+          .then(([artist, availData]) => {
+            if (artist) renderArtist(artist, availData.availability, availData.date_images);
+            document.getElementById('bmFormBody').style.display = 'none';
+            document.getElementById('bmSuccess').classList.add('visible');
+            document.getElementById('bmOverlay').classList.add('open');
+          });
+      } else {
+        toast('Payment was not completed — no money was taken. Please try again.', 'error');
+        window.history.replaceState({}, '', `${window.location.pathname}?slug=${encodeURIComponent(slug)}`);
+      }
     }
 
     function renderNotFound() {
