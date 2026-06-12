@@ -323,6 +323,14 @@
         paymentIntent = data.payment_intent;
         depositAmountEl.textContent = `€${data.deposit_amount}`;
 
+        // Mandatory confirmation before the Payment Element is shown
+        const confirmed = await showDepositConfirm(data.deposit_amount);
+        if (!confirmed) {
+          proceedBtn.textContent = 'Proceed to Payment';
+          proceedBtn.disabled = false;
+          return;
+        }
+
         // Mount Stripe Payment Element — destroy any previous one first
         if (paymentElement) {
           paymentElement.destroy();

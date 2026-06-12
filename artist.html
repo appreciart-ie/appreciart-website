@@ -124,6 +124,22 @@
     </div>
   </div>
 
+  <!-- Pre-payment confirmation modal -->
+  <div class="booking-modal-overlay" id="confirmDepositOverlay">
+    <div class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="confirmDepositTitle">
+      <div class="booking-modal-header">
+        <div class="booking-modal-title" id="confirmDepositTitle">Before you continue</div>
+      </div>
+      <div class="booking-modal-body">
+        <p class="booking-modal-confirm-text" id="confirmDepositBody"></p>
+        <div class="booking-modal-actions">
+          <button class="btn btn-secondary" id="confirmDepositCancel">Cancel</button>
+          <button class="btn btn-primary" id="confirmDepositContinue">Continue to Payment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="js/utils.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/header.js"></script>

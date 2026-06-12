@@ -272,7 +272,9 @@
       if (e.target === document.getElementById('bmOverlay')) closeBookingModal();
     });
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && document.getElementById('bmOverlay').classList.contains('open')) closeBookingModal();
+      if (e.key !== 'Escape') return;
+      if (document.getElementById('confirmDepositOverlay')?.classList.contains('open')) return;
+      if (document.getElementById('bmOverlay').classList.contains('open')) closeBookingModal();
     });
 
     document.getElementById('bmProceedBtn').addEventListener('click', async () => {
@@ -317,6 +319,14 @@
         bmSecret    = data.client_secret;
         bmBookingId = data.booking_id;
         document.getElementById('bmDepositAmt').textContent = `€${data.deposit_amount}`;
+
+        // Mandatory confirmation before the Payment Element is shown
+        const confirmed = await showDepositConfirm(data.deposit_amount);
+        if (!confirmed) {
+          btn.disabled = false;
+          btn.textContent = 'Continue to Payment';
+          return;
+        }
 
         if (!bmStripe) bmStripe = Stripe(STRIPE_PK);
         bmElements = bmStripe.elements({

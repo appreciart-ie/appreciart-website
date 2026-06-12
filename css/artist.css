@@ -445,67 +445,7 @@
       margin-top: 4px;
     }
 
-    /* BOOKING MODAL */
-    .booking-modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 400;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .booking-modal-overlay.open { display: flex; }
-
-    .booking-modal {
-      background: var(--white);
-      width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-    }
-
-    .booking-modal-header {
-      padding: 28px 28px 0;
-      border-bottom: 1px solid var(--light);
-      padding-bottom: 20px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .booking-modal-title {
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: -0.01em;
-      text-transform: uppercase;
-    }
-
-    .booking-modal-subtitle {
-      font-size: 11px;
-      font-weight: 300;
-      color: var(--mid);
-      margin-top: 4px;
-    }
-
-    .booking-modal-close {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--mid);
-      flex-shrink: 0;
-      padding: 4px;
-      transition: color 0.2s;
-    }
-
-    .booking-modal-close:hover { color: var(--black); }
-
-    .booking-modal-body { padding: 24px 28px 28px; }
-
+    /* BOOKING MODAL — shell styles (.booking-modal-*) shared via main.css */
     .bm-group { margin-bottom: 16px; }
 
     .bm-label {
