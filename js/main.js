@@ -11,6 +11,11 @@ residentCards.forEach(card => {
   }, { passive: false });
 });
 
+// Hide images that fail to load (no inline onerror per security rules)
+document.querySelectorAll('img[data-hide-on-error]').forEach(img => {
+  img.addEventListener('error', () => { img.style.display = 'none'; });
+});
+
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
 }, { threshold: 0.1 });

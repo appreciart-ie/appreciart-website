@@ -88,7 +88,7 @@
               .then(r => r.json())
               .then(d => {
                 const photoWrap = document.getElementById('gap-' + guest.slug);
-                if (photoWrap && d.artist && d.artist.profile_url) {
+                if (photoWrap && d.artist && isSafeUrl(d.artist.profile_url)) {
                   photoWrap.innerHTML = '<img src="' + esc(d.artist.profile_url) + '" alt="' + esc(guest.name) + '">';
                 }
               })
@@ -129,7 +129,7 @@
           .then(r => r.json())
           .then(data => {
             const url = data.artist && data.artist.profile_url;
-            if (url) {
+            if (isSafeUrl(url)) {
               const img = btn.querySelector('img');
               if (img) img.src = url;
             }

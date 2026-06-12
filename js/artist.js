@@ -45,7 +45,7 @@
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
 
       const portfolio     = artist.portfolio || [];
-      const profileImgUrl = artist.profile_url || `images/resident-artists/${artist.slug}-profile.webp`;
+      const profileImgUrl = isSafeUrl(artist.profile_url) ? artist.profile_url : `images/resident-artists/${artist.slug}-profile.webp`;
 
       const styles = (artist.styles || []).map(s =>
         `<span class="artist-style-tag">${esc(s)}</span>`
@@ -55,7 +55,7 @@
       const instaUrl    = instaHandle ? `https://instagram.com/${encodeURIComponent(instaHandle.replace('@', ''))}` : '#';
 
       const today       = new Date(); today.setHours(0,0,0,0);
-      const dateImgMap  = new Map(dateImages.map(d => [d.day, d.url]));
+      const dateImgMap  = new Map(dateImages.filter(d => isSafeUrl(d.url)).map(d => [d.day, d.url]));
 
       const bookedDays     = new Set(availability.filter(a => a.booked).map(a => a.date.slice(0, 10)));
       const availableSlots = availability;
@@ -81,7 +81,7 @@
               ? `Unavailable — ${dayLabel}`
               : `Book session on ${dayLabel} with ${esc(artist.name)}`;
             return `<div class="avail-date-cell${disabled ? ' avail-disabled' : ''}" role="button" aria-label="${esc(ariaLabel)}"${disabled ? ' aria-disabled="true"' : ''} data-day="${day}" data-date="${esc(date)}" data-url="${esc(url)}" data-artist="${esc(artist.slug)}" data-artist-name="${esc(artist.name)}">
-              ${url ? `<img src="${url}" alt="Day ${day}" loading="lazy" class="avail-date-img">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
+              ${url ? `<img src="${esc(url)}" alt="Day ${day}" loading="lazy" class="avail-date-img">` : `<span class="avail-day-fallback">${String(day).padStart(2,'0')}</span>`}
               <div class="avail-lock">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>

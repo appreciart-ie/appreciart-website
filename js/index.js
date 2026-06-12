@@ -8,7 +8,7 @@
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
           const url = data.artist && data.artist.profile_url;
-          if (url) img.src = url;
+          if (isSafeUrl(url)) img.src = url;
         })
         .catch(() => {});
     });
@@ -47,7 +47,7 @@
             card.className = 'guest-card';
             card.innerHTML =
               '<div class="guest-photo-wrap">' +
-                '<img alt="' + esc(guest.name) + '" onerror="this.parentElement.style.background=\'var(--light)\';this.style.display=\'none\'">' +
+                '<img alt="' + esc(guest.name) + '">' +
                 (dateRange ? '<span class="guest-dates-badge">' + esc(dateRange) + '</span>' : '') +
               '</div>' +
               (month ? '<p class="guest-month">' + esc(month) + '</p>' : '') +
@@ -57,12 +57,19 @@
 
             track.appendChild(card);
 
+            const cardImg = card.querySelector('img');
+            if (cardImg) {
+              cardImg.addEventListener('error', () => {
+                if (cardImg.parentElement) cardImg.parentElement.style.background = 'var(--light)';
+                cardImg.style.display = 'none';
+              });
+            }
+
             // Load profile photo
             fetch(`${INTERNAL_API}/api/public/artists/${encodeURIComponent(guest.slug)}`, { signal: AbortSignal.timeout(8000) })
               .then(r => r.ok ? r.json() : Promise.reject())
               .then(d => {
-                const img = card.querySelector('img');
-                if (img && d.artist && d.artist.profile_url) img.src = d.artist.profile_url;
+                if (cardImg && d.artist && isSafeUrl(d.artist.profile_url)) cardImg.src = d.artist.profile_url;
               })
               .catch(() => {});
           });

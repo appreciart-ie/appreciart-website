@@ -11,6 +11,11 @@ function esc(str) {
     .replace(/\//g, '&#x2F;');
 }
 
+// Only allow https URLs for API-derived image/link targets
+function isSafeUrl(url) {
+  return typeof url === 'string' && /^https:\/\//.test(url);
+}
+
 // Pre-payment confirmation modal — resolves true (continue) or false (cancel).
 // Resolves true immediately if the modal markup is not on the page.
 function showDepositConfirm(depositAmount) {
