@@ -9,6 +9,20 @@
   const submitBtn  = document.getElementById('gaSubmitBtn');
   const generalErr = document.getElementById('gaGeneralErr');
 
+  // Existing artists are already part of the studio — the guest application
+  // doesn't apply to them. Replace the form with a dashboard notice.
+  if (localStorage.getItem('art_token')) {
+    if (formInner) {
+      formInner.innerHTML =
+        '<div style="text-align:center;padding:60px 24px;">' +
+          '<h2 style="margin:0 0 12px;">You\'re already part of Appreciart</h2>' +
+          '<p style="margin:0 0 24px;color:#555;">This application is for new guest artists. Manage your profile and sessions from your dashboard.</p>' +
+          '<a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>' +
+        '</div>';
+    }
+    return;
+  }
+
   if (submitBtn) {
     submitBtn.addEventListener('click', async () => {
       ['gaNameErr', 'gaEmailErr', 'gaInstagramErr'].forEach(id => {

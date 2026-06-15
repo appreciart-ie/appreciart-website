@@ -8,6 +8,10 @@
       return;
     }
 
+    // Logged-in artists don't use the public booking flow — bookings and
+    // walk-ins are handled in the dashboard. Hide all booking actions for them.
+    const loggedInArtist = !!localStorage.getItem('art_token');
+
     // Load artist data (includes profile_url + portfolio from backend) + availability in parallel
     Promise.all([
       fetchArtist(slug),
@@ -88,7 +92,9 @@
                   <div class="availability-dates-grid">${cells}</div>`;
         }).join('');
 
-      const availHtml = availableSlots.length > 0
+      const availHtml = loggedInArtist
+        ? `<p class="availability-empty">You're signed in as an artist. Manage sessions from your <a href="dashboard.html">Dashboard</a>.</p>`
+        : availableSlots.length > 0
         ? `${monthBlocks}<p class="availability-hint">Tap a date to book your session.</p>`
         : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</p>`;
 
@@ -153,13 +159,19 @@
         </div>
 
         <div class="artist-cta">
-          <span class="section-label">Ready?</span>
-          <h2 class="section-title">Book with ${esc(artist.name)}</h2>
-          <p class="section-body">Start the conversation — tell us what you have in mind.</p>
-          ${artist.role === 'guest'
+          ${loggedInArtist
+  ? `<span class="section-label">Artist account</span>
+     <h2 class="section-title">You're signed in</h2>
+     <p class="section-body">Bookings and walk-ins are managed from your dashboard, not the public booking flow.</p>
+     <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>`
+  : `<span class="section-label">Ready?</span>
+     <h2 class="section-title">Book with ${esc(artist.name)}</h2>
+     <p class="section-body">Start the conversation — tell us what you have in mind.</p>
+     ${artist.role === 'guest'
   ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
      ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
   : `<a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>`
+}`
 }
         </div>
       `;

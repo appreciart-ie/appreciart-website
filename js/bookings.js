@@ -456,5 +456,18 @@
     }
 
     // ── Start ──
-    init();
+    // Logged-in artists don't use the public customer booking flow — bookings
+    // and walk-in sessions are managed from the dashboard. Show a notice instead.
+    if (localStorage.getItem('art_token')) {
+      if (bookingLayout) {
+        bookingLayout.innerHTML =
+          '<div style="text-align:center;padding:80px 24px;max-width:520px;margin:0 auto;">' +
+            '<h2 style="margin:0 0 12px;">You\'re signed in as an artist</h2>' +
+            '<p style="margin:0 0 24px;color:#555;">Bookings and walk-in sessions are managed from your dashboard, not the public booking flow.</p>' +
+            '<a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>' +
+          '</div>';
+      }
+    } else {
+      init();
+    }
   })();
