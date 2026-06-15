@@ -224,7 +224,7 @@
     }
 
     // ── BOOKING MODAL ──
-    const STRIPE_PK  = 'pk_test_51LMExGFHUBlGAlIRvV0nWtnFAi6fcpJUHKxHixv0Xv9kv1GBqRkP5LYT0INKlTpOoNKGsIQGS0j9iYJNPvvsMPr00M7bEKiAD';
+    let stripePublishableKey = null;
     let bmStripe     = null;
     let bmElements   = null;
     let bmSecret     = null;
@@ -233,6 +233,19 @@
     let bmDay        = null;
     let bmYear       = null;
     let bmMonth      = null;
+
+    // Fetch Stripe public key from config
+    (async () => {
+      try {
+        const res = await fetch(`${INTERNAL}/api/public/config`);
+        if (res.ok) {
+          const data = await res.json();
+          stripePublishableKey = data.stripePublishableKey;
+        }
+      } catch (err) {
+        console.error('[artist] Failed to fetch config:', err.message);
+      }
+    })();
 
     function openBookingModal(day, artistSlug, artistName, dateStr) {
       const d      = dateStr ? new Date(dateStr) : new Date();
@@ -325,7 +338,7 @@
           return;
         }
 
-        if (!bmStripe) bmStripe = Stripe(STRIPE_PK);
+        if (!bmStripe && stripePublishableKey) bmStripe = Stripe(stripePublishableKey);
         bmElements = bmStripe.elements({
           clientSecret: bmSecret,
           appearance: {

@@ -2,7 +2,6 @@
     'use strict';
 
     const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
-    const STRIPE_PK    = 'pk_test_51LMExGFHUBlGAlIRvV0nWtnFAi6fcpJUHKxHixv0Xv9kv1GBqRkP5LYT0INKlTpOoNKGsIQGS0j9iYJNPvvsMPr00M7bEKiAD'; // publishable key — safe in frontend
 
     // ── State ──
     let artists        = [];
@@ -12,6 +11,7 @@
     let currentYear    = new Date().getFullYear();
     let currentMonth   = new Date().getMonth();
     let stripe         = null;
+    let stripePublishableKey = null;
     let elements       = null;
     let paymentElement = null;
     let clientSecret   = null;
@@ -32,9 +32,24 @@
     const bookingSuccess  = document.getElementById('bookingSuccess');
     const bookingLayout   = document.getElementById('bookingLayout');
 
+    // ── Fetch public config ──
+    async function fetchConfig() {
+      try {
+        const res = await fetch(`${INTERNAL_API}/api/public/config`);
+        if (!res.ok) throw new Error(`Config endpoint returned ${res.status}`);
+        const data = await res.json();
+        stripePublishableKey = data.stripePublishableKey;
+        if (!stripePublishableKey) throw new Error('stripePublishableKey not in config');
+      } catch (err) {
+        console.error('[config] Failed to fetch:', err.message);
+        throw err;
+      }
+    }
+
     // ── Init ──
     async function init() {
-      stripe = Stripe(STRIPE_PK);
+      await fetchConfig();
+      stripe = Stripe(stripePublishableKey);
 
       // Pre-select artist from URL param
       const params = new URLSearchParams(window.location.search);
