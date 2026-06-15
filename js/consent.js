@@ -5,6 +5,34 @@
       const dobInput = document.getElementById('date_of_birth');
       if (dobInput) dobInput.max = new Date().toISOString().split('T')[0];
 
+      // Populate the artist dropdown from the same source bookings.html uses,
+      // so the choices always match the artists the backend will accept.
+      (async function loadConsentArtists() {
+        const select = document.getElementById('artist_name');
+        if (!select) return;
+        try {
+          const res = await fetch(`${INTERNAL_API_URL}/api/public/artists`, { signal: AbortSignal.timeout(10000) });
+          if (!res.ok) throw new Error(`Artists endpoint returned ${res.status}`);
+          const data = await res.json();
+          const all  = [...(data.residents || []), ...(data.guests || [])];
+          if (!all.length) throw new Error('No artists returned');
+          all.forEach(a => {
+            if (!a || !a.name) return;
+            const opt = document.createElement('option');
+            opt.value = a.name;          // matches active artist name validated server-side
+            opt.textContent = a.name;
+            select.appendChild(opt);
+          });
+        } catch (err) {
+          console.error('[consent] Failed to load artists:', err.message);
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.disabled = true;
+          opt.textContent = 'Could not load artists — please refresh';
+          select.appendChild(opt);
+        }
+      })();
+
       // Conditional fields
       function setupConditional(radioName, condId) {
         document.querySelectorAll(`input[name="${radioName}"]`).forEach(r => {
