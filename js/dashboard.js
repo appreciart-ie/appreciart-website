@@ -111,12 +111,12 @@
 
   // ── Bookings ──
   const STAGE_LABELS = {
-    'novo_lead':     'New lead',
-    'contactado':    'Contacted',
-    'deposito_pago': 'Deposit paid',
-    'confirmado':    'Confirmed',
-    'concluido':     'Completed',
-    'cancelado':     'Cancelled',
+    'new_lead':     'New lead',
+    'contacted':    'Contacted',
+    'deposit_paid': 'Deposit paid',
+    'confirmed':    'Confirmed',
+    'completed':    'Completed',
+    'cancelled':    'Cancelled',
   };
 
   const STAGES = Object.keys(STAGE_LABELS);
@@ -1349,6 +1349,10 @@ async function loadProfile() {
         <p class="dash-modal-tag">Welcome to Appreciart IE</p>
         <h2 class="dash-modal-title">Set your password</h2>
         <div class="form-field">
+          <label class="form-label" for="pwOld">Temporary password</label>
+          <input class="form-input" type="password" id="pwOld" placeholder="From your approval email" autocomplete="current-password">
+        </div>
+        <div class="form-field">
           <label class="form-label" for="pwNew">New password</label>
           <input class="form-input" type="password" id="pwNew" placeholder="Minimum 8 characters" autocomplete="new-password">
         </div>
@@ -1365,10 +1369,12 @@ async function loadProfile() {
     document.body.appendChild(modal);
 
     document.getElementById('pwSave').addEventListener('click', async () => {
+      const old = document.getElementById('pwOld').value;
       const pw  = document.getElementById('pwNew').value;
       const pw2 = document.getElementById('pwConfirm').value;
       const err = document.getElementById('pwErr');
 
+      if (!old) { err.textContent = 'Temporary password is required'; err.style.display = 'block'; return; }
       if (pw.length < 8) { err.textContent = 'Password must be at least 8 characters'; err.style.display = 'block'; return; }
       if (pw !== pw2)    { err.textContent = 'Passwords do not match'; err.style.display = 'block'; return; }
       err.style.display = 'none';
@@ -1376,7 +1382,7 @@ async function loadProfile() {
       try {
         const res = await authFetch('/api/artist/change-password', {
           method: 'POST',
-          body:   JSON.stringify({ password: pw }),
+          body:   JSON.stringify({ old_password: old, password: pw }),
         });
         if (!res.ok) { err.textContent = 'Failed to save password'; err.style.display = 'block'; return; }
 
