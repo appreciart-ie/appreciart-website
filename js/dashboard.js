@@ -889,39 +889,86 @@
   let profileStyles = [];
 
   let _completenessProfile = null;
-let _completenessPhotos  = null;
+  let _completenessPhotos  = null;
+  let _liveModalSeen       = localStorage.getItem('art_profile_live_seen') === '1';
+  let _wasPublic           = null;
 
-function updateCompleteness() {
-  if (!_completenessProfile || !_completenessPhotos) return;
-  const checks = {
-    bio:       !!(_completenessProfile.bio || '').trim(),
-    photo:     !!_completenessPhotos.profileUrl,
-    portfolio: (_completenessPhotos.portfolio || []).length > 0,
-    contact:   !!(_completenessProfile.whatsapp_url || _completenessProfile.booking_url),
-  };
-  const keys    = Object.keys(checks);
-  const done    = keys.filter(k => checks[k]).length;
-  const pct     = Math.round((done / keys.length) * 100);
-  const fill    = document.getElementById('completenessFill');
-  const label   = document.getElementById('completenessLabel');
-  const bar     = document.getElementById('completenessBar');
-  if (!fill || !label || !bar) return;
-  fill.style.width = pct + '%';
-  keys.forEach(k => {
-    const el = document.getElementById('cStep-' + k);
-    if (el) el.classList.toggle('completeness-step--done', checks[k]);
-  });
-  const publishBtn = document.getElementById('profilePublishBtn');
-  if (done === keys.length) {
-    label.textContent = '✓ Profile complete';
-    bar.classList.add('completeness-bar--ready');
-    if (publishBtn && isGuest && !_profilePublished) publishBtn.style.display = '';
-  } else {
-    label.textContent = done + ' of ' + keys.length + ' complete';
-    bar.classList.remove('completeness-bar--ready');
-    if (publishBtn) publishBtn.style.display = 'none';
+  function profileChecks() {
+    return {
+      bio:       !!((_completenessProfile && _completenessProfile.bio || '').trim()),
+      photo:     !!(_completenessPhotos && _completenessPhotos.profileUrl),
+      portfolio: !!(_completenessPhotos && (_completenessPhotos.portfolio || []).length > 0),
+      styles:    profileStyles.length > 0,
+      contact:   !!(_completenessProfile && (_completenessProfile.whatsapp_url || _completenessProfile.booking_url)),
+    };
   }
-}
+
+  function updateCompleteness() {
+    if (!_completenessProfile || !_completenessPhotos) return;
+    const checks = profileChecks();
+    const keys   = Object.keys(checks);
+    const done   = keys.filter(k => checks[k]).length;
+    const pct    = Math.round((done / keys.length) * 100);
+    const fill   = document.getElementById('completenessFill');
+    const label  = document.getElementById('completenessLabel');
+    const bar    = document.getElementById('completenessBar');
+    if (!fill || !label || !bar) return;
+    fill.style.width = pct + '%';
+    keys.forEach(k => {
+      const el = document.getElementById('cStep-' + k);
+      if (el) el.classList.toggle('completeness-step--done', checks[k]);
+    });
+    if (done === keys.length) {
+      label.textContent = isGuest ? '✓ Profile complete — your profile is live' : '✓ Profile complete';
+      bar.classList.add('completeness-bar--ready');
+    } else {
+      const labels = { bio: 'Bio', photo: 'Photo', portfolio: 'Portfolio', styles: 'Styles', contact: 'Contact' };
+      const left   = keys.filter(k => !checks[k]).map(k => labels[k]);
+      label.textContent = isGuest
+        ? done + ' of ' + keys.length + ' done — complete your profile to go live (missing: ' + left.join(', ') + ')'
+        : done + ' of ' + keys.length + ' complete';
+      bar.classList.remove('completeness-bar--ready');
+    }
+  }
+
+  async function syncVisibility() {
+    if (!isGuest) return;
+    try {
+      const res  = await authFetch('/api/artist/sync-visibility', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) return;
+      if (data.is_public && !_liveModalSeen) {
+        _liveModalSeen = true;
+        localStorage.setItem('art_profile_live_seen', '1');
+        showProfileLiveModal();
+      } else if (!data.is_public && _wasPublic === true) {
+        const miss = (data.missing || []).join(', ');
+        window.toast('Your profile is no longer visible on the site' + (miss ? ' — missing: ' + miss : ''), 'info');
+      }
+      _wasPublic = !!data.is_public;
+    } catch {}
+  }
+
+  function showProfileLiveModal() {
+    const url = window.location.origin + '/artist.html?slug=' + encodeURIComponent(artist.slug);
+    const modal = document.createElement('div');
+    modal.id = 'liveModal';
+    modal.className = 'dash-modal-overlay open';
+    modal.innerHTML = `
+      <div class="dash-modal dash-modal--sm">
+        <p class="dash-modal-tag">You're live</p>
+        <h2 class="dash-modal-title">Your profile is now public</h2>
+        <p class="dash-modal-text">Clients can now find you on the Appreciart website. Take a look at how your profile appears.</p>
+        <div class="dash-modal-actions dash-modal-actions--row">
+          <a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">View my profile</a>
+          <button class="btn btn-secondary" id="liveModalClose">Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('liveModalClose').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  }
 
 async function loadProfile() {
     try {
@@ -946,7 +993,7 @@ async function loadProfile() {
         whatsapp_url: a.whatsapp_url || '',
         booking_url:  a.booking_url  || '',
       };
-      _profilePublished = !!a.active;
+      _wasPublic = !!a.is_public;
       updateCompleteness();
       snapshotProfile();
     } catch {
@@ -967,6 +1014,8 @@ async function loadProfile() {
       btn.addEventListener('click', () => {
         profileStyles.splice(parseInt(btn.dataset.idx, 10), 1);
         renderProfileStyles();
+        updateCompleteness();
+        checkDirty();
       });
     });
   }
@@ -988,6 +1037,8 @@ async function loadProfile() {
       profileStyleInput.value = '';
       if (hintEl) hintEl.textContent = profileStyles.length >= 3 ? '3 styles max — remove one to add another' : 'Add up to 3';
       renderProfileStyles();
+      updateCompleteness();
+      checkDirty();
     });
     profileStyleInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') profileStyleBtn.click();
@@ -996,7 +1047,6 @@ async function loadProfile() {
 
   let _profileSnapshot  = null;
   let _profileDirty     = false;
-  let _profilePublished = false;
 
   function snapshotProfile() {
     const bioEl     = document.getElementById('profileBio');
@@ -1069,32 +1119,6 @@ async function loadProfile() {
     }
   });
 
-  const profilePublishBtn = document.getElementById('profilePublishBtn');
-  if (profilePublishBtn) {
-    profilePublishBtn.addEventListener('click', async () => {
-      profilePublishBtn.disabled   = true;
-      profilePublishBtn.innerHTML  = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Publishing…';
-      try {
-        const res = await authFetch('/api/artist/publish-profile', { method: 'POST' });
-        const data = await res.json();
-        if (res.ok) {
-          _profilePublished = true;
-          profilePublishBtn.style.display = 'none';
-          window.toast('Profile published', 'success');
-        } else {
-          const missing = data.missing ? ' Missing: ' + data.missing.join(', ') + '.' : '';
-          window.toast((data.error || 'Could not publish') + missing, 'error');
-          profilePublishBtn.disabled    = false;
-          profilePublishBtn.textContent = 'Publish profile';
-        }
-      } catch {
-        window.toast('Error publishing profile', 'error');
-        profilePublishBtn.disabled    = false;
-        profilePublishBtn.textContent = 'Publish profile';
-      }
-    });
-  }
-
   if (profileSaveBtn) {
     profileSaveBtn.addEventListener('click', async () => {
       const bio          = document.getElementById('profileBio').value.trim();
@@ -1114,6 +1138,7 @@ async function loadProfile() {
         if (res.ok) {
           window.toast('Profile updated', 'success');
           snapshotProfile();
+          syncVisibility();
         } else {
           window.toast('Failed to save profile', 'error');
         }
@@ -1191,6 +1216,7 @@ async function loadProfile() {
       const data = await res.json();
       _completenessPhotos = { profileUrl: data.profileUrl || null, portfolio: data.portfolio || [] };
       updateCompleteness();
+      syncVisibility();
 
       if (preview) {
         if (data.profileUrl) {
@@ -1475,7 +1501,7 @@ async function loadProfile() {
             </span>
             <div class="dash-modal-step-content">
               <h4>Complete your profile</h4>
-              <p>Add your bio, photo, and portfolio so we can start promoting your visit right away.</p>
+              <p>Add your bio, photo, portfolio, styles and a contact method — your profile goes live on the site as soon as it's complete.</p>
             </div>
           </div>
           <div class="dash-modal-step">
