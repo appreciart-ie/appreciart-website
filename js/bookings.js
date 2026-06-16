@@ -387,8 +387,8 @@
         paymentElement.on('ready', () => { submitBtn.disabled = false; });
 
         paymentSection.classList.add('visible');
-        proceedBtn.textContent = 'Change Details';
-        proceedBtn.disabled = false;
+        proceedBtn.textContent = 'Payment loaded';
+        proceedBtn.disabled = true;
 
         // Scroll to payment
         paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
