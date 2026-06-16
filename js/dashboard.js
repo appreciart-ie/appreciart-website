@@ -1198,7 +1198,7 @@ async function loadProfile() {
       if (grid) {
         if (data.portfolio && data.portfolio.length) {
           grid.innerHTML = data.portfolio.map(p => `
-            <div class="portfolio-thumb" data-public-id="${esc(p.publicId)}">
+            <div class="portfolio-thumb" data-public-id="${esc(p.publicId)}" data-public-id-bare="${esc(p.publicIdBare || '')}">
               <img src="${esc(p.url)}" alt="Portfolio image" loading="lazy">
               <div class="portfolio-overlay">
                 <button class="portfolio-replace-btn" aria-label="Replace image">
@@ -1214,7 +1214,8 @@ async function loadProfile() {
           grid.querySelectorAll('.portfolio-replace-btn').forEach(btn => {
             btn.addEventListener('click', () => {
               const thumb    = btn.closest('.portfolio-thumb');
-              const publicId = thumb.dataset.publicId;
+              const publicId     = thumb.dataset.publicId;
+              const publicIdBare = thumb.dataset.publicIdBare || '';
               if (!publicId) return;
 
               const input = document.createElement('input');
@@ -1226,7 +1227,7 @@ async function loadProfile() {
                 if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
                 btn.disabled = true;
                 try {
-                  const sig = await getUploadSignature('portfolio', publicId);
+                  const sig = await getUploadSignature('portfolio', publicIdBare || publicId);
                   await uploadToCloudinary(file, sig);
                   window.toast('Image replaced', 'success');
                   loadPhotos();
@@ -1252,7 +1253,7 @@ async function loadProfile() {
               try {
                 const res = await authFetch('/api/artist/photos/portfolio', {
                   method:  'DELETE',
-                  body:    JSON.stringify({ publicId }),
+                  body:    JSON.stringify({ publicId, publicIdBare: thumb.dataset.publicIdBare || '' }),
                 });
                 if (res.ok) {
                   thumb.remove();
