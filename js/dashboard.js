@@ -105,7 +105,22 @@
     });
     es.onerror = () => {
       es.close();
-      setTimeout(initSSE, 10000);
+      setTimeout(async () => {
+        // Refresh token before reconnecting SSE
+        try {
+          const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+            signal: AbortSignal.timeout(8000),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            _token = data.token;
+            localStorage.setItem('art_token', _token);
+          }
+        } catch {}
+        initSSE();
+      }, 10000);
     };
   }
 
@@ -1339,6 +1354,43 @@ async function loadProfile() {
   loadProfile();
   loadPhotos();
   initSSE();
+
+  // Silent token refresh every 13 minutes (access token expires at 15min)
+  setInterval(async () => {
+    try {
+      const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        _token = data.token;
+        localStorage.setItem('art_token', _token);
+      }
+    } catch {}
+  }, 13 * 60 * 1000);
+
+  // Refresh token when tab becomes visible again after inactivity
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    try {
+      const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        _token = data.token;
+        localStorage.setItem('art_token', _token);
+      } else {
+        localStorage.removeItem('art_token');
+        localStorage.removeItem('art_artist');
+        window.location.href = 'login.html';
+      }
+    } catch {}
+  });
 
   // ── Change Password Modal ──
   function showChangePasswordModal() {
