@@ -1178,7 +1178,7 @@ async function loadProfile() {
     return res.json();
   }
 
-  async function loadPhotos() {
+  async function loadPhotos(bustCache = false) {
     const preview  = document.getElementById('profilePhotoPreview');
     const grid     = document.getElementById('portfolioGrid');
     const countEl  = document.getElementById('portfolioCount');
@@ -1196,7 +1196,7 @@ async function loadProfile() {
         if (data.profileUrl) {
           const img = document.createElement('img');
           if (data.profileUrl && data.profileUrl.startsWith('https://')) {
-            img.src = data.profileUrl;
+            img.src = bustCache ? data.profileUrl + '?v=' + Date.now() : data.profileUrl;
           }
           img.alt       = 'Profile photo';
           img.className = 'profile-photo-img';
@@ -1315,7 +1315,7 @@ async function loadProfile() {
         const sig  = await getUploadSignature('profile');
         await uploadToCloudinary(file, sig);
         window.toast('Profile photo updated', 'success');
-        loadPhotos();
+        setTimeout(() => loadPhotos(true), 1500);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
@@ -1338,7 +1338,7 @@ async function loadProfile() {
         const sig  = await getUploadSignature('portfolio');
         await uploadToCloudinary(file, sig);
         window.toast('Portfolio image added', 'success');
-        loadPhotos();
+        setTimeout(loadPhotos, 1500);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
