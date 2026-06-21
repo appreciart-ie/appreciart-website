@@ -103,6 +103,21 @@
     es.addEventListener('booking_update', () => {
       loadBookings();
     });
+    es.addEventListener('artist_update', async () => {
+      try {
+        const res  = await authFetch('/api/artist/me');
+        const data = await res.json();
+        const a    = data.artist;
+        if (!a) return;
+        artist.name              = a.name;
+        artist.role              = a.role;
+        artist.is_resident       = a.is_resident;
+        artist.guest_start_date  = a.guest_start_date;
+        artist.guest_end_date    = a.guest_end_date;
+        localStorage.setItem('art_artist', JSON.stringify(artist));
+        loadAvailability(false);
+      } catch {}
+    });
     es.onerror = () => {
       es.close();
       setTimeout(async () => {
