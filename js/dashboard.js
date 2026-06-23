@@ -294,7 +294,8 @@
 
   async function loadAvailability(showToast = true) {
     try {
-      const res  = await authFetch('/api/artist/studio-availability');
+      const endpoint = isGuest ? '/api/artist/my-availability' : '/api/artist/studio-availability';
+      const res  = await authFetch(endpoint);
       const data = await res.json();
       studioAvailability = data.availability || [];
 
