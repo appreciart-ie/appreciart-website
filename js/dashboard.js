@@ -1356,7 +1356,7 @@ async function loadProfile() {
         const sig  = await getUploadSignature('profile');
         await uploadToCloudinary(file, sig);
         window.toast('Profile photo updated', 'success');
-        setTimeout(() => loadPhotos(true), 1500);
+        await loadPhotos(true);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
@@ -1379,7 +1379,7 @@ async function loadProfile() {
         const sig  = await getUploadSignature('portfolio');
         await uploadToCloudinary(file, sig);
         window.toast('Portfolio image added', 'success');
-        setTimeout(loadPhotos, 1500);
+        await loadPhotos();
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
