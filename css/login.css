@@ -40,14 +40,15 @@
 .login-pw-toggle {
   position: absolute;
   right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  font-size: 12px;
-  font-weight: 500;
   color: #888;
   cursor: pointer;
   padding: 0;
-  letter-spacing: 0.03em;
+  line-height: 0;
   user-select: none;
 }
 
