@@ -423,6 +423,23 @@
 
 .cal-bar:hover { opacity: 0.8 !important; }
 
+.cal-bar--available {
+  border-left: 3px solid rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.06) !important;
+  color: #555 !important;
+}
+
+.cal-bar--booked {
+  border-left: 3px solid currentColor;
+  font-weight: 700;
+}
+
+.cal-bar--consultation {
+  border-left: 3px dashed currentColor;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
 /* ── TOOLTIP ── */
 .cal-tooltip {
   position: absolute;

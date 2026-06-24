@@ -395,8 +395,11 @@
         const typeLabel      = e.type === 'consultation' ? 'Consult' : '';
         const timeLabel      = e.session_time ? esc(e.session_time) : '';
         const nameLabel      = isMine && e.client_name ? esc(e.client_name) : '';
-        const label          = isAvailable ? 'Available' : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
-        return `<span class="cal-bar${isAvailable ? ' cal-bar--available' : ''}"
+        const initials = e.artist_name ? e.artist_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '';
+        const availLabel = initials ? `${initials} · Free` : 'Available';
+        const label      = isAvailable ? availLabel : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
+        const barClass   = isAvailable ? 'cal-bar cal-bar--available' : isConsultation ? 'cal-bar cal-bar--consultation' : 'cal-bar cal-bar--booked';
+        return `<span class="${barClass}"
           data-slug="${esc(e.artist_slug)}"
           data-mine="${isMine}"
           data-consultation="${isConsultation}"
