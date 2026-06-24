@@ -95,6 +95,9 @@
   }
 
   // ── SSE ──
+  let _sseRetries = 0;
+  const SSE_MAX_RETRIES = 5;
+
   function initSSE() {
     const es = new EventSource(`${INTERNAL}/api/events?token=${encodeURIComponent(_token)}`);
     es.addEventListener('availability_update', () => {
@@ -120,8 +123,10 @@
     });
     es.onerror = () => {
       es.close();
+      if (_sseRetries >= SSE_MAX_RETRIES) return;
+      _sseRetries++;
+      const delay = Math.min(10000 * Math.pow(2, _sseRetries - 1), 120000);
       setTimeout(async () => {
-        // Refresh token before reconnecting SSE
         try {
           const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
             method: 'POST',
@@ -132,10 +137,11 @@
             const data = await res.json();
             _token = data.token;
             localStorage.setItem('art_token', _token);
+            _sseRetries = 0;
           }
         } catch {}
         initSSE();
-      }, 10000);
+      }, delay);
     };
   }
 
