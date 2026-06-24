@@ -31,7 +31,10 @@
 
         <div class="login-group">
           <label class="login-label" for="password">Password</label>
-          <input class="login-input" id="password" name="password" type="password" required autocomplete="current-password" minlength="8" placeholder="••••••••">
+          <div class="login-pw-wrap">
+            <input class="login-input" id="password" name="password" type="password" required autocomplete="current-password" minlength="8" placeholder="••••••••">
+            <button type="button" class="login-pw-toggle" id="pwToggle" aria-label="Show password">Show</button>
+          </div>
         </div>
 
         <div class="login-helpers">

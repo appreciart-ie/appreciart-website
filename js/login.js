@@ -6,6 +6,15 @@
   const form       = document.getElementById('loginForm');
   const emailInput = document.getElementById('email');
   const passInput  = document.getElementById('password');
+  const pwToggle = document.getElementById('pwToggle');
+  if (pwToggle) {
+    pwToggle.addEventListener('click', () => {
+      const isHidden = passInput.type === 'password';
+      passInput.type = isHidden ? 'text' : 'password';
+      pwToggle.textContent = isHidden ? 'Hide' : 'Show';
+      pwToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    });
+  }
   const loginBtn   = document.getElementById('loginBtn');
   const errorEl    = document.getElementById('loginError');
 

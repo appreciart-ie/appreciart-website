@@ -1398,6 +1398,27 @@ async function loadProfile() {
     });
   }
 
+  // Topbar — artist name + logout
+  const dashArtistName = document.getElementById('dashArtistName');
+  if (dashArtistName) dashArtistName.textContent = artist.name || artist.slug;
+
+  const dashLogout = document.getElementById('dashLogout');
+  if (dashLogout) {
+    dashLogout.addEventListener('click', async () => {
+      dashLogout.disabled = true;
+      dashLogout.textContent = 'Logging out…';
+      try {
+        await fetch(`${INTERNAL}/api/auth/logout`, {
+          method: 'POST', credentials: 'include',
+          signal: AbortSignal.timeout(5000),
+        });
+      } catch {}
+      localStorage.removeItem('art_token');
+      localStorage.removeItem('art_artist');
+      window.location.href = 'login.html';
+    });
+  }
+
   loadBookings();
   loadAvailability();
   loadProfile();
@@ -1416,7 +1437,12 @@ async function loadProfile() {
         const data = await res.json();
         _token = data.token;
         localStorage.setItem('art_token', _token);
+      } else if (res.status === 401) {
+        localStorage.removeItem('art_token');
+        localStorage.removeItem('art_artist');
+        window.location.href = 'login.html';
       }
+      // network errors and other non-401 failures are silently ignored
     } catch {}
   }, 13 * 60 * 1000);
 
@@ -1433,11 +1459,12 @@ async function loadProfile() {
         const data = await res.json();
         _token = data.token;
         localStorage.setItem('art_token', _token);
-      } else {
+      } else if (res.status === 401) {
         localStorage.removeItem('art_token');
         localStorage.removeItem('art_artist');
         window.location.href = 'login.html';
       }
+      // network errors and other non-401 failures are silently ignored
     } catch {}
   });
 

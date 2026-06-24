@@ -26,6 +26,35 @@
   margin-bottom: 8px;
 }
 
+.login-pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-pw-wrap .login-input {
+  width: 100%;
+  padding-right: 56px;
+}
+
+.login-pw-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  padding: 0;
+  letter-spacing: 0.03em;
+  user-select: none;
+}
+
+.login-pw-toggle:hover {
+  color: #333;
+}
+
 .login-input {
   width: 100%;
   padding: 11px 12px;
