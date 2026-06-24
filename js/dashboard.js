@@ -461,7 +461,23 @@
   function updateLegend() {
     const legend = document.querySelector('.cal-legend');
     if (!legend) return;
-    if (isGuest) { legend.style.display = 'none'; return; }
+    if (isGuest) {
+      legend.innerHTML = '';
+      legend.style.display = 'flex';
+      const guestStates = [
+        { label: 'Your session', color: '#B8860B' },
+        { label: 'Tap to log a session', color: '#e8e8e8', border: '#ccc' },
+        { label: 'Full — no slots', color: '#f5c6c6', border: '#e88' },
+        { label: 'Outside your period', color: '#f0f0f0', border: '#ddd', opacity: '0.4' },
+      ];
+      guestStates.forEach(({ label, color, border, opacity }) => {
+        const item = document.createElement('div');
+        item.className = 'cal-legend-item';
+        item.innerHTML = `<span class="cal-dot" style="background:${color};${border ? `border-color:${border};` : ''}${opacity ? `opacity:${opacity};` : ''}"></span><span>${label}</span>`;
+        legend.appendChild(item);
+      });
+      return;
+    }
 
     const artistItems = Object.entries(ARTIST_COLOURS).map(([slug, col]) => {
       const item = document.createElement('span');

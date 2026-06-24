@@ -440,6 +440,14 @@
 }
 
 /* ── LEGEND ── */
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--mid);
+}
+
 .cal-legend {
   display: flex;
   align-items: center;
