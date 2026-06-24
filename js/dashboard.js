@@ -266,12 +266,19 @@
       const stage = document.getElementById('bmStage').value;
       const notes = document.getElementById('bmNotes').value.trim();
       try {
-        const res = await authFetch(`/api/artist/bookings/${b.id}`, {
+        const isAvailability = b.source_type === 'availability';
+        const endpoint = isAvailability
+          ? `/api/artist/availability/${b.id}`
+          : `/api/artist/bookings/${b.id}`;
+        const body = isAvailability
+          ? JSON.stringify({ notes })
+          : JSON.stringify({ stage, notes });
+        const res = await authFetch(endpoint, {
           method: 'PATCH',
-          body: JSON.stringify({ stage, notes }),
+          body,
         });
         if (res.ok) {
-          window.toast('Booking updated', 'success');
+          window.toast('Session updated', 'success');
           closeModal();
           loadBookings();
         } else {
