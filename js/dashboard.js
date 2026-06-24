@@ -121,6 +121,7 @@
         loadAvailability(false);
       } catch {}
     });
+    es.onopen = () => { _sseRetries = 0; };
     es.onerror = () => {
       es.close();
       if (_sseRetries >= SSE_MAX_RETRIES) return;
@@ -172,7 +173,7 @@
 
   function renderCards(list) {
     return list.map(b => `
-      <div class="booking-card booking-card--clickable" data-id="${b.id}">
+      <div class="booking-card booking-card--clickable" data-id="${b.id}" data-source="${b.source_type}">
         <span class="booking-client">${esc(b.client_name)}</span>
         <span class="booking-meta">${esc(relativeDate(b.date))}</span>
         <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
@@ -212,7 +213,7 @@
       bookingsList.innerHTML = html;
 
       bookingsList.querySelectorAll('.booking-card').forEach(card => {
-        const booking = data_sessions.find(b => String(b.id) === card.dataset.id);
+        const booking = data_sessions.find(b => String(b.id) === card.dataset.id && b.source_type === card.dataset.source);
         if (booking) card.addEventListener('click', () => showBookingModal(booking));
       });
 
