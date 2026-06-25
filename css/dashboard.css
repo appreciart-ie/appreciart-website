@@ -30,11 +30,29 @@
   padding: 12px 20px;
   border-bottom: 1px solid var(--light);
   background: var(--white);
+  font-family: var(--font);
 }
 
 .dash-topbar-name {
   font-size: 14px;
   font-weight: 500;
+  color: var(--black);
+}
+
+.dash-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-topbar-site {
+  font-size: 13px;
+  color: var(--mid);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.dash-topbar-site:hover {
   color: var(--black);
 }
 

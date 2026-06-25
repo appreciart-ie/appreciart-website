@@ -386,7 +386,15 @@
         }
       } else {
 
-      const entries = getDayEntries(dateStr);
+      const MAX_BARS = 3;
+      const allEntries = getDayEntries(dateStr).sort((a, b) => {
+        if (!a.session_time && !b.session_time) return 0;
+        if (!a.session_time) return 1;
+        if (!b.session_time) return -1;
+        return a.session_time.localeCompare(b.session_time);
+      });
+      const entries = allEntries.slice(0, MAX_BARS);
+      const overflowCount = allEntries.length - entries.length;
 
       bars = entries.map(e => {
         const isMine         = e.artist_slug === artist.slug;
@@ -399,7 +407,7 @@
         const availLabel = initials ? `${initials} · Free` : 'Available';
         const label      = isAvailable ? availLabel : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
         const barClass   = isAvailable ? 'cal-bar cal-bar--available' : isConsultation ? 'cal-bar cal-bar--consultation' : 'cal-bar cal-bar--booked';
-        return `<span class="${barClass}"
+        return `<span class="${barClass}" style="min-width:0"
           data-slug="${esc(e.artist_slug)}"
           data-mine="${isMine}"
           data-consultation="${isConsultation}"
@@ -407,6 +415,10 @@
           data-tooltip="${isAvailable ? esc(e.artist_name) + ' · Available' : esc(e.artist_name) + (e.session_time ? ' · ' + esc(e.session_time) : '') + (e.type ? ' · ' + esc(e.type) : '')}"
           >${label}</span>`;
       }).join('');
+
+      if (overflowCount > 0) {
+        bars += `<span class="cal-bar-overflow">+${overflowCount}</span>`;
+      }
       } // end isGuest else
 
       if (past)    cls += ' past';
@@ -1387,10 +1399,14 @@ async function loadProfile() {
       profilePhotoBtn.disabled  = true;
       profilePhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
+        const objectUrl = URL.createObjectURL(file);
+        const preview = document.getElementById('profilePhotoPreview');
+        if (preview) { const img = document.createElement('img'); img.src = objectUrl; img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'; preview.innerHTML = ''; preview.appendChild(img); }
         const sig  = await getUploadSignature('profile');
         await uploadToCloudinary(file, sig);
         window.toast('Profile photo updated', 'success');
         await loadPhotos(true);
+        URL.revokeObjectURL(objectUrl);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
