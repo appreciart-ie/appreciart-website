@@ -440,6 +440,7 @@ a   { color: inherit; text-decoration: none; }
 
 .section-body strong { color: var(--black); font-weight: 700; }
 .section-flush-top { padding-top: 0; }
+.section--tight-top { padding-top: clamp(32px, 4vw, 56px); }
 
 /* REVEAL */
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -518,7 +519,7 @@ a   { color: inherit; text-decoration: none; }
 
 .about-video {
   position: relative;
-  aspect-ratio: 9/16;
+  aspect-ratio: 16/9;
   background: var(--off-white);
   overflow: hidden;
 }
