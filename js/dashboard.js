@@ -4,6 +4,14 @@
   const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
   let _token = localStorage.getItem('art_token');
+  let _refreshPromise = null;
+  function refreshAccessToken() {
+    if (_refreshPromise) return _refreshPromise;
+    _refreshPromise = fetch(`${INTERNAL}/api/auth/refresh`, {
+      method: 'POST', credentials: 'include', signal: AbortSignal.timeout(8000),
+    }).finally(() => { _refreshPromise = null; });
+    return _refreshPromise;
+  }
   const stored = localStorage.getItem('art_artist');
 
   if (!_token || !stored) { window.location.href = 'login.html'; return; }
@@ -72,11 +80,7 @@
 
     if (res.status === 401) {
       try {
-        const refreshRes = await fetch(`${INTERNAL}/api/auth/refresh`, {
-          method:      'POST',
-          credentials: 'include',
-          signal:      AbortSignal.timeout(8000),
-        });
+        const refreshRes = await refreshAccessToken();
         if (!refreshRes.ok) throw new Error('refresh failed');
         const refreshData = await refreshRes.json();
         _token = refreshData.token;
@@ -129,11 +133,7 @@
       const delay = Math.min(10000 * Math.pow(2, _sseRetries - 1), 120000);
       setTimeout(async () => {
         try {
-          const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
-            method: 'POST',
-            credentials: 'include',
-            signal: AbortSignal.timeout(8000),
-          });
+          const res = await refreshAccessToken();
           if (res.ok) {
             const data = await res.json();
             _token = data.token;
@@ -1484,11 +1484,7 @@ async function loadProfile() {
   // Silent token refresh every 13 minutes (access token expires at 15min)
   setInterval(async () => {
     try {
-      const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-        signal: AbortSignal.timeout(8000),
-      });
+      const res = await refreshAccessToken();
       if (res.ok) {
         const data = await res.json();
         _token = data.token;
@@ -1506,11 +1502,7 @@ async function loadProfile() {
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState !== 'visible') return;
     try {
-      const res = await fetch(`${INTERNAL}/api/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-        signal: AbortSignal.timeout(8000),
-      });
+      const res = await refreshAccessToken();
       if (res.ok) {
         const data = await res.json();
         _token = data.token;
