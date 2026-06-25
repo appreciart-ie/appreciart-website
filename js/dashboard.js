@@ -971,6 +971,7 @@
   }
 
   function updateCompleteness() {
+    if (!isGuest) return;
     if (!_completenessProfile || !_completenessPhotos) return;
     const checks = profileChecks();
     const keys   = Object.keys(checks);
