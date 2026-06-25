@@ -6,6 +6,7 @@
   const stored      = localStorage.getItem('art_artist');
   const isLoggedIn  = !!token;
   const isDashboard = window.location.pathname.includes('dashboard');
+  if (isDashboard) { document.getElementById('site-header').style.display = 'none'; }
 
   let artistName = '';
   if (isLoggedIn && stored) {
