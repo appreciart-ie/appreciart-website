@@ -218,8 +218,8 @@
       });
 
     } catch {
-      window.toast('Could not load bookings', 'error');
-      bookingsList.innerHTML = '<p class="dash-empty">Could not load bookings. Please refresh.</p>';
+      window.toast('Could not load sessions', 'error');
+      bookingsList.innerHTML = '<p class="dash-empty">Could not load sessions. Please refresh.</p>';
     }
   }
 
@@ -321,10 +321,14 @@
             `${INTERNAL}/api/public/slots/range?from=${from}&to=${to}`,
             { signal: AbortSignal.timeout(8000) }
           );
-          const slotsData = await slotsRes.json();
           guestSlotMap = {};
-          if (slotsData.days && Array.isArray(slotsData.days)) {
-            slotsData.days.forEach(d => { guestSlotMap[d.date] = d.available; });
+          if (slotsRes.ok) {
+            const slotsData = await slotsRes.json();
+            if (slotsData.days && Array.isArray(slotsData.days)) {
+              slotsData.days.forEach(d => { guestSlotMap[d.date] = d.available; });
+            }
+          } else {
+            if (showToast) window.toast('Could not load slot availability', 'error');
           }
         } catch {
           guestSlotMap = {};
@@ -709,8 +713,9 @@
         showBookModal(date, friendly, 4, 4);
       }
     });
-    document.getElementById('calModalRemove').addEventListener('click', () => {
+    document.getElementById('calModalRemove').addEventListener('click', async () => {
       removeModal();
+      if (!await showConfirmModal('Delete this session?')) return;
       deleteDate(date);
     });
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
@@ -846,8 +851,9 @@
       bookDate(date, name, time, selectedType);
     });
 
-    document.getElementById('calModalDelete').addEventListener('click', () => {
+    document.getElementById('calModalDelete').addEventListener('click', async () => {
       removeModal();
+      if (!await showConfirmModal('Delete this session?')) return;
       deleteDate(date);
     });
 
@@ -1401,12 +1407,19 @@ async function loadProfile() {
       try {
         const objectUrl = URL.createObjectURL(file);
         const preview = document.getElementById('profilePhotoPreview');
-        if (preview) { const img = document.createElement('img'); img.src = objectUrl; img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'; preview.innerHTML = ''; preview.appendChild(img); }
-        const sig  = await getUploadSignature('profile');
-        await uploadToCloudinary(file, sig);
-        window.toast('Profile photo updated', 'success');
-        await loadPhotos(true);
-        URL.revokeObjectURL(objectUrl);
+        const prevContent = preview ? preview.innerHTML : null;
+        if (preview) { const img = document.createElement('img'); img.src = objectUrl; img.className = 'profile-photo-img'; preview.innerHTML = ''; preview.appendChild(img); }
+        try {
+          const sig  = await getUploadSignature('profile');
+          await uploadToCloudinary(file, sig);
+          window.toast('Profile photo updated', 'success');
+          await loadPhotos(true);
+        } catch (err) {
+          window.toast(err.message || 'Upload failed', 'error');
+          if (preview && prevContent !== null) preview.innerHTML = prevContent;
+        } finally {
+          URL.revokeObjectURL(objectUrl);
+        }
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {

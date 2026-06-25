@@ -1,10 +1,5 @@
 /* ── DASHBOARD ── */
 
-.dash-body {
-  background: var(--white);
-  min-height: 100vh;
-}
-
 .dash-wrap {
   max-width: 1100px;
   margin: 0 auto;
@@ -13,14 +8,6 @@
   padding-left: var(--px);
   padding-right: var(--px);
   min-height: calc(100vh - 80px);
-}
-
-.dash-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 40px;
-  gap: 16px;
 }
 
 .dash-topbar {
@@ -348,9 +335,20 @@
 .cal-day.empty { cursor: default; pointer-events: none; }
 .cal-day.past  { opacity: 0.35; pointer-events: none; }
 
+.cal-bar-overflow {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--mid);
+  padding: 1px 4px;
+  border: 1px solid var(--light);
+  border-radius: 2px;
+  align-self: flex-start;
+  pointer-events: none;
+}
+
 .cal-day-num {
-  font-size: 11px;
-  font-weight: 300;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--black);
   margin-bottom: 4px;
   line-height: 1;
@@ -392,7 +390,6 @@
 .cal-bar--consultation {
   border-left: 3px dashed currentColor;
   font-weight: 400;
-  opacity: 0.85;
 }
 
 /* ── TOOLTIP ── */
@@ -437,12 +434,6 @@
   border: 1px solid var(--light);
 }
 
-.cal-dot.available   { background: #f0f0f0; }
-.cal-dot.unavailable { background: var(--black); }
-.cal-dot.booked      { background: var(--black); opacity: 0.4; }
-
-.cal-day.my-available { border: none; }
-
 /* ── GUEST CALENDAR ── */
 .cal-day--blocked {
   opacity: 0.2;
@@ -476,25 +467,6 @@
   opacity: 0.8;
   font-weight: 700;
 }
-.cal-day.neutral { background: transparent; }
-
-.cal-others {
-  position: absolute;
-  bottom: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 2px;
-}
-
-.cal-dot-artist {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
 /* ── CONFIRM MODAL ── */
 .cal-modal-overlay {
   position: fixed;
@@ -583,22 +555,6 @@
   background: var(--black);
   color: var(--white);
   border-color: var(--black);
-}
-
-.cal-modal-client {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--black);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.cal-modal-time {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--mid);
-  margin-bottom: 24px;
 }
 
 .form-field {
@@ -813,8 +769,6 @@
 }
 
 /* ── Onboarding + Password modals ── */
-.modal-field-spaced { margin-top: 20px; }
-
 .modal-err {
   color: #e53935;
   display: none;
@@ -823,19 +777,6 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-}
-
-.onboarding-body {
-  margin-top: 16px;
-  line-height: 1.8;
-}
-
-.onboarding-body p {
-  margin: 0 0 12px;
-}
-
-.onboarding-body p:last-child {
-  margin: 0;
 }
 
 /* ── ONBOARDING + PASSWORD MODALS ── */

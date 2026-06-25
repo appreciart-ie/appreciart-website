@@ -95,7 +95,11 @@
       const data = await res.json();
 
       if (!res.ok) {
-        setError('Invalid credentials. Please try again.');
+        if (res.status === 429) {
+          setError('Too many attempts. Please wait a few minutes and try again.');
+        } else {
+          setError('Invalid credentials. Please try again.');
+        }
         return;
       }
 
