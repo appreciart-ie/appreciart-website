@@ -94,6 +94,8 @@
 
       const availHtml = loggedInArtist
         ? `<p class="availability-empty">You're signed in as an artist. Manage sessions from your <a href="dashboard.html">Dashboard</a>.</p>`
+        : artist.role === 'guest'
+        ? `<p class="availability-empty">Book directly with this artist using the options below.</p>`
         : availableSlots.length > 0
         ? `${monthBlocks}<p class="availability-hint">Tap a date to book your session.</p>`
         : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</p>`;

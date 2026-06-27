@@ -596,61 +596,6 @@
 
   // ── Modal: guest booking ──
   function showGuestBookModal(date, friendly) {
-    const waUrl = _completenessProfile && _completenessProfile.whatsapp_url
-      ? _completenessProfile.whatsapp_url
-      : null;
-    const bookUrl = _completenessProfile && _completenessProfile.booking_url
-      ? _completenessProfile.booking_url
-      : null;
-
-    // Format date for WhatsApp message
-    const dateObj = new Date(date + 'T12:00:00');
-    const dateFormatted = dateObj.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    const artistName = artist.name || artist.slug;
-    const waMessage = encodeURIComponent(`Hi ${artistName}! I'd like to book a session with you on ${dateFormatted} during your stay at Appreciart IE. Could you please let me know how to move forward? Thanks!`);
-
-    removeModal();
-    const modal = document.createElement('div');
-    modal.id = 'calModal';
-    modal.className = 'cal-modal-overlay';
-
-    const waBtn = waUrl
-      ? `<a href="https://wa.me/${waUrl.replace('https://wa.me/','')}?text=${waMessage}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" id="calModalWa">Message on WhatsApp</a>`
-      : `<button class="btn btn-primary btn-sm" id="calModalWaDisabled" disabled title="Add your WhatsApp number in Profile">WhatsApp not set</button>`;
-
-    const bookBtn = bookUrl
-      ? `<a href="${esc(bookUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" id="calModalBook">Open booking link</a>`
-      : '';
-
-    modal.innerHTML = `
-      <div class="cal-modal-box">
-        <p class="cal-modal-date">${esc(friendly)}</p>
-        <p class="cal-modal-title">Share your availability</p>
-        <p class="cal-modal-hint">Let clients know you're available on this date.</p>
-        <div class="cal-modal-actions" style="flex-direction:column;gap:10px;align-items:stretch">
-          ${waBtn}
-          ${bookBtn}
-          <button class="btn btn-secondary btn-sm" id="calModalLogOnly">Log session manually</button>
-          <button class="btn btn-ghost btn-sm" id="calModalCancel">Cancel</button>
-        </div>
-        ${!waUrl ? '<p class="cal-modal-hint" style="margin-top:12px;color:#888">Add your WhatsApp number in Profile to enable direct messaging.</p>' : ''}
-      </div>
-    `;
-    document.body.appendChild(modal);
-    requestAnimationFrame(() => modal.classList.add('open'));
-
-    if (document.getElementById('calModalLogOnly')) {
-      document.getElementById('calModalLogOnly').addEventListener('click', () => {
-        removeModal();
-        showGuestLogModal(date, friendly);
-      });
-    }
-    document.getElementById('calModalCancel').addEventListener('click', removeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
-    document.addEventListener('keydown', onEsc);
-  }
-
-  function showGuestLogModal(date, friendly) {
     removeModal();
     const modal = document.createElement('div');
     modal.id = 'calModal';
@@ -658,7 +603,7 @@
     modal.innerHTML = `
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
-        <p class="cal-modal-title">Log session</p>
+        <p class="cal-modal-title">Add client</p>
         <div class="form-field">
           <label class="form-label" for="calClientName">Client name</label>
           <input class="form-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
@@ -676,7 +621,7 @@
           </select>
         </div>
         <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="calModalConfirm">Save</button>
+          <button class="btn btn-primary btn-sm" id="calModalConfirm">Confirm</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
       </div>
