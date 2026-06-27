@@ -86,10 +86,11 @@
 
     try {
       const res = await fetch(`${INTERNAL}/api/auth/login`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email, password }),
-        signal:  AbortSignal.timeout(12000),
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify({ email, password }),
+        signal:      AbortSignal.timeout(12000),
       });
 
       const data = await res.json();

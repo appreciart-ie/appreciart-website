@@ -9,7 +9,11 @@
     if (_refreshPromise) return _refreshPromise;
     _refreshPromise = fetch(`${INTERNAL}/api/auth/refresh`, {
       method: 'POST', credentials: 'include', signal: AbortSignal.timeout(8000),
-    }).finally(() => { _refreshPromise = null; });
+    }).then(r => {
+      if (r.ok) return r.json().then(d => ({ ok: true, token: d.token, status: r.status }));
+      return { ok: false, status: r.status };
+    }).catch(() => ({ ok: false, status: 0 }))
+      .finally(() => { _refreshPromise = null; });
     return _refreshPromise;
   }
   const stored = localStorage.getItem('art_artist');
@@ -82,8 +86,7 @@
       try {
         const refreshRes = await refreshAccessToken();
         if (!refreshRes.ok) throw new Error('refresh failed');
-        const refreshData = await refreshRes.json();
-        _token = refreshData.token;
+        _token = refreshRes.token;
         localStorage.setItem('art_token', _token);
         res = await doFetch(_token);
       } catch {
@@ -135,8 +138,7 @@
         try {
           const res = await refreshAccessToken();
           if (res.ok) {
-            const data = await res.json();
-            _token = data.token;
+            _token = res.token;
             localStorage.setItem('art_token', _token);
             _sseRetries = 0;
           }
@@ -1486,8 +1488,7 @@ async function loadProfile() {
     try {
       const res = await refreshAccessToken();
       if (res.ok) {
-        const data = await res.json();
-        _token = data.token;
+        _token = res.token;
         localStorage.setItem('art_token', _token);
       } else if (res.status === 401) {
         localStorage.removeItem('art_token');
@@ -1504,8 +1505,7 @@ async function loadProfile() {
     try {
       const res = await refreshAccessToken();
       if (res.ok) {
-        const data = await res.json();
-        _token = data.token;
+        _token = res.token;
         localStorage.setItem('art_token', _token);
       } else if (res.status === 401) {
         localStorage.removeItem('art_token');
