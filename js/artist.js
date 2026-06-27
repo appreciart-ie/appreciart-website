@@ -10,7 +10,8 @@
 
     // Logged-in artists don't use the public booking flow — bookings and
     // walk-ins are handled in the dashboard. Hide all booking actions for them.
-    const loggedInArtist = !!localStorage.getItem('art_token');
+    const artToken = localStorage.getItem('art_token');
+    const loggedInArtistData = artToken ? (() => { try { return JSON.parse(localStorage.getItem('art_artist')); } catch { return null; } })() : null;
 
     // Load artist data (includes profile_url + portfolio from backend) + availability in parallel
     Promise.all([
@@ -40,6 +41,8 @@
     }
 
     function renderArtist(artist, availability, dateImages) {
+      const isOwnPage = loggedInArtistData && loggedInArtistData.slug === artist.slug;
+      const loggedInArtist = !!artToken && !isOwnPage;
       // Update page title + meta description
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
       const metaDesc = document.querySelector('meta[name="description"]');
