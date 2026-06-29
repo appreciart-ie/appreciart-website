@@ -265,11 +265,12 @@
     })();
 
     function openBookingModal(day, artistSlug, artistName, dateStr) {
-      const d      = dateStr ? new Date(dateStr) : new Date();
+      const [dy, dm, dd] = dateStr ? dateStr.split('-').map(Number) : [];
+      const d      = dateStr ? new Date(dy, dm - 1, dd) : new Date();
       bmDay        = day;
       bmArtistSlug = artistSlug;
-      bmYear       = d.getFullYear();
-      bmMonth      = d.getMonth();
+      bmYear       = dateStr ? dy : d.getFullYear();
+      bmMonth      = dateStr ? dm - 1 : d.getMonth();
       const monthName = d.toLocaleString('en-IE', { month: 'long' });
 
       document.getElementById('bmTitle').textContent    = `Book with ${artistName}`;

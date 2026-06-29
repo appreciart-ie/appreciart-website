@@ -60,11 +60,11 @@
       // Pre-read URL date param if present
       const dateParamRaw = params.get('date');
       if (dateParamRaw && /^\d{4}-\d{2}-\d{2}$/.test(dateParamRaw)) {
-        const d = new Date(dateParamRaw);
-        selectedDay   = d.getDate();
+        const [py, pm, pd] = dateParamRaw.split('-').map(Number);
+        selectedDay   = pd;
         selectedDate  = dateParamRaw;
-        currentYear   = d.getFullYear();
-        currentMonth  = d.getMonth();
+        currentYear   = py;
+        currentMonth  = pm - 1;
       }
     }
 
