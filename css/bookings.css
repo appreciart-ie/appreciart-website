@@ -611,6 +611,23 @@
     .btn-proceed:disabled,
     .btn-book:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* ─── LOGGED-IN ARTIST NOTICE ─── */
+    .booking-artist-notice {
+      text-align: center;
+      padding: 80px 24px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .booking-artist-notice-title {
+      margin: 0 0 12px;
+    }
+
+    .booking-artist-notice-text {
+      margin: 0 0 24px;
+      color: #555;
+    }
+
     /* ─── SUCCESS STATE ─── */
     .booking-success {
       display: none;

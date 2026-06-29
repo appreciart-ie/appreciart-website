@@ -233,7 +233,7 @@
           if (a.booked) {
             bookedSet.add(key);
           } else if (d >= today) {
-            availMap.set(key, a.date);
+            availMap.set(key, key);
             const mk = d.getFullYear() * 12 + d.getMonth();
             if (minMonthKey === null || mk < minMonthKey) minMonthKey = mk;
             if (maxMonthKey === null || mk > maxMonthKey) maxMonthKey = mk;
@@ -364,11 +364,16 @@
     function updateSummary() {
       // Artist
       if (selectedArtist) {
-        const swatch = artistColour(selectedArtist);
-        const img = isSafeUrl(selectedArtist.profile_url)
+        const hasPhoto = isSafeUrl(selectedArtist.profile_url);
+        const img = hasPhoto
           ? `<img src="${esc(selectedArtist.profile_url)}" alt="${esc(selectedArtist.name)}">`
-          : `<span class="summary-artist-swatch" style="background:${swatch}"></span>`;
+          : `<span class="summary-artist-swatch"></span>`;
         summaryArtist.innerHTML = `${img}<span>${esc(selectedArtist.name)}</span>`;
+        // Set the swatch colour via CSSOM (no inline style attribute — CSP-safe)
+        if (!hasPhoto) {
+          const sw = summaryArtist.querySelector('.summary-artist-swatch');
+          if (sw) sw.style.background = artistColour(selectedArtist);
+        }
         summaryArtist.parentElement.classList.remove('is-empty');
       } else {
         summaryArtist.textContent = 'Not selected';
@@ -615,9 +620,9 @@
     if (localStorage.getItem('art_token')) {
       if (bookingLayout) {
         bookingLayout.innerHTML =
-          '<div style="text-align:center;padding:80px 24px;max-width:520px;margin:0 auto;">' +
-            '<h2 style="margin:0 0 12px;">You\'re signed in as an artist</h2>' +
-            '<p style="margin:0 0 24px;color:#555;">Bookings and walk-in sessions are managed from your dashboard, not the public booking flow.</p>' +
+          '<div class="booking-artist-notice">' +
+            '<h2 class="booking-artist-notice-title">You\'re signed in as an artist</h2>' +
+            '<p class="booking-artist-notice-text">Bookings and walk-in sessions are managed from your dashboard, not the public booking flow.</p>' +
             '<a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>' +
           '</div>';
       }
