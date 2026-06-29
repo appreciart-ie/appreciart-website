@@ -3,6 +3,14 @@
 
     const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
+    // Artist calendar colours (mirrors dashboard/admin). Guest fallback = gold.
+    const ARTIST_COLOURS = {
+      'moreirart': '#2E7D32',
+      'marina':    '#E64A19',
+      'renan':     '#1565C0',
+    };
+    const GUEST_COLOUR = '#B8860B';
+
     // ── State ──
     let artists        = [];
     let selectedArtist = null;
@@ -10,6 +18,11 @@
     let selectedDate   = null;
     let currentYear    = new Date().getFullYear();
     let currentMonth   = new Date().getMonth();
+    let currentStep    = 1;
+    let availMap       = new Map();  // 'YYYY-MM-DD' → original slot.date string (available)
+    let bookedSet      = new Set();  // 'YYYY-MM-DD' booked/unavailable
+    let minMonthKey    = null;       // year*12+month of earliest available slot
+    let maxMonthKey    = null;       // year*12+month of latest available slot
     let stripe         = null;
     let stripePublishableKey = null;
     let elements       = null;
@@ -20,17 +33,34 @@
 
     // ── DOM refs ──
     const artistSelector  = document.getElementById('artistSelector');
-    const datesGrid       = document.getElementById('datesGrid');
-    const selectedDateBar = document.getElementById('selectedDateBar');
-    const selectedDateText= document.getElementById('selectedDateText');
-    const clearDateBtn    = document.getElementById('clearDate');
+    const calendarGrid    = document.getElementById('calendarGrid');
+    const calMonthEl      = document.getElementById('calMonth');
+    const calPrevBtn      = document.getElementById('calPrev');
+    const calNextBtn      = document.getElementById('calNext');
+    const calendarEl      = document.getElementById('calendar');
+    const calendarLegend  = document.getElementById('calendarLegend');
     const proceedBtn      = document.getElementById('proceedBtn');
-    const paymentSection  = document.getElementById('paymentSection');
     const submitBtn       = document.getElementById('submitBtn');
     const paymentError    = document.getElementById('paymentError');
     const depositAmountEl = document.getElementById('depositAmount');
     const bookingSuccess  = document.getElementById('bookingSuccess');
     const bookingLayout   = document.getElementById('bookingLayout');
+    const bookingSteps    = document.getElementById('bookingSteps');
+    const summaryStepper  = document.getElementById('summaryStepper');
+    const summaryArtist   = document.getElementById('summaryArtist');
+    const summaryDate     = document.getElementById('summaryDate');
+    const summaryDeposit  = document.getElementById('summaryDeposit');
+    const next1Btn        = document.getElementById('next1');
+    const next2Btn        = document.getElementById('next2');
+
+    // ── Helpers ──
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function dateKey(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+    function keyFor(y, m, day) { return `${y}-${pad(m + 1)}-${pad(day)}`; }
+    function artistColour(a) {
+      if (!a) return '#000000';
+      return ARTIST_COLOURS[a.slug] || GUEST_COLOUR;
+    }
 
     // ── Fetch public config ──
     async function fetchConfig() {
@@ -55,17 +85,14 @@
       const params = new URLSearchParams(window.location.search);
       const artistParam = params.get('artist');
 
-      await loadArtists(artistParam);
-
-      // Pre-read URL date param if present
+      // Pre-read URL date param if present (applied once availability loads)
       const dateParamRaw = params.get('date');
       if (dateParamRaw && /^\d{4}-\d{2}-\d{2}$/.test(dateParamRaw)) {
-        const [py, pm, pd] = dateParamRaw.split('-').map(Number);
-        selectedDay   = pd;
-        selectedDate  = dateParamRaw;
-        currentYear   = py;
-        currentMonth  = pm - 1;
+        selectedDate = dateParamRaw;
       }
+
+      updateSummary();
+      await loadArtists(artistParam);
     }
 
     // ── Load artists ──
@@ -147,6 +174,10 @@
             if (isSafeUrl(url)) {
               const img = btn.querySelector('img');
               if (img) img.src = url;
+              if (selectedArtist && selectedArtist.slug === artist.slug) {
+                selectedArtist.profile_url = url;
+                updateSummary();
+              }
             }
           })
           .catch(() => {});
@@ -160,19 +191,32 @@
     function selectArtist(artist, btnEl) {
       selectedArtist = artist;
       selectedDay    = null;
-      updateSelectedDateBar();
-      checkProceedButton();
 
       document.querySelectorAll('.artist-btn').forEach(b => b.classList.remove('active'));
       const btn = btnEl || artistSelector.querySelector(`[data-slug="${CSS.escape(artist.slug)}"]`);
       if (btn) btn.classList.add('active');
 
+      // Apply artist colour to the calendar
+      if (calendarEl) calendarEl.style.setProperty('--artist-color', artistColour(artist));
+
+      next1Btn.disabled = false;
+      updateSummary();
+      checkProceedButton();
       loadAvailability(artist.slug);
+
+      // Auto-advance to date step on selection
+      goToStep(2);
     }
 
-    // ── Load availability + dates ──
+    // ── Load availability + build calendar data ──
     async function loadAvailability(slug) {
-      datesGrid.innerHTML = '<div class="dates-loading">Loading dates...</div>';
+      calendarGrid.innerHTML = '<div class="dates-loading">Loading dates...</div>';
+      calendarLegend.style.display = 'none';
+      availMap = new Map();
+      bookedSet = new Set();
+      minMonthKey = null;
+      maxMonthKey = null;
+
       try {
         const res  = await fetch(
           `${INTERNAL_API}/api/public/availability/${slug}`,
@@ -180,95 +224,206 @@
         );
         if (!res.ok) throw new Error('Failed to load availability');
         const data = await res.json();
-        const dateImgMap     = new Map((data.date_images || []).map(d => [d.day, d.url]));
-        const today          = new Date(); today.setHours(0,0,0,0);
-        const allSlots       = (data.availability || []);
-        const availableSlots = allSlots.filter(a => !a.booked);
+        const today    = new Date(); today.setHours(0, 0, 0, 0);
+        const allSlots = (data.availability || []);
 
-        if (!availableSlots.length) {
-          datesGrid.innerHTML = '<div class="dates-empty">No dates available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</div>';
+        allSlots.forEach(a => {
+          const d   = new Date(a.date);
+          const key = dateKey(d);
+          if (a.booked) {
+            bookedSet.add(key);
+          } else if (d >= today) {
+            availMap.set(key, a.date);
+            const mk = d.getFullYear() * 12 + d.getMonth();
+            if (minMonthKey === null || mk < minMonthKey) minMonthKey = mk;
+            if (maxMonthKey === null || mk > maxMonthKey) maxMonthKey = mk;
+          }
+        });
+
+        if (!availMap.size) {
+          calendarGrid.innerHTML = '<div class="dates-empty">No dates available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</div>';
+          calMonthEl.textContent = '—';
+          calPrevBtn.disabled = true;
+          calNextBtn.disabled = true;
           return;
         }
 
-        // Group by month — includes booked slots for lock display
-        const byMonth = {};
-        allSlots.forEach(a => {
-          const d   = new Date(a.date);
-          const key = `${d.getFullYear()}-${d.getMonth()}`;
-          const lbl = d.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
-          if (!byMonth[key]) byMonth[key] = { label: lbl, year: d.getFullYear(), month: d.getMonth(), slots: [] };
-          byMonth[key].slots.push({ day: d.getDate(), date: a.date, isPast: d < today, isBooked: !!a.booked });
-        });
+        // Start on the first month containing availability, unless a valid
+        // pre-selected date already points elsewhere.
+        let startMk = minMonthKey;
+        if (selectedDate && availMap.has(selectedDate)) {
+          const sd = new Date(selectedDate);
+          startMk = sd.getFullYear() * 12 + sd.getMonth();
+        }
+        currentYear  = Math.floor(startMk / 12);
+        currentMonth = startMk % 12;
 
-        datesGrid.innerHTML = '';
-        Object.values(byMonth)
-          .sort((a,b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
-          .forEach(({ label, slots }) => {
-            const monthEl = document.createElement('p');
-            monthEl.className = 'dates-month-label';
-            monthEl.textContent = label;
-            datesGrid.appendChild(monthEl);
+        renderCalendar();
 
-            const grid = document.createElement('div');
-            grid.className = 'dates-month-grid';
-
-            slots.sort((a,b) => a.day - b.day).forEach(({ day, date, isPast, isBooked }) => {
-              const url      = dateImgMap.get(day) || '';
-              const cell        = document.createElement('div');
-              const cellDateObj = new Date(date);
-              const cellLabel   = cellDateObj.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
-              const cellDisabled = isPast || isBooked;
-              cell.className    = 'date-cell' + (isBooked ? ' unavailable' : isPast ? ' past' : '');
-              cell.dataset.date = date;
-              cell.dataset.day  = day;
-              cell.setAttribute('role', 'button');
-              cell.setAttribute('aria-label', cellDisabled ? `Unavailable — ${cellLabel}` : `Select ${cellLabel}`);
-              if (cellDisabled) cell.setAttribute('aria-disabled', 'true');
-              cell.innerHTML = (url
-                ? `<img src="${esc(url)}" alt="Day ${day}" loading="lazy">`
-                : `<span class="date-num-fallback">${String(day).padStart(2,'0')}</span>`) +
-                `<div class="date-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>`;
-              if (!cellDisabled) cell.addEventListener('click', () => pickDay(day, date, cell));
-              grid.appendChild(cell);
-            });
-
-            datesGrid.appendChild(grid);
-          });
+        // Re-apply a pre-selected (URL/back-nav) date if still available
+        if (selectedDate && availMap.has(selectedDate)) {
+          const sd = new Date(selectedDate);
+          selectedDay = sd.getDate();
+          markSelectedCell();
+          next2Btn.disabled = false;
+          updateSummary();
+          checkProceedButton();
+        }
       } catch (e) {
         toast('Could not load dates', 'error');
-        datesGrid.innerHTML = '<div class="dates-empty">Could not load dates. Please refresh.</div>';
+        calendarGrid.innerHTML = '<div class="dates-empty">Could not load dates. Please refresh.</div>';
       }
     }
 
-    function pickDay(day, dateStr, cell) {
-      selectedDay   = day;
-      selectedDate  = dateStr;
-      const d = new Date(dateStr);
-      currentYear   = d.getFullYear();
-      currentMonth  = d.getMonth();
-      document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('selected'));
-      cell.classList.add('selected');
-      updateSelectedDateBar();
-      checkProceedButton();
+    function renderCalendar() {
+      const monthLabel = new Date(currentYear, currentMonth, 1)
+        .toLocaleString('en-IE', { month: 'long', year: 'numeric' });
+      calMonthEl.textContent = monthLabel;
+
+      const curMk = currentYear * 12 + currentMonth;
+      calPrevBtn.disabled = (minMonthKey === null || curMk <= minMonthKey);
+      calNextBtn.disabled = (maxMonthKey === null || curMk >= maxMonthKey);
+
+      const firstDay    = new Date(currentYear, currentMonth, 1);
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const leadBlanks  = (firstDay.getDay() + 6) % 7; // Mon-first offset
+      const today       = new Date(); today.setHours(0, 0, 0, 0);
+
+      calendarGrid.innerHTML = '';
+
+      for (let i = 0; i < leadBlanks; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'cal-cell is-blank';
+        calendarGrid.appendChild(blank);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key  = keyFor(currentYear, currentMonth, day);
+        const cell = document.createElement('div');
+        cell.dataset.key = key;
+        cell.textContent = String(day);
+
+        const cellDate = new Date(currentYear, currentMonth, day);
+        const isPast   = cellDate < today;
+
+        if (availMap.has(key)) {
+          cell.className = 'cal-cell is-available';
+          const labelDate = cellDate.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+          cell.setAttribute('role', 'button');
+          cell.setAttribute('aria-label', `Select ${labelDate}`);
+          cell.addEventListener('click', () => pickDay(day, availMap.get(key)));
+          if (selectedDate === availMap.get(key)) cell.classList.add('is-selected');
+        } else if (bookedSet.has(key) && !isPast) {
+          cell.className = 'cal-cell is-booked';
+          cell.setAttribute('aria-disabled', 'true');
+        } else {
+          cell.className = 'cal-cell is-disabled';
+          cell.setAttribute('aria-disabled', 'true');
+        }
+
+        calendarGrid.appendChild(cell);
+      }
+
+      calendarLegend.style.display = 'flex';
     }
 
-    function updateSelectedDateBar() {
+    function markSelectedCell() {
+      document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('is-selected'));
+      const cell = calendarGrid.querySelector(`.cal-cell[data-key="${CSS.escape(selectedDate)}"]`);
+      if (cell) cell.classList.add('is-selected');
+    }
+
+    function changeMonth(delta) {
+      const curMk = currentYear * 12 + currentMonth;
+      const nextMk = curMk + delta;
+      if (minMonthKey !== null && nextMk < minMonthKey) return;
+      if (maxMonthKey !== null && nextMk > maxMonthKey) return;
+      currentYear  = Math.floor(nextMk / 12);
+      currentMonth = nextMk % 12;
+      renderCalendar();
+    }
+
+    calPrevBtn.addEventListener('click', () => changeMonth(-1));
+    calNextBtn.addEventListener('click', () => changeMonth(1));
+
+    function pickDay(day, dateStr) {
+      selectedDay  = day;
+      selectedDate = dateStr;
+      const d = new Date(dateStr);
+      currentYear  = d.getFullYear();
+      currentMonth = d.getMonth();
+      markSelectedCell();
+      next2Btn.disabled = false;
+      updateSummary();
+      checkProceedButton();
+      // Auto-advance to the details step
+      goToStep(3);
+    }
+
+    // ── Summary rail + stepper ──
+    function updateSummary() {
+      // Artist
+      if (selectedArtist) {
+        const swatch = artistColour(selectedArtist);
+        const img = isSafeUrl(selectedArtist.profile_url)
+          ? `<img src="${esc(selectedArtist.profile_url)}" alt="${esc(selectedArtist.name)}">`
+          : `<span class="summary-artist-swatch" style="background:${swatch}"></span>`;
+        summaryArtist.innerHTML = `${img}<span>${esc(selectedArtist.name)}</span>`;
+        summaryArtist.parentElement.classList.remove('is-empty');
+      } else {
+        summaryArtist.textContent = 'Not selected';
+        summaryArtist.parentElement.classList.add('is-empty');
+      }
+
+      // Date
       if (selectedDay && selectedArtist) {
         const monthName = new Date(currentYear, currentMonth, 1)
           .toLocaleString('en-IE', { month: 'long' });
-        selectedDateText.textContent = `${selectedArtist.name} · ${selectedDay} ${monthName} ${currentYear}`;
-        selectedDateBar.classList.add('visible');
+        summaryDate.textContent = `${selectedDay} ${monthName} ${currentYear}`;
+        summaryDate.parentElement.classList.remove('is-empty');
       } else {
-        selectedDateBar.classList.remove('visible');
+        summaryDate.textContent = 'Not selected';
+        summaryDate.parentElement.classList.add('is-empty');
       }
     }
 
-    clearDateBtn.addEventListener('click', () => {
-      selectedDay = null;
-      document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('selected'));
-      updateSelectedDateBar();
-      checkProceedButton();
+    function updateStepper() {
+      summaryStepper.querySelectorAll('.summary-step').forEach(li => {
+        const n = Number(li.dataset.goto);
+        li.classList.toggle('is-current', n === currentStep);
+        li.classList.toggle('is-done', n < currentStep);
+      });
+    }
+
+    function goToStep(step) {
+      // Guard against jumping ahead without prerequisites
+      if (step >= 2 && !selectedArtist) step = 1;
+      if (step >= 3 && !selectedDay)    step = 2;
+      if (step === 4 && !clientSecret)  step = 3;
+
+      currentStep = step;
+      bookingSteps.querySelectorAll('.booking-step').forEach(sec => {
+        sec.classList.toggle('is-active', Number(sec.dataset.step) === step);
+      });
+      updateStepper();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Stepper navigation (only to completed/earlier steps)
+    summaryStepper.addEventListener('click', (e) => {
+      const li = e.target.closest('.summary-step');
+      if (!li) return;
+      const n = Number(li.dataset.goto);
+      if (n < currentStep) goToStep(n);
     });
+
+    // Back / Continue buttons
+    bookingSteps.addEventListener('click', (e) => {
+      const back = e.target.closest('.btn-step-back');
+      if (back) { goToStep(Number(back.dataset.goto)); return; }
+    });
+    next1Btn.addEventListener('click', () => goToStep(2));
+    next2Btn.addEventListener('click', () => goToStep(3));
 
     // ── Form validation ──
     function getField(id) { return document.getElementById(id); }
@@ -337,6 +492,7 @@
         bookingId    = data.booking_id;
         paymentIntent = data.payment_intent;
         depositAmountEl.textContent = `€${data.deposit_amount}`;
+        summaryDeposit.textContent  = `€${data.deposit_amount}`;
 
         // Mandatory confirmation before the Payment Element is shown
         const confirmed = await showDepositConfirm(data.deposit_amount);
@@ -386,12 +542,10 @@
         paymentElement.mount('#payment-element');
         paymentElement.on('ready', () => { submitBtn.disabled = false; });
 
-        paymentSection.classList.add('visible');
-        proceedBtn.textContent = 'Payment loaded';
+        // Advance to the payment step
+        goToStep(4);
+        proceedBtn.textContent = 'Proceed to Payment';
         proceedBtn.disabled = true;
-
-        // Scroll to payment
-        paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       } catch (err) {
         const errMsg = err.message || 'Something went wrong. Please try again.';
@@ -468,6 +622,7 @@
           '</div>';
       }
     } else {
+      updateStepper();
       init();
     }
   })();

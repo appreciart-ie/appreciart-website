@@ -50,118 +50,190 @@
       </div>
     </div>
 
-    <!-- MAIN BOOKING LAYOUT -->
+    <!-- MAIN BOOKING LAYOUT — summary rail + wizard -->
     <div class="booking-layout" id="bookingLayout">
 
-      <!-- LEFT: ARTIST + DATES -->
-      <div class="booking-left">
+      <!-- LEFT: SUMMARY RAIL -->
+      <aside class="booking-summary" id="bookingSummary">
+        <ol class="summary-stepper" id="summaryStepper">
+          <li class="summary-step" data-goto="1"><span class="summary-step-num">01</span><span class="summary-step-name">Artist</span></li>
+          <li class="summary-step" data-goto="2"><span class="summary-step-num">02</span><span class="summary-step-name">Date</span></li>
+          <li class="summary-step" data-goto="3"><span class="summary-step-num">03</span><span class="summary-step-name">Details</span></li>
+          <li class="summary-step" data-goto="4"><span class="summary-step-num">04</span><span class="summary-step-name">Payment</span></li>
+        </ol>
 
-        <!-- Step 1: Artist -->
-        <span class="booking-section-label">01 — Choose Your Artist</span>
-        <div class="artist-selector" id="artistSelector">
-          <!-- Populated by JS -->
+        <div class="summary-card">
+          <div class="summary-row" id="summaryArtistRow">
+            <span class="summary-row-label">Artist</span>
+            <div class="summary-row-value">
+              <span class="summary-artist" id="summaryArtist">Not selected</span>
+            </div>
+          </div>
+          <div class="summary-row" id="summaryDateRow">
+            <span class="summary-row-label">Date</span>
+            <div class="summary-row-value">
+              <span id="summaryDate">Not selected</span>
+            </div>
+          </div>
+          <div class="summary-row summary-row--deposit">
+            <span class="summary-row-label">Refundable deposit</span>
+            <div class="summary-row-value">
+              <span class="summary-deposit" id="summaryDeposit">€100</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Guest Artists -->
-        <div class="guest-artists-section" id="guestArtistsSection" style="display:none">
-          <span class="booking-section-label">Guest Artists</span>
-          <p class="booking-guest-desc">Visiting artists available for a limited time. Contact them directly to book.</p>
-          <div class="guest-artists-grid" id="guestArtistsGrid"></div>
-        </div>
+        <p class="summary-note">
+          The deposit is returned in full if no design is agreed at consultation. Secure checkout by Stripe.
+        </p>
+      </aside>
 
-        <!-- Step 2: Date -->
-        <span class="booking-section-label">02 — Select a Date</span>
-
-        <div class="dates-grid" id="datesGrid">
-          <div class="dates-loading">Select an artist to see availability</div>
-        </div>
-
-        <div class="selected-date-bar" id="selectedDateBar">
-          <span class="selected-date-text" id="selectedDateText"></span>
-          <button class="selected-date-clear" id="clearDate">Clear</button>
-        </div>
-
-      </div>
-
-      <!-- RIGHT: FORM -->
-      <div class="booking-form-wrap">
-        <h2 class="booking-form-title">Your Details</h2>
-        <p class="booking-form-subtitle">Fill in your information. You'll complete payment in the next step.</p>
+      <!-- RIGHT: WIZARD STEPS -->
+      <div class="booking-steps" id="bookingSteps">
 
         <!-- Honeypot -->
         <input type="text" name="_hp" class="form-pot" tabindex="-1" autocomplete="off">
 
-        <div class="form-row">
+        <!-- STEP 1: ARTIST -->
+        <section class="booking-step is-active" data-step="1">
+          <span class="booking-section-label">01 — Choose Your Artist</span>
+          <h2 class="booking-step-title">Who would you like to work with?</h2>
+
+          <div class="artist-selector" id="artistSelector">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="guest-artists-section" id="guestArtistsSection" style="display:none">
+            <span class="booking-section-label">Guest Artists</span>
+            <p class="booking-guest-desc">Visiting artists available for a limited time. Contact them directly to book.</p>
+            <div class="guest-artists-grid" id="guestArtistsGrid"></div>
+          </div>
+
+          <div class="step-actions">
+            <span></span>
+            <button class="btn-step-next" id="next1" disabled>Continue</button>
+          </div>
+        </section>
+
+        <!-- STEP 2: DATE -->
+        <section class="booking-step" data-step="2">
+          <span class="booking-section-label">02 — Select a Date</span>
+          <h2 class="booking-step-title">Pick an available day</h2>
+
+          <div class="calendar" id="calendar">
+            <div class="calendar-head">
+              <button class="calendar-nav" id="calPrev" aria-label="Previous month" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <span class="calendar-month" id="calMonth">—</span>
+              <button class="calendar-nav" id="calNext" aria-label="Next month" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <div class="calendar-weekdays">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+              <div class="dates-loading">Select an artist to see availability</div>
+            </div>
+
+            <div class="calendar-legend" id="calendarLegend" style="display:none">
+              <span class="legend-item"><i class="legend-dot legend-dot--available"></i> Available</span>
+              <span class="legend-item"><i class="legend-dot legend-dot--booked"></i> Booked</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-step-back" data-goto="1">Back</button>
+            <button class="btn-step-next" id="next2" disabled>Continue</button>
+          </div>
+        </section>
+
+        <!-- STEP 3: YOUR DETAILS -->
+        <section class="booking-step" data-step="3">
+          <span class="booking-section-label">03 — Your Details</span>
+          <h2 class="booking-step-title">Tell us about your idea</h2>
+          <p class="booking-step-subtitle">Fill in your information. You'll complete payment in the next step.</p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="clientName">Full Name *</label>
+              <input class="form-input" type="text" id="clientName" placeholder="Jane Smith" autocomplete="name" maxlength="200">
+              <span class="form-error" id="nameError">Name is required</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="clientPhone">Phone *</label>
+              <input class="form-input" type="tel" id="clientPhone" placeholder="+353 87 000 0000" autocomplete="tel" maxlength="30">
+              <span class="form-error" id="phoneError">Phone is required</span>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label class="form-label" for="clientName">Full Name *</label>
-            <input class="form-input" type="text" id="clientName" placeholder="Jane Smith" autocomplete="name" maxlength="200">
-            <span class="form-error" id="nameError">Name is required</span>
+            <label class="form-label" for="clientEmail">Email *</label>
+            <input class="form-input" type="email" id="clientEmail" placeholder="jane@example.com" autocomplete="email" maxlength="254">
+            <span class="form-error" id="emailError">Valid email is required</span>
           </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="style">Style</label>
+              <input class="form-input" type="text" id="style" placeholder="Abstract, Blackwork..." maxlength="100">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="size">Approximate Size</label>
+              <select class="form-select" id="size">
+                <option value="">— Select —</option>
+                <option value="small">Small (palm-sized)</option>
+                <option value="medium">Medium (hand-sized)</option>
+                <option value="large">Large (A4+)</option>
+                <option value="sleeve">Sleeve / large piece</option>
+              </select>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label class="form-label" for="clientPhone">Phone *</label>
-            <input class="form-input" type="tel" id="clientPhone" placeholder="+353 87 000 0000" autocomplete="tel" maxlength="30">
-            <span class="form-error" id="phoneError">Phone is required</span>
+            <label class="form-label" for="placement">Body Placement</label>
+            <input class="form-input" type="text" id="placement" placeholder="Forearm, back, ribs..." maxlength="100">
           </div>
-        </div>
 
-        <div class="form-group">
-          <label class="form-label" for="clientEmail">Email *</label>
-          <input class="form-input" type="email" id="clientEmail" placeholder="jane@example.com" autocomplete="email" maxlength="254">
-          <span class="form-error" id="emailError">Valid email is required</span>
-        </div>
-
-        <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="style">Style</label>
-            <input class="form-input" type="text" id="style" placeholder="Abstract, Blackwork..." maxlength="100">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="size">Approximate Size</label>
-            <select class="form-select" id="size">
-              <option value="">— Select —</option>
-              <option value="small">Small (palm-sized)</option>
-              <option value="medium">Medium (hand-sized)</option>
-              <option value="large">Large (A4+)</option>
-              <option value="sleeve">Sleeve / large piece</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="placement">Body Placement</label>
-          <input class="form-input" type="text" id="placement" placeholder="Forearm, back, ribs..." maxlength="100">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="description">Idea / References</label>
-          <textarea class="form-textarea" id="description" placeholder="What do you have in mind? Style, placement, size, references — anything helps." maxlength="1000"></textarea>
-        </div>
-
-        <button class="btn-proceed" id="proceedBtn" disabled>
-          Proceed to Payment
-        </button>
-
-        <!-- Payment section — shown after form validation -->
-        <div class="payment-section" id="paymentSection">
-          <span class="payment-section-label">03 — Secure Your Date</span>
-
-          <div class="deposit-summary">
-            <span class="deposit-summary-label">Refundable deposit</span>
-            <span class="deposit-summary-amount" id="depositAmount">€100</span>
+            <label class="form-label" for="description">Idea / References</label>
+            <textarea class="form-textarea" id="description" placeholder="What do you have in mind? Style, placement, size, references — anything helps." maxlength="1000"></textarea>
           </div>
 
-          <p class="deposit-note">
-            Returned in full if no design is agreed at consultation.
-            Not returned for cancellations with less than 48h notice.
-          </p>
+          <div class="step-actions">
+            <button class="btn-step-back" data-goto="2">Back</button>
+            <button class="btn-proceed" id="proceedBtn" disabled>Proceed to Payment</button>
+          </div>
+        </section>
 
-          <div id="payment-element"></div>
-          <div class="form-error" id="paymentError"></div>
+        <!-- STEP 4: PAYMENT -->
+        <section class="booking-step" data-step="4">
+          <span class="booking-section-label">04 — Secure Your Date</span>
+          <h2 class="booking-step-title">Confirm your deposit</h2>
 
-          <button class="btn-book" id="submitBtn" disabled>
-            Confirm &amp; Pay
-          </button>
-        </div>
+          <div class="payment-section" id="paymentSection">
+            <div class="deposit-summary">
+              <span class="deposit-summary-label">Refundable deposit</span>
+              <span class="deposit-summary-amount" id="depositAmount">€100</span>
+            </div>
+
+            <p class="deposit-note">
+              Returned in full if no design is agreed at consultation.
+              Not returned for cancellations with less than 48h notice.
+            </p>
+
+            <div id="payment-element"></div>
+            <div class="form-error" id="paymentError"></div>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-step-back" data-goto="3">Back</button>
+            <button class="btn-book" id="submitBtn" disabled>Confirm &amp; Pay</button>
+          </div>
+        </section>
 
       </div>
     </div>
