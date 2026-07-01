@@ -1,6 +1,14 @@
 (function () {
     const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
+    document.querySelectorAll('img[data-hide-on-error="true"]').forEach(img => {
+      img.addEventListener('error', () => {
+        const parentBg = img.getAttribute('data-parent-bg-on-error');
+        if (parentBg && img.parentElement) img.parentElement.style.background = parentBg;
+        img.style.display = 'none';
+      }, { once: true });
+    });
+
     // Load resident profile photos
     document.querySelectorAll('.resident-photo[data-slug]').forEach(img => {
       const slug = img.dataset.slug;

@@ -454,7 +454,7 @@ a   { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 120px var(--px) 80px;
+  padding: 120px var(--px) 0;
 }
 
 .hero-symbol {
