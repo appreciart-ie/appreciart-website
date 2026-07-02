@@ -494,7 +494,15 @@
       guestStates.forEach(({ label, color, border, opacity }) => {
         const item = document.createElement('div');
         item.className = 'cal-legend-item';
-        item.innerHTML = `<span class="cal-dot" style="background:${color};${border ? `border-color:${border};` : ''}${opacity ? `opacity:${opacity};` : ''}"></span><span>${label}</span>`;
+        const dot = document.createElement('span');
+        dot.className = 'cal-dot';
+        dot.style.background = color;
+        if (border) dot.style.borderColor = border;
+        if (opacity) dot.style.opacity = opacity;
+        const text = document.createElement('span');
+        text.textContent = label;
+        item.appendChild(dot);
+        item.appendChild(text);
         legend.appendChild(item);
       });
       return;
