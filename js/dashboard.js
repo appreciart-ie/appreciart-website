@@ -1310,7 +1310,7 @@ async function loadProfile() {
         if (data.portfolio && data.portfolio.length) {
           grid.innerHTML = data.portfolio.map(p => `
             <div class="portfolio-thumb" data-public-id="${esc(p.publicId)}" data-public-id-bare="${esc(p.publicIdBare || '')}">
-              <img src="${esc(p.url)}" alt="Portfolio image" loading="lazy">
+              <img src="${esc(bustCache ? p.url + '?v=' + Date.now() : p.url)}" alt="Portfolio image" loading="lazy">
               <div class="portfolio-overlay">
                 <button class="portfolio-replace-btn" aria-label="Replace image">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1341,7 +1341,7 @@ async function loadProfile() {
                   const sig = await getUploadSignature('portfolio', publicIdBare || publicId);
                   await uploadToCloudinary(file, sig);
                   window.toast('Image replaced', 'success');
-                  loadPhotos();
+                  loadPhotos(true);
                 } catch (err) {
                   window.toast(err.message || 'Replace failed', 'error');
                   btn.disabled = false;
@@ -1442,10 +1442,13 @@ async function loadProfile() {
       portfolioPhotoBtn.disabled  = true;
       portfolioPhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
-        const sig  = await getUploadSignature('portfolio');
-        await uploadToCloudinary(file, sig);
-        window.toast('Portfolio image added', 'success');
-        await loadPhotos();
+        const files = Array.from(portfolioPhotoInput.files);
+        for (const f of files) {
+          const sig = await getUploadSignature('portfolio');
+          await uploadToCloudinary(f, sig);
+        }
+        window.toast(`${files.length} image${files.length > 1 ? 's' : ''} added`, 'success');
+        await loadPhotos(true);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
