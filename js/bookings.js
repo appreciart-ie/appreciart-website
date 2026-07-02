@@ -108,7 +108,7 @@
         const guestSection = document.getElementById('guestArtistsSection');
         const guestGrid    = document.getElementById('guestArtistsGrid');
         if (guestSection && guestGrid && guests.length) {
-          guestSection.style.display = '';
+          guestSection.classList.remove('hidden');
           guests.forEach(guest => {
             const styles = Array.isArray(guest.styles) ? guest.styles.join(' · ') : '';
             const href   = 'artist.html?slug=' + encodeURIComponent(guest.slug);

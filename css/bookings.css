@@ -825,3 +825,5 @@
       }
       .calendar { max-width: none; }
     }
+
+.guest-artists-section.hidden { display: none; }
