@@ -1096,6 +1096,13 @@ async function loadProfile() {
         checkDirty();
       });
     });
+    const styleInput = document.getElementById('profileStyleInput');
+    const styleBtn   = document.getElementById('profileStyleBtn');
+    const styleHint  = document.getElementById('stylesHint');
+    const atMax      = profileStyles.length >= 3;
+    if (styleInput) styleInput.disabled = atMax;
+    if (styleBtn)   styleBtn.disabled   = atMax;
+    if (styleHint)  styleHint.textContent = atMax ? '3 styles max — remove one to add another' : 'Add up to 3 · press Enter or click Add';
   }
 
   const profileStyleBtn   = document.getElementById('profileStyleBtn');
@@ -1448,6 +1455,12 @@ async function loadProfile() {
       const file = portfolioPhotoInput.files[0];
       if (!file) return;
       if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
+      const currentCount = (_completenessPhotos && _completenessPhotos.portfolio ? _completenessPhotos.portfolio.length : 0);
+      if (currentCount + portfolioPhotoInput.files.length > 16) {
+        window.toast('You can only have 16 portfolio images — remove some first', 'error');
+        portfolioPhotoInput.value = '';
+        return;
+      }
       portfolioPhotoBtn.disabled  = true;
       portfolioPhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
