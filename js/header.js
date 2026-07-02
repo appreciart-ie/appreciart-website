@@ -50,7 +50,7 @@
            ${dropdownItems}
          </div>
        </div>`
-    : `<a href="login.html" class="nav-login">Sign in</a>`;
+    : `<a href="login.html" class="nav-login">Artist Login</a>`;
 
   const mobileAuthItems = !isDashboard
     ? `<a href="dashboard.html" class="nav-m-btn nav-m-btn--ghost">My Dashboard</a>`
@@ -59,7 +59,7 @@
   const authBtnMobile = isLoggedIn
     ? `${mobileAuthItems}
        <button class="nav-m-btn nav-m-btn--ghost" id="mobileSignOut">Sign out</button>`
-    : `<a href="login.html" class="nav-m-btn nav-m-btn--ghost">Sign in</a>`;
+    : `<a href="login.html" class="nav-m-btn nav-m-btn--ghost">Artist Login</a>`;
 
   const html = `
     <nav class="nav" id="nav">

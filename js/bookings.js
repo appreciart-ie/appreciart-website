@@ -485,6 +485,7 @@
             placement:    getField('placement').value.trim() || undefined,
             size:         getField('size').value || undefined,
             date:         dateStr,
+            marketing_consent: getField('marketingConsent').checked,
           }),
           signal: AbortSignal.timeout(20000),
         });
