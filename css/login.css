@@ -87,6 +87,16 @@
   margin-bottom: 28px;
 }
 
+.login-helpers--center {
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+.reset-invalid {
+  display: none;
+}
+
 .login-checkbox {
   display: flex;
   align-items: center;
