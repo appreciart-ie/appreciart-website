@@ -305,6 +305,13 @@
 
   let currentYear        = today.getFullYear();
   let currentMonth       = today.getMonth();
+
+  // Guests open the calendar on the month of their residency start, not today.
+  if (isGuest && artist.guest_start_date) {
+    const gs = new Date(artist.guest_start_date.slice(0, 10) + 'T00:00:00');
+    if (!isNaN(gs)) { currentYear = gs.getFullYear(); currentMonth = gs.getMonth(); }
+  }
+
   let studioAvailability = [];
   let guestSlotMap       = {};
 
