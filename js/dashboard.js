@@ -60,14 +60,23 @@
   const calPrev      = document.getElementById('calPrev');
   const calNext      = document.getElementById('calNext');
 
+  function activateTab(name) {
+    const tab = Array.from(tabs).find(t => t.dataset.tab === name);
+    const panel = document.getElementById(`tab-${name}`);
+    if (!tab || !panel) return;
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    panel.classList.add('active');
+    localStorage.setItem('art_active_tab', name);
+  }
+
   tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      panels.forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
-    });
+    tab.addEventListener('click', () => activateTab(tab.dataset.tab));
   });
+
+  const _savedTab = localStorage.getItem('art_active_tab');
+  if (_savedTab) activateTab(_savedTab);
 
   async function authFetch(path, options = {}) {
     const doFetch = (t) => fetch(`${INTERNAL}${path}`, {
@@ -297,6 +306,111 @@
         window.toast('Error updating booking', 'error');
       }
     });
+  }
+
+  // ── Consent Forms ──
+  const consentList = document.getElementById('consentList');
+
+  function consentName(f) {
+    return [f.client_first_name, f.client_last_name].filter(Boolean).join(' ').trim() || 'Unnamed';
+  }
+
+  function consentDate(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return '—';
+    return d.toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function consentFlagPills(f) {
+    const flags = [
+      { on: f.has_medical,     label: 'Medical' },
+      { on: f.has_medications, label: 'Medications' },
+      { on: f.has_bloodborne,  label: 'Bloodborne' },
+    ].filter(x => x.on);
+    if (!flags.length) return '<span class="consent-flags"><span class="consent-flag consent-flag--clear">No flags</span></span>';
+    return `<span class="consent-flags">${flags.map(x => `<span class="consent-flag consent-flag--alert">${esc(x.label)}</span>`).join('')}</span>`;
+  }
+
+  async function loadConsent() {
+    if (!consentList) return;
+    try {
+      const res  = await authFetch('/api/artist/consent');
+      const data = await res.json();
+      const forms = Array.isArray(data) ? data : (data.forms || data.consent || []);
+
+      if (!forms.length) {
+        consentList.innerHTML = '<p class="dash-empty"><svg class="dash-empty-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>No consent forms yet.<span class="dash-empty-sub">Forms clients submit before their session will appear here.</span></p>';
+        return;
+      }
+
+      const sorted = forms.slice().sort((a, b) => new Date(b.submitted_at || 0) - new Date(a.submitted_at || 0));
+      consentList.innerHTML = `<div class="bookings-list-inner">${sorted.map(f => `
+        <div class="booking-card booking-card--clickable consent-card" data-id="${esc(String(f.id))}">
+          <span class="booking-client">${esc(consentName(f))}</span>
+          <span class="booking-meta">${esc(consentDate(f.submitted_at))}</span>
+          ${consentFlagPills(f)}
+        </div>
+      `).join('')}</div>`;
+
+      consentList.querySelectorAll('.consent-card').forEach(card => {
+        const form = sorted.find(f => String(f.id) === card.dataset.id);
+        if (form) card.addEventListener('click', () => showConsentModal(form));
+      });
+    } catch {
+      window.toast('Could not load consent forms', 'error');
+      consentList.innerHTML = '<p class="dash-empty">Could not load consent forms. Please refresh.</p>';
+    }
+  }
+
+  function showConsentModal(f) {
+    const existing = document.getElementById('consentModal');
+    if (existing) existing.remove();
+
+    const row = (label, value) => value
+      ? `<p class="consent-modal-row"><span class="consent-modal-label">${esc(label)}</span><span class="consent-modal-value">${esc(String(value))}</span></p>`
+      : '';
+
+    const flagBlock = (on, label, details) => {
+      if (!on) return `<p class="consent-modal-row"><span class="consent-modal-label">${esc(label)}</span><span class="consent-modal-value consent-modal-value--clear">None declared</span></p>`;
+      return `<p class="consent-modal-row"><span class="consent-modal-label">${esc(label)}</span><span class="consent-modal-value consent-modal-value--alert">${details ? esc(String(details)) : 'Declared'}</span></p>`;
+    };
+
+    const modal = document.createElement('div');
+    modal.id = 'consentModal';
+    modal.className = 'cal-modal-overlay';
+    modal.innerHTML = `
+      <div class="cal-modal-box cal-modal-box--scroll">
+        <p class="cal-modal-date">${esc(consentDate(f.submitted_at))}</p>
+        <p class="cal-modal-title">${esc(consentName(f))}</p>
+        <div class="consent-modal-section">
+          ${row('Email', f.client_email)}
+          ${row('Phone', f.client_phone)}
+          ${row('Artist', f.artist_name)}
+        </div>
+        <div class="consent-modal-section">
+          ${flagBlock(f.has_medical, 'Medical conditions', f.medical_details)}
+          ${flagBlock(f.has_medications, 'Medications', f.medication_details)}
+          ${flagBlock(f.has_bloodborne, 'Bloodborne', f.bloodborne_details)}
+          ${row('Photo consent', f.photo_consent ? 'Yes' : 'No')}
+        </div>
+        <div class="cal-modal-actions">
+          <button class="btn btn-secondary btn-sm" id="consentClose">Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    function closeModal() {
+      modal.classList.remove('open');
+      setTimeout(() => modal.remove(), 250);
+      document.removeEventListener('keydown', escHandler);
+    }
+    function escHandler(e) { if (e.key === 'Escape') closeModal(); }
+    document.addEventListener('keydown', escHandler);
+    document.getElementById('consentClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
   }
 
   // ── Calendar ──
@@ -1511,6 +1625,7 @@ async function loadProfile() {
 
   loadBookings();
   loadAvailability();
+  loadConsent();
   loadProfile();
   loadPhotos();
   initSSE();

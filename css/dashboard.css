@@ -1052,3 +1052,66 @@
   .cal-modal-actions { flex-wrap: wrap; }
   .dash-wrap { overflow-x: hidden; padding-bottom: 40px; min-height: 0; }
 }
+
+/* ── CONSENT FORMS ── */
+
+.consent-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.consent-flag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--light);
+  color: var(--mid);
+  white-space: nowrap;
+}
+
+.consent-flag--alert {
+  border-color: #e53935;
+  color: #e53935;
+}
+
+.consent-flag--clear {
+  opacity: 0.6;
+}
+
+.cal-modal-box--scroll {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.consent-modal-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--light);
+  padding-top: 16px;
+}
+
+.consent-modal-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 300;
+  padding: 6px 0;
+}
+
+.consent-modal-label {
+  color: var(--mid);
+  flex-shrink: 0;
+}
+
+.consent-modal-value {
+  color: var(--black);
+  text-align: right;
+  word-break: break-word;
+}
+
+.consent-modal-value--alert { color: #e53935; }
+.consent-modal-value--clear { color: var(--mid); opacity: 0.7; }
