@@ -1088,6 +1088,7 @@
 
   let _completenessProfile = null;
   let _completenessPhotos  = null;
+  let _pendingProfileUrl   = null;  // last-uploaded profile photo, kept until the backend echoes it back
   let _liveModalSeen       = localStorage.getItem('art_profile_live_seen') === '1';
   let _wasPublic           = null;
 
@@ -1434,10 +1435,11 @@ async function loadProfile() {
       syncVisibility();
 
       if (preview) {
-        if (data.profileUrl) {
+        const profileUrl = data.profileUrl || _pendingProfileUrl;
+        if (profileUrl) {
           const img = document.createElement('img');
-          if (data.profileUrl && data.profileUrl.startsWith('https://')) {
-            img.src = bustCache ? data.profileUrl + '?v=' + Date.now() : data.profileUrl;
+          if (profileUrl.startsWith('https://')) {
+            img.src = bustCache ? profileUrl + '?v=' + Date.now() : profileUrl;
           }
           img.alt       = 'Profile photo';
           img.className = 'profile-photo-img';
@@ -1558,30 +1560,32 @@ async function loadProfile() {
       if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
       profilePhotoBtn.disabled  = true;
       profilePhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
+      const preview     = document.getElementById('profilePhotoPreview');
+      const prevContent = preview ? preview.innerHTML : null;
+      // CSP img-src forbids blob: URLs, so a local object-URL preview can't render.
+      // Show a text placeholder while uploading, then swap in the real https CDN URL.
+      if (preview) preview.innerHTML = '<span class="profile-photo-empty">Uploading…</span>';
       try {
-        const objectUrl = URL.createObjectURL(file);
-        const preview = document.getElementById('profilePhotoPreview');
-        const prevContent = preview ? preview.innerHTML : null;
-        if (preview) { const img = document.createElement('img'); img.src = objectUrl; img.className = 'profile-photo-img'; preview.innerHTML = ''; preview.appendChild(img); }
-        try {
-          const sig  = await getUploadSignature('profile');
-          const uploaded = await uploadToCloudinary(file, sig);
-          // Optimistic: point the preview at the real (versioned) CDN URL right away,
-          // rather than waiting on the eventually-consistent loadPhotos() below.
-          if (uploaded && uploaded.secure_url && preview) {
-            const pimg = preview.querySelector('img');
-            if (pimg) pimg.src = withCloudinaryTransform(uploaded.secure_url, 'q_auto,f_auto,w_680');
+        const sig  = await getUploadSignature('profile');
+        const uploaded = await uploadToCloudinary(file, sig);
+        // Show the real (versioned) CDN URL right away and remember it, so the
+        // eventually-consistent loadPhotos() below doesn't revert to "No photo yet".
+        if (uploaded && uploaded.secure_url) {
+          _pendingProfileUrl = withCloudinaryTransform(uploaded.secure_url, 'q_auto,f_auto,w_680');
+          if (preview) {
+            const img = document.createElement('img');
+            img.src       = _pendingProfileUrl;
+            img.alt       = 'Profile photo';
+            img.className = 'profile-photo-img';
+            preview.innerHTML = '';
+            preview.appendChild(img);
           }
-          window.toast('Profile photo updated', 'success');
-          await loadPhotos(true);
-        } catch (err) {
-          window.toast(err.message || 'Upload failed', 'error');
-          if (preview && prevContent !== null) preview.innerHTML = prevContent;
-        } finally {
-          URL.revokeObjectURL(objectUrl);
         }
+        window.toast('Profile photo updated', 'success');
+        await loadPhotos(true);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
+        if (preview && prevContent !== null) preview.innerHTML = prevContent;
       } finally {
         profilePhotoBtn.disabled    = false;
         profilePhotoBtn.textContent = 'Upload profile photo';
