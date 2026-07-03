@@ -173,8 +173,10 @@
      <h2 class="section-title">Book with ${esc(artist.name)}</h2>
      <p class="section-body">Start the conversation — tell us what you have in mind.</p>
      ${artist.role === 'guest'
-  ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
+  ? (artist.whatsapp_url || artist.booking_url
+      ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
      ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
+      : `<p class="section-body">Contact the studio to book</p>`)
   : `<a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>`
 }`
 }
