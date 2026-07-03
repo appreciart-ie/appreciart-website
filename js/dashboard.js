@@ -1410,6 +1410,14 @@ async function loadProfile() {
     return res.json();
   }
 
+  // Insert a delivery transform into a Cloudinary secure_url (mirrors the backend),
+  // e.g. .../image/upload/v123/x.jpg -> .../image/upload/q_auto,f_auto,w_680/v123/x.jpg
+  function withCloudinaryTransform(url, t) {
+    return url && url.includes('/image/upload/')
+      ? url.replace('/image/upload/', `/image/upload/${t}/`)
+      : url;
+  }
+
   async function loadPhotos(bustCache = false) {
     const preview  = document.getElementById('profilePhotoPreview');
     const grid     = document.getElementById('portfolioGrid');
@@ -1476,7 +1484,13 @@ async function loadProfile() {
                 btn.disabled = true;
                 try {
                   const sig = await getUploadSignature('portfolio', publicIdBare || publicId);
-                  await uploadToCloudinary(file, sig);
+                  const uploaded = await uploadToCloudinary(file, sig);
+                  // Optimistic: swap this thumbnail to the freshly-uploaded image
+                  // immediately (Search-API-backed loadPhotos is eventually consistent).
+                  const thumbImg = thumb.querySelector('img');
+                  if (uploaded && uploaded.secure_url && thumbImg) {
+                    thumbImg.src = withCloudinaryTransform(uploaded.secure_url, 'q_auto,f_auto,w_800');
+                  }
                   window.toast('Image replaced', 'success');
                   loadPhotos(true);
                 } catch (err) {
@@ -1551,7 +1565,13 @@ async function loadProfile() {
         if (preview) { const img = document.createElement('img'); img.src = objectUrl; img.className = 'profile-photo-img'; preview.innerHTML = ''; preview.appendChild(img); }
         try {
           const sig  = await getUploadSignature('profile');
-          await uploadToCloudinary(file, sig);
+          const uploaded = await uploadToCloudinary(file, sig);
+          // Optimistic: point the preview at the real (versioned) CDN URL right away,
+          // rather than waiting on the eventually-consistent loadPhotos() below.
+          if (uploaded && uploaded.secure_url && preview) {
+            const pimg = preview.querySelector('img');
+            if (pimg) pimg.src = withCloudinaryTransform(uploaded.secure_url, 'q_auto,f_auto,w_680');
+          }
           window.toast('Profile photo updated', 'success');
           await loadPhotos(true);
         } catch (err) {
@@ -1586,9 +1606,25 @@ async function loadProfile() {
       portfolioPhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
         const files = Array.from(portfolioPhotoInput.files);
+        const grid  = document.getElementById('portfolioGrid');
         for (const f of files) {
           const sig = await getUploadSignature('portfolio');
-          await uploadToCloudinary(f, sig);
+          const uploaded = await uploadToCloudinary(f, sig);
+          // Optimistic: append the new image immediately so the user sees it without
+          // waiting on the eventually-consistent loadPhotos() below (which re-renders
+          // the full grid and reattaches replace/delete handlers).
+          if (uploaded && uploaded.secure_url && grid) {
+            const empty = grid.querySelector('.dash-empty');
+            if (empty) grid.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'portfolio-thumb';
+            const img = document.createElement('img');
+            img.src     = withCloudinaryTransform(uploaded.secure_url, 'q_auto,f_auto,w_800');
+            img.alt     = 'Portfolio image';
+            img.loading = 'lazy';
+            div.appendChild(img);
+            grid.appendChild(div);
+          }
         }
         window.toast(`${files.length} image${files.length > 1 ? 's' : ''} added`, 'success');
         await loadPhotos(true);
