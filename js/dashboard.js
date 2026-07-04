@@ -1178,7 +1178,9 @@ async function loadProfile() {
       document.getElementById('profileBio').value       = a.bio || '';
       const _bioCounter = document.getElementById('bioCounter');
       if (_bioCounter) _bioCounter.textContent = (a.bio || '').length + ' / 600';
-      document.getElementById('profileInstagram').value = a.instagram || '';
+      const _igLoad = document.getElementById('profileInstagram');
+      _igLoad.value = (a.instagram || '').replace(/^@+/, '');
+      updateIgEcho();
       const waField = document.getElementById('profileWhatsapp');
       if (waField) {
         const waNum = a.whatsapp_url ? a.whatsapp_url.replace('https://wa.me/', '') : '';
@@ -1318,6 +1320,34 @@ async function loadProfile() {
       checkDirty();
     });
   });
+
+  function igHandle() {
+    const el = document.getElementById('profileInstagram');
+    return el ? el.value.trim().replace(/^@+/, '') : '';
+  }
+
+  function updateIgEcho() {
+    const echo = document.getElementById('igEcho');
+    if (!echo) return;
+    const h = igHandle();
+    echo.textContent = 'instagram.com/' + (h || 'yourusername');
+    echo.classList.toggle('ig-echo--filled', !!h);
+  }
+
+  const _igEl = document.getElementById('profileInstagram');
+  if (_igEl) {
+    _igEl.addEventListener('input', () => {
+      // Keep the field bare — the decorative "@" prefix stands in for it.
+      if (/^@/.test(_igEl.value)) {
+        const pos = _igEl.selectionStart;
+        _igEl.value = _igEl.value.replace(/^@+/, '');
+        const c = Math.max(0, (pos || 0) - 1);
+        try { _igEl.setSelectionRange(c, c); } catch {}
+      }
+      updateIgEcho();
+      checkDirty();
+    });
+  }
 
   window.addEventListener('beforeunload', (e) => {
     if (_profileDirty) {

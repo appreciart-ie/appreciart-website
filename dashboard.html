@@ -72,9 +72,13 @@
         </div>
 
         <div class="form-field--spacious">
-          <label class="form-label" for="profileInstagram">Instagram</label>
-          <input class="form-input" id="profileInstagram" type="text" placeholder="@yourusername" maxlength="100">
-          <p class="profile-hint">Your handle without instagram.com — e.g. @moreirart</p>
+          <label class="form-label" for="profileInstagram">Instagram handle</label>
+          <div class="ig-field">
+            <span class="ig-prefix" aria-hidden="true">@</span>
+            <input class="form-input ig-input" id="profileInstagram" type="text" placeholder="yourusername" maxlength="100" autocapitalize="off" autocomplete="off" spellcheck="false">
+          </div>
+          <p class="ig-echo" id="igEcho"></p>
+          <p class="profile-hint">Just your handle — we build the link. It becomes a tappable Instagram button on your public profile.</p>
         </div>
 
         <div class="form-field--spacious" id="whatsappField">

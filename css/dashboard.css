@@ -768,6 +768,50 @@
   letter-spacing: 0;
 }
 
+/* Instagram handle field — decorative @ prefix + live URL echo */
+.ig-field {
+  display: flex;
+  align-items: stretch;
+}
+
+.ig-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 13px;
+  border: 1px solid var(--mid);
+  border-right: none;
+  background: var(--off-white);
+  color: var(--mid);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
+  user-select: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.ig-input.ig-input {
+  border-left: none;
+}
+
+.ig-field:focus-within .ig-prefix {
+  border-color: var(--black);
+  color: var(--black);
+}
+
+.ig-echo {
+  margin: 7px 0 0;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--sec-grey);
+  letter-spacing: 0.02em;
+  min-height: 16px;
+  word-break: break-all;
+}
+
+.ig-echo--filled {
+  color: var(--black);
+}
+
 /* ── Onboarding + Password modals ── */
 .modal-err {
   color: #e53935;
