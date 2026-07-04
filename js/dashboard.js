@@ -46,6 +46,10 @@
 
   const isGuest = artist.role === 'guest';
 
+  // Set once loadProfile() resolves: a guest whose residency has ended. When true
+  // the dashboard renders normally but all interactivity is stripped (read-only).
+  let isFrozen = false;
+
 
   const whatsappField = document.getElementById('whatsappField');
   if (whatsappField) whatsappField.style.display = isGuest ? 'block' : 'none';
@@ -248,10 +252,12 @@
 
       bookingsList.innerHTML = html;
 
-      bookingsList.querySelectorAll('.booking-card').forEach(card => {
-        const booking = data_sessions.find(b => String(b.id) === card.dataset.id && b.source_type === card.dataset.source);
-        if (booking) card.addEventListener('click', () => showBookingModal(booking));
-      });
+      if (!isFrozen) {
+        bookingsList.querySelectorAll('.booking-card').forEach(card => {
+          const booking = data_sessions.find(b => String(b.id) === card.dataset.id && b.source_type === card.dataset.source);
+          if (booking) card.addEventListener('click', () => showBookingModal(booking));
+        });
+      }
 
     } catch {
       window.toast('Could not load sessions', 'error');
@@ -615,10 +621,12 @@
       }
     });
 
-    // Click handlers
-    calGrid.querySelectorAll('.cal-day:not(.empty):not(.past):not(.cal-day--full):not(.cal-day--blocked)').forEach(el => {
-      el.addEventListener('click', () => handleDayClick(el));
-    });
+    // Click handlers — skipped entirely for a frozen (inactive) guest.
+    if (!isFrozen) {
+      calGrid.querySelectorAll('.cal-day:not(.empty):not(.past):not(.cal-day--full):not(.cal-day--blocked)').forEach(el => {
+        el.addEventListener('click', () => handleDayClick(el));
+      });
+    }
 
     // Update legend
     updateLegend();
@@ -1202,6 +1210,7 @@ async function loadProfile() {
       const res  = await authFetch('/api/artist/me');
       const data = await res.json();
       const a    = data.artist;
+      isFrozen   = isGuest && a.active === false;
       document.getElementById('profileBio').value       = a.bio || '';
       const _bioCounter = document.getElementById('bioCounter');
       if (_bioCounter) _bioCounter.textContent = (a.bio || '').length + ' / 600';
@@ -1226,6 +1235,7 @@ async function loadProfile() {
       _wasPublic = !!a.is_public;
       updateCompleteness();
       snapshotProfile();
+      if (isFrozen) applyFrozenState(a);
     } catch {
       window.toast('Could not load profile', 'error');
     }
@@ -1567,6 +1577,10 @@ async function loadProfile() {
             </div>
           `).join('');
 
+          // Frozen guests: portfolio is read-only — no replace/delete affordances.
+          if (isFrozen) {
+            grid.querySelectorAll('.portfolio-replace-btn, .portfolio-delete-btn').forEach(b => { b.disabled = true; });
+          } else {
           grid.querySelectorAll('.portfolio-replace-btn').forEach(btn => {
             btn.addEventListener('click', () => {
               const thumb    = btn.closest('.portfolio-thumb');
@@ -1631,13 +1645,14 @@ async function loadProfile() {
               }
             });
           });
+          } // end !isFrozen
         } else {
           grid.innerHTML = '<p class="dash-empty"><svg class="dash-empty-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="0"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>No portfolio images yet.<span class="dash-empty-sub">Upload 3–5 of your best work — clients preview these before booking.</span></p>';
         }
       }
 
       if (countEl) countEl.textContent = `(${data.count}/16)`;
-      if (addBtn)  addBtn.disabled = data.count >= 16;
+      if (addBtn)  addBtn.disabled = isFrozen || data.count >= 16;
 
     } catch {
       window.toast('Could not load photos', 'error');
@@ -1759,6 +1774,267 @@ async function loadProfile() {
       localStorage.removeItem('art_artist');
       window.location.href = 'login.html';
     });
+  }
+
+  // ── Frozen (inactive guest) — read-only dashboard + reapply ──
+  function applyFrozenState(a) {
+    renderFrozenNotice(a);
+
+    // Profile fields → read-only.
+    ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl', 'profileStyleInput']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
+    if (profileStyleBtn) profileStyleBtn.disabled = true;
+
+    // Save bar off.
+    if (profileSaveBar)  profileSaveBar.style.display = 'none';
+    if (profileSaveBtn)  profileSaveBtn.disabled = true;
+
+    // Uploads off (both the add buttons and any already-rendered thumb controls).
+    if (profilePhotoBtn)   profilePhotoBtn.disabled = true;
+    if (portfolioPhotoBtn) portfolioPhotoBtn.disabled = true;
+    document.querySelectorAll('.portfolio-replace-btn, .portfolio-delete-btn')
+      .forEach(b => { b.disabled = true; });
+
+    // Re-render the interactive surfaces so their click handlers are dropped,
+    // regardless of whether they finished loading before or after loadProfile().
+    renderCalendar();
+    loadBookings();
+  }
+
+  function renderFrozenNotice(a) {
+    if (document.getElementById('frozenNotice')) return;
+    const dashTabs = document.getElementById('dashTabs');
+    if (!dashTabs || !dashTabs.parentNode) return;
+
+    const from = consentDate(a.guest_start_date);
+    const to   = consentDate(a.guest_end_date);
+
+    const notice = document.createElement('div');
+    notice.id = 'frozenNotice';
+    notice.className = 'frozen-notice';
+
+    const label = document.createElement('span');
+    label.className = 'frozen-notice-label';
+    label.textContent = 'Guest access · Inactive';
+
+    const line = document.createElement('p');
+    line.id = 'frozenNoticeLine';
+    line.className = 'frozen-notice-line';
+    line.textContent = 'Your guest period (' + from + '–' + to + ') has ended, so your dashboard is now read-only and your profile is offline. Want to come back? Request new dates.';
+
+    const btn = document.createElement('button');
+    btn.id = 'frozenNoticeBtn';
+    btn.className = 'btn btn-primary btn-sm';
+    btn.textContent = 'Request new dates';
+    btn.addEventListener('click', showReapplyModal);
+
+    notice.appendChild(label);
+    notice.appendChild(line);
+    notice.appendChild(btn);
+    dashTabs.parentNode.insertBefore(notice, dashTabs);
+  }
+
+  // Reapply modal — month-grid range picker ported from js/guest-artist.js.
+  function showReapplyModal() {
+    const existing = document.getElementById('reapplyModal');
+    if (existing) existing.remove();
+
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    let calYear    = today.getFullYear();
+    let calMonth   = today.getMonth();
+    let rangeStart = null;
+    let rangeEnd   = null;
+    let slotMap    = {};
+
+    const modal = document.createElement('div');
+    modal.id = 'reapplyModal';
+    modal.className = 'dash-modal-overlay';
+    modal.innerHTML = `
+      <div class="dash-modal dash-modal--reapply">
+        <div id="raBody">
+          <p class="dash-modal-tag">Guest access</p>
+          <h2 class="dash-modal-title dash-modal-title--sm">Request new dates</h2>
+          <p class="dash-modal-text">Pick the range you'd like to come back for. We'll confirm by email.</p>
+          <div class="ra-cal-wrap">
+            <div class="ra-cal-nav">
+              <button type="button" class="ra-cal-nav-btn" id="raCalPrev" aria-label="Previous month">‹</button>
+              <span class="ra-cal-month-label" id="raCalMonthLabel"></span>
+              <button type="button" class="ra-cal-nav-btn" id="raCalNext" aria-label="Next month">›</button>
+            </div>
+            <div class="ra-cal-weekdays"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            <div class="ra-cal-grid" id="raCalGrid"></div>
+          </div>
+          <p class="ra-cal-selection" id="raCalSelection"></p>
+          <p class="dash-modal-err" id="raErr"></p>
+          <div class="dash-modal-actions dash-modal-actions--row">
+            <button class="btn btn-secondary" id="raCancel">Cancel</button>
+            <button class="btn btn-primary" id="raSend">Send request</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    const grid   = document.getElementById('raCalGrid');
+    const label  = document.getElementById('raCalMonthLabel');
+    const selEl  = document.getElementById('raCalSelection');
+    const errEl  = document.getElementById('raErr');
+    const sendBtn = document.getElementById('raSend');
+
+    function toISO(y, m, d) {
+      return y + '-' + String(m + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    }
+
+    function updateSelectionLabel() {
+      if (!rangeStart)      selEl.textContent = '';
+      else if (!rangeEnd)   selEl.textContent = 'Arrival: ' + rangeStart + ' — select departure date';
+      else                  selEl.textContent = rangeStart + ' → ' + rangeEnd;
+    }
+
+    async function fetchSlots(from, to) {
+      try {
+        const res = await fetch(INTERNAL + '/api/public/slots/range?from=' + from + '&to=' + to, {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        slotMap = {};
+        (data.days || []).forEach(d => { slotMap[d.date] = d.available; });
+        renderCal();
+      } catch {}
+    }
+
+    function renderCal() {
+      label.textContent = MONTHS[calMonth] + ' ' + calYear;
+      const now      = new Date(); now.setHours(0,0,0,0);
+      const todayISO = toISO(now.getFullYear(), now.getMonth(), now.getDate());
+      const firstDay = new Date(calYear, calMonth, 1).getDay();
+      const offset   = (firstDay + 6) % 7;
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+      let cells = '';
+      for (let i = 0; i < offset; i++) cells += '<div class="ra-cal-cell ra-cal-cell--empty"></div>';
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso     = toISO(calYear, calMonth, d);
+        const isPast  = iso < todayISO;
+        const isToday = iso === todayISO;
+        const slots   = slotMap[iso];
+        const isFull  = slots === 0;
+        const isLow   = slots === 1;
+        const inRange = rangeStart && rangeEnd && iso >= rangeStart && iso <= rangeEnd;
+        const isStart = iso === rangeStart;
+        const isEnd   = iso === rangeEnd;
+
+        let cls = 'ra-cal-cell';
+        if (isPast)            cls += ' ra-cal-cell--past';
+        if (isToday)           cls += ' ra-cal-cell--today';
+        if (isFull && !isPast) cls += ' ra-cal-cell--full';
+        if (isLow  && !isPast) cls += ' ra-cal-cell--low';
+        if (inRange)           cls += ' ra-cal-cell--range';
+        if (isStart)           cls += ' ra-cal-cell--start';
+        if (isEnd)             cls += ' ra-cal-cell--end';
+
+        const disabled = isPast || isFull;
+        const dot = isLow && !isPast ? '<span class="ra-cal-dot"></span>' : '';
+        cells += '<div class="' + cls + '"' + (disabled ? '' : ' data-iso="' + iso + '"') + '>' +
+          '<span class="ra-cal-day-num">' + d + '</span>' + dot + '</div>';
+      }
+
+      grid.innerHTML = cells;
+      grid.querySelectorAll('.ra-cal-cell[data-iso]').forEach(cell => {
+        cell.addEventListener('click', () => {
+          const iso = cell.dataset.iso;
+          if (!rangeStart || (rangeStart && rangeEnd)) {
+            rangeStart = iso; rangeEnd = null;
+          } else if (iso < rangeStart) {
+            rangeEnd = rangeStart; rangeStart = iso;
+          } else if (iso === rangeStart) {
+            rangeStart = null; rangeEnd = null;
+          } else {
+            rangeEnd = iso;
+          }
+          updateSelectionLabel();
+          renderCal();
+          if (rangeStart && rangeEnd) fetchSlots(rangeStart, rangeEnd);
+        });
+      });
+    }
+
+    document.getElementById('raCalPrev').addEventListener('click', () => {
+      calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+      renderCal();
+    });
+    document.getElementById('raCalNext').addEventListener('click', () => {
+      calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCal();
+    });
+
+    function closeModal() {
+      modal.classList.remove('open');
+      setTimeout(() => modal.remove(), 250);
+      document.removeEventListener('keydown', escHandler);
+    }
+    function escHandler(e) { if (e.key === 'Escape') closeModal(); }
+    document.addEventListener('keydown', escHandler);
+    document.getElementById('raCancel').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    sendBtn.addEventListener('click', async () => {
+      if (!rangeStart || !rangeEnd) {
+        errEl.textContent = 'Select an arrival and departure date.';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending…';
+      try {
+        const res = await authFetch('/api/artist/reapply', {
+          method: 'POST',
+          body:   JSON.stringify({ dateFrom: rangeStart, dateTo: rangeEnd }),
+        });
+        if (!res.ok) throw new Error('reapply failed');
+        window.toast('Request sent', 'success');
+        sendBtn.textContent = 'Request sent';
+
+        const body = document.getElementById('raBody');
+        if (body) {
+          body.innerHTML = `
+            <div class="ra-confirm">
+              <span class="ra-confirm-check">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <h2 class="dash-modal-title dash-modal-title--sm">Request sent</h2>
+              <p class="dash-modal-text">Request sent — we'll confirm your new dates by email within 2–3 days.</p>
+              <div class="dash-modal-actions"><button class="btn btn-primary" id="raDone">Close</button></div>
+            </div>
+          `;
+          const done = document.getElementById('raDone');
+          if (done) done.addEventListener('click', closeModal);
+        }
+
+        const noticeLine = document.getElementById('frozenNoticeLine');
+        if (noticeLine) noticeLine.textContent = "New dates requested — we'll be in touch.";
+      } catch {
+        window.toast('Could not send request', 'error');
+        errEl.textContent = 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send request';
+      }
+    });
+
+    updateSelectionLabel();
+    renderCal();
+    // Prime the next 3 months of slot availability.
+    (function () {
+      const now = new Date();
+      const from = toISO(now.getFullYear(), now.getMonth(), now.getDate());
+      const end  = new Date(now.getFullYear(), now.getMonth() + 3, 0);
+      fetchSlots(from, toISO(end.getFullYear(), end.getMonth(), end.getDate()));
+    })();
   }
 
   loadBookings();
