@@ -735,6 +735,54 @@
   color: var(--mid);
 }
 
+/* Sticky save bar — full width below both columns, explicit states */
+.profile-savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 16px 20px;
+  background: var(--white);
+  border-top: 1px solid var(--light);
+}
+
+.profile-savebar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: var(--mid);
+}
+
+/* Square dot — zero-radius, matches the design language */
+.profile-savebar-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: none;
+  background: var(--light);
+}
+
+.profile-savebar[data-state="dirty"] .profile-savebar-status { color: var(--black); }
+.profile-savebar[data-state="dirty"] .profile-savebar-status::before { background: var(--black); }
+.profile-savebar[data-state="saving"] .profile-savebar-status::before { background: var(--mid); }
+.profile-savebar[data-state="saved"]  .profile-savebar-status { color: var(--black); }
+.profile-savebar[data-state="saved"]  .profile-savebar-status::before { background: var(--black); }
+.profile-savebar[data-state="error"]  .profile-savebar-status { color: #c0392b; }
+.profile-savebar[data-state="error"]  .profile-savebar-status::before { background: #c0392b; }
+
+@media (max-width: 600px) {
+  .profile-savebar {
+    margin-top: 24px;
+    padding: 14px 16px;
+  }
+}
+
 @media (max-width: 600px) {
   .profile-layout {
     grid-template-columns: 1fr;

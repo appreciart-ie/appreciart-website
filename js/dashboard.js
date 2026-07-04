@@ -1284,6 +1284,21 @@ async function loadProfile() {
 
   let _profileSnapshot  = null;
   let _profileDirty     = false;
+  let _saving           = false;
+  let _saveStatusTimer  = null;
+  const profileSaveBar    = document.getElementById('profileSaveBar');
+  const profileSaveStatus = document.getElementById('profileSaveStatus');
+
+  function setSaveState(state) {
+    if (profileSaveBar) profileSaveBar.dataset.state = state;
+    if (!profileSaveStatus) return;
+    profileSaveStatus.textContent =
+      state === 'dirty'  ? 'Unsaved changes'            :
+      state === 'saving' ? 'Saving…'                    :
+      state === 'saved'  ? 'Saved'                      :
+      state === 'error'  ? 'Couldn’t save — try again' :
+                           'All changes saved';
+  }
 
   function snapshotProfile() {
     const bioEl     = document.getElementById('profileBio');
@@ -1299,6 +1314,7 @@ async function loadProfile() {
     };
     _profileDirty = false;
     if (profileSaveBtn) profileSaveBtn.disabled = true;
+    if (!_saving) setSaveState('clean');
   }
 
   function checkDirty() {
@@ -1316,6 +1332,7 @@ async function loadProfile() {
     };
     _profileDirty = Object.keys(current).some(k => current[k] !== _profileSnapshot[k]);
     if (profileSaveBtn) profileSaveBtn.disabled = !_profileDirty;
+    if (!_saving) setSaveState(_profileDirty ? 'dirty' : 'clean');
   }
 
   const _bioEl = document.getElementById('profileBio');
@@ -1407,8 +1424,11 @@ async function loadProfile() {
       const bookingEl    = document.getElementById('profileBookingUrl');
       const bookingRaw   = bookingEl ? bookingEl.value.trim() : undefined;
       const booking_url  = bookingRaw ? (/^https?:\/\//i.test(bookingRaw) ? bookingRaw : `https://${bookingRaw}`) : bookingRaw;
+      _saving = true;
+      setSaveState('saving');
+      if (_saveStatusTimer) clearTimeout(_saveStatusTimer);
       profileSaveBtn.disabled  = true;
-      profileSaveBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Saving…';
+      profileSaveBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>';
       try {
         const res = await authFetch('/api/artist/profile', {
           method: 'PATCH',
@@ -1416,13 +1436,20 @@ async function loadProfile() {
         });
         if (res.ok) {
           window.toast('Profile updated', 'success');
+          _saving = false;
           snapshotProfile();
           syncVisibility();
+          setSaveState('saved');
+          _saveStatusTimer = setTimeout(() => { if (!_profileDirty && !_saving) setSaveState('clean'); }, 2200);
         } else {
           window.toast('Failed to save profile', 'error');
+          _saving = false;
+          setSaveState('error');
         }
       } catch {
         window.toast('Error saving profile', 'error');
+        _saving = false;
+        setSaveState('error');
       } finally {
         profileSaveBtn.disabled    = !_profileDirty;
         profileSaveBtn.textContent = 'Save changes';
