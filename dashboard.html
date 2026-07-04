@@ -129,9 +129,11 @@
 
             <div class="profile-card">
               <h3 class="profile-card-title">How clients reach you</h3>
+              <p class="profile-card-lead">The buttons clients tap on your public profile to message or book you.</p>
+              <p class="contact-empty-hint" id="contactEmptyHint" hidden>Add at least one so clients can reach you.</p>
 
               <div class="form-field--spacious">
-                <label class="form-label" for="profileInstagram">Instagram handle</label>
+                <label class="form-label form-label--icon" for="profileInstagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="0"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>Instagram handle</label>
                 <div class="ig-field">
                   <span class="ig-prefix" aria-hidden="true">@</span>
                   <input class="form-input ig-input" id="profileInstagram" type="text" placeholder="yourusername" maxlength="100" autocapitalize="off" autocomplete="off" spellcheck="false">
@@ -141,13 +143,13 @@
               </div>
 
               <div class="form-field--spacious" id="whatsappField">
-                <label class="form-label" for="profileWhatsapp">WhatsApp number</label>
+                <label class="form-label form-label--icon" for="profileWhatsapp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 20l1-4.6A8.5 8.5 0 1 1 21 11.5z"/></svg>WhatsApp number</label>
                 <input class="form-input" id="profileWhatsapp" type="tel" placeholder="353871234567" maxlength="20" inputmode="numeric">
                 <p class="profile-hint">International format, digits only — no +, spaces or dashes. Irish example: 353871234567. Clients tap to message you directly on WhatsApp.</p>
               </div>
 
               <div class="form-field--spacious" id="bookingUrlField">
-                <label class="form-label" for="profileBookingUrl">Booking / contact link</label>
+                <label class="form-label form-label--icon" for="profileBookingUrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>Booking / contact link</label>
                 <input class="form-input" id="profileBookingUrl" type="url" placeholder="https://yoursite.com or https://instagram.com/you" maxlength="200">
                 <p class="profile-hint">Any link where clients can reach or book you — your website, Calendly, Instagram, Linktree. Must start with https://</p>
               </div>

@@ -702,6 +702,39 @@
   color: var(--mid);
 }
 
+/* Calm lead line naming the contact rail's purpose */
+.profile-card-lead {
+  margin: -8px 0 20px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--mid);
+}
+
+/* Functional empty-state prompt — a quiet note, not an alarm */
+.contact-empty-hint {
+  margin: 0 0 20px;
+  padding: 10px 12px;
+  background: var(--off-white);
+  border-left: 2px solid var(--mid);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--black);
+}
+
+/* Icon-prefixed labels — scan three contact types quickly */
+.form-label--icon {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.form-label--icon svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--mid);
+}
+
 @media (max-width: 600px) {
   .profile-layout {
     grid-template-columns: 1fr;

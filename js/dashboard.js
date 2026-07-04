@@ -1215,6 +1215,7 @@ async function loadProfile() {
       }
       const bookingField = document.getElementById('profileBookingUrl');
       if (bookingField) bookingField.value = a.booking_url || '';
+      updateContactEmptyHint();
       profileStyles = a.styles || [];
       renderProfileStyles();
       _completenessProfile = {
@@ -1330,6 +1331,18 @@ async function loadProfile() {
     });
   }
 
+  // Guest-only: prompt when neither WhatsApp nor booking link is set
+  function updateContactEmptyHint() {
+    const hint = document.getElementById('contactEmptyHint');
+    if (!hint) return;
+    if (!isGuest) { hint.hidden = true; return; }
+    const waEl   = document.getElementById('profileWhatsapp');
+    const bookEl = document.getElementById('profileBookingUrl');
+    const wa   = waEl ? waEl.value.trim() : '';
+    const book = bookEl ? bookEl.value.trim() : '';
+    hint.hidden = !!(wa || book);
+  }
+
   const _profileFields = ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl'];
   _profileFields.forEach(id => {
     const el = document.getElementById(id);
@@ -1344,6 +1357,7 @@ async function loadProfile() {
         _completenessProfile.booking_url  = bookEl ? bookEl.value.trim() : '';
       }
       updateCompleteness();
+      updateContactEmptyHint();
       checkDirty();
     });
   });
