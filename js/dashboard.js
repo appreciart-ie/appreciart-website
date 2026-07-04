@@ -52,6 +52,31 @@
   const bookingUrlField = document.getElementById('bookingUrlField');
   if (bookingUrlField) bookingUrlField.style.display = isGuest ? 'block' : 'none';
 
+  // "View public profile" link in the Profile tab header — same URL as the live modal.
+  const profileViewLink = document.getElementById('profileViewLink');
+  if (profileViewLink && artist.slug) {
+    profileViewLink.href = window.location.origin + '/artist.html?slug=' + encodeURIComponent(artist.slug);
+    profileViewLink.hidden = false;
+  }
+
+  // Completeness panel is guest-only; for residents it would render empty, so hide it.
+  if (!isGuest) {
+    const _cbar = document.getElementById('completenessBar');
+    if (_cbar) _cbar.style.display = 'none';
+  }
+
+  // Completeness chips scroll to (and focus) their field when clicked.
+  document.querySelectorAll('.completeness-step').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const target = document.getElementById(chip.dataset.target);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (typeof target.focus === 'function') {
+        try { target.focus({ preventScroll: true }); } catch { target.focus(); }
+      }
+    });
+  });
+
   const tabs         = document.querySelectorAll('.dash-tab');
   const panels       = document.querySelectorAll('.dash-panel');
   const bookingsList = document.getElementById('bookingsList');
@@ -1114,6 +1139,8 @@
     const bar    = document.getElementById('completenessBar');
     if (!fill || !label || !bar) return;
     fill.style.width = pct + '%';
+    const pctEl = document.getElementById('completenessPct');
+    if (pctEl) pctEl.textContent = pct + '%';
     keys.forEach(k => {
       const el = document.getElementById('cStep-' + k);
       if (el) el.classList.toggle('completeness-step--done', checks[k]);

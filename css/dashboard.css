@@ -118,6 +118,37 @@
   flex-shrink: 0;
 }
 
+/* "View public profile" link — right-aligned in the Profile tab header */
+.profile-view-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mid);
+  text-decoration: none;
+  padding: 5px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.profile-view-link:hover {
+  color: var(--black);
+  border-bottom-color: var(--black);
+}
+
+.profile-view-link-arrow {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.profile-view-link:hover .profile-view-link-arrow {
+  transform: translate(1px, -1px);
+}
+
 .bio-counter {
   display: block;
   text-align: right;
@@ -634,72 +665,123 @@
   max-width: 600px;
 }
 
+/* Completeness = black header panel (guest only); outranks everything below it */
 .completeness-bar {
+  background: var(--black);
+  color: var(--white);
+  padding: 22px 24px 24px;
   margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--light);
+}
+
+.completeness-top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.completeness-pct {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.completeness-pct-num {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  transition: color 0.3s;
+}
+
+.completeness-pct-cap {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.completeness-track {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.completeness-fill {
+  height: 100%;
+  background: var(--white);
+  transition: width 0.4s ease, background 0.3s;
 }
 
 .completeness-steps {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 20px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .completeness-step {
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-family: var(--font);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--mid);
-  transition: color 0.2s;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.completeness-step:hover {
+  border-color: var(--white);
+  color: var(--white);
 }
 
 .completeness-step--done {
-  color: var(--black);
-  font-weight: 600;
+  background: #2e7d32;
+  border-color: #2e7d32;
+  color: var(--white);
+  cursor: default;
 }
 
-.completeness-track {
-  height: 2px;
-  background: var(--light);
-  width: 100%;
-  margin-bottom: 8px;
-}
-
-.completeness-fill {
-  height: 100%;
-  background: var(--black);
-  transition: width 0.4s ease;
-}
-
-.completeness-label {
-  font-size: 11px;
-  font-weight: 300;
-  color: var(--mid);
-  margin: 0;
-  letter-spacing: 0.04em;
-}
-
-.completeness-bar--ready .completeness-label {
-  color: var(--black);
-  font-weight: 600;
+.completeness-step--done:hover {
+  border-color: #2e7d32;
 }
 
 .completeness-step--done::before {
   content: '✓';
-  margin-right: 5px;
   font-weight: 700;
-  color: #2e7d32;
+  line-height: 1;
+}
+
+.completeness-label {
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
 }
 
 .completeness-bar--ready .completeness-fill {
   background: #2e7d32;
 }
 
-.completeness-bar--ready .completeness-label {
+.completeness-bar--ready .completeness-pct-num {
   color: #2e7d32;
+}
+
+.completeness-bar--ready .completeness-label {
+  color: var(--white);
+  font-weight: 400;
 }
 
 .profile-styles {

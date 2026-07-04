@@ -47,19 +47,26 @@
       <div class="dash-panel-header">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         <span>Profile</span>
+        <a class="profile-view-link" id="profileViewLink" target="_blank" rel="noopener noreferrer" hidden>View public profile <svg class="profile-view-link-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></a>
       </div>
       <div class="profile-form" id="profileForm">
 
         <div class="completeness-bar" id="completenessBar">
-          <div class="completeness-steps">
-            <span class="completeness-step" id="cStep-bio">Bio</span>
-            <span class="completeness-step" id="cStep-photo">Photo</span>
-            <span class="completeness-step" id="cStep-portfolio">Portfolio</span>
-            <span class="completeness-step" id="cStep-styles">Styles</span>
-            <span class="completeness-step" id="cStep-contact">Contact</span>
+          <div class="completeness-top">
+            <div class="completeness-pct">
+              <span class="completeness-pct-num" id="completenessPct">0%</span>
+              <span class="completeness-pct-cap">Profile strength</span>
+            </div>
+            <div class="completeness-track">
+              <div class="completeness-fill" id="completenessFill"></div>
+            </div>
           </div>
-          <div class="completeness-track">
-            <div class="completeness-fill" id="completenessFill"></div>
+          <div class="completeness-steps">
+            <button type="button" class="completeness-step" id="cStep-bio" data-target="profileBio">Bio</button>
+            <button type="button" class="completeness-step" id="cStep-photo" data-target="profilePhotoBtn">Photo</button>
+            <button type="button" class="completeness-step" id="cStep-portfolio" data-target="portfolioPhotoBtn">Portfolio</button>
+            <button type="button" class="completeness-step" id="cStep-styles" data-target="profileStyleInput">Styles</button>
+            <button type="button" class="completeness-step" id="cStep-contact" data-target="profileWhatsapp">Contact</button>
           </div>
           <p class="completeness-label" id="completenessLabel"></p>
         </div>
