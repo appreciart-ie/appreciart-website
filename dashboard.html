@@ -71,66 +71,88 @@
           <p class="completeness-label" id="completenessLabel"></p>
         </div>
 
-        <div class="form-field--spacious">
-          <label class="form-label" for="profileBio">Bio</label>
-          <textarea class="form-input form-textarea" id="profileBio" rows="5" maxlength="600" placeholder="Your style, influences, and what clients can expect from a session."></textarea>
-          <span class="bio-counter" id="bioCounter">0 / 600</span>
-          <p class="profile-hint">Shown publicly on your profile. Write in third person (e.g. "Marina specializes in…"). 2–4 sentences works best. Max 600 characters.</p>
-        </div>
+        <div class="profile-layout">
 
-        <div class="form-field--spacious">
-          <label class="form-label" for="profileInstagram">Instagram handle</label>
-          <div class="ig-field">
-            <span class="ig-prefix" aria-hidden="true">@</span>
-            <input class="form-input ig-input" id="profileInstagram" type="text" placeholder="yourusername" maxlength="100" autocapitalize="off" autocomplete="off" spellcheck="false">
+          <div class="profile-main">
+
+            <div class="profile-card">
+              <h3 class="profile-card-title">Public profile</h3>
+
+              <div class="form-field--spacious">
+                <label class="form-label" for="profileBio">Bio</label>
+                <textarea class="form-input form-textarea" id="profileBio" rows="5" maxlength="600" placeholder="Your style, influences, and what clients can expect from a session."></textarea>
+                <span class="bio-counter" id="bioCounter">0 / 600</span>
+                <p class="profile-hint">Shown publicly on your profile. Write in third person (e.g. "Marina specializes in…"). 2–4 sentences works best. Max 600 characters.</p>
+              </div>
+
+              <div class="form-field--spacious">
+                <label class="form-label">Styles <span class="profile-hint-inline" id="stylesHint">Add up to 3 · press Enter or click Add</span></label>
+                <div class="profile-styles" id="profileStyles"></div>
+                <div class="profile-style-add">
+                  <input class="form-input" id="profileStyleInput" type="text" placeholder="e.g. Fine Line" maxlength="50">
+                  <button class="btn btn-secondary btn-sm" id="profileStyleBtn">Add</button>
+                </div>
+              </div>
+
+              <div class="profile-actions">
+                <button class="btn btn-primary" id="profileSaveBtn">Save changes</button>
+              </div>
+            </div>
+
+            <div class="profile-card">
+              <h3 class="profile-card-title">Your work</h3>
+
+              <div class="profile-photos">
+
+                <div class="form-field--spacious">
+                  <label class="form-label">Profile photo</label>
+                  <div class="profile-photo-preview" id="profilePhotoPreview"></div>
+                  <input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file">
+                  <button class="btn btn-secondary btn-sm" id="profilePhotoBtn">Upload profile photo</button>
+                  <p class="profile-hint">Square photo recommended — min 400×400px. JPG, PNG or WEBP, max 10MB.</p>
+                </div>
+
+                <div class="form-field--spacious">
+                  <label class="form-label">Portfolio <span class="profile-photo-count" id="portfolioCount"></span></label>
+                  <p class="profile-hint">Upload your best work — shown publicly on your artist profile.</p>
+                  <div class="profile-portfolio-grid" id="portfolioGrid"></div>
+                  <input type="file" id="portfolioPhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file" multiple>
+                  <button class="btn btn-secondary btn-sm" id="portfolioPhotoBtn">Add portfolio image</button>
+                </div>
+
+              </div>
+            </div>
+
           </div>
-          <p class="ig-echo" id="igEcho"></p>
-          <p class="profile-hint">Just your handle — we build the link. It becomes a tappable Instagram button on your public profile.</p>
-        </div>
 
-        <div class="form-field--spacious" id="whatsappField">
-          <label class="form-label" for="profileWhatsapp">WhatsApp number</label>
-          <input class="form-input" id="profileWhatsapp" type="tel" placeholder="353871234567" maxlength="20" inputmode="numeric">
-          <p class="profile-hint">International format, digits only — no +, spaces or dashes. Irish example: 353871234567. Clients tap to message you directly on WhatsApp.</p>
-        </div>
+          <div class="profile-rail">
 
-        <div class="form-field--spacious" id="bookingUrlField">
-          <label class="form-label" for="profileBookingUrl">Booking / contact link</label>
-          <input class="form-input" id="profileBookingUrl" type="url" placeholder="https://yoursite.com or https://instagram.com/you" maxlength="200">
-          <p class="profile-hint">Any link where clients can reach or book you — your website, Calendly, Instagram, Linktree. Must start with https://</p>
-        </div>
+            <div class="profile-card">
+              <h3 class="profile-card-title">How clients reach you</h3>
 
-        <div class="form-field--spacious">
-          <label class="form-label">Styles <span class="profile-hint-inline" id="stylesHint">Add up to 3 · press Enter or click Add</span></label>
-          <div class="profile-styles" id="profileStyles"></div>
-          <div class="profile-style-add">
-            <input class="form-input" id="profileStyleInput" type="text" placeholder="e.g. Fine Line" maxlength="50">
-            <button class="btn btn-secondary btn-sm" id="profileStyleBtn">Add</button>
-          </div>
-        </div>
+              <div class="form-field--spacious">
+                <label class="form-label" for="profileInstagram">Instagram handle</label>
+                <div class="ig-field">
+                  <span class="ig-prefix" aria-hidden="true">@</span>
+                  <input class="form-input ig-input" id="profileInstagram" type="text" placeholder="yourusername" maxlength="100" autocapitalize="off" autocomplete="off" spellcheck="false">
+                </div>
+                <p class="ig-echo" id="igEcho"></p>
+                <p class="profile-hint">Just your handle — we build the link. It becomes a tappable Instagram button on your public profile.</p>
+              </div>
 
-        <div class="profile-actions">
-          <button class="btn btn-primary" id="profileSaveBtn">Save changes</button>
-        </div>
+              <div class="form-field--spacious" id="whatsappField">
+                <label class="form-label" for="profileWhatsapp">WhatsApp number</label>
+                <input class="form-input" id="profileWhatsapp" type="tel" placeholder="353871234567" maxlength="20" inputmode="numeric">
+                <p class="profile-hint">International format, digits only — no +, spaces or dashes. Irish example: 353871234567. Clients tap to message you directly on WhatsApp.</p>
+              </div>
 
-        <div class="profile-divider"></div>
+              <div class="form-field--spacious" id="bookingUrlField">
+                <label class="form-label" for="profileBookingUrl">Booking / contact link</label>
+                <input class="form-input" id="profileBookingUrl" type="url" placeholder="https://yoursite.com or https://instagram.com/you" maxlength="200">
+                <p class="profile-hint">Any link where clients can reach or book you — your website, Calendly, Instagram, Linktree. Must start with https://</p>
+              </div>
+            </div>
 
-        <div class="profile-photos">
-
-          <div class="form-field--spacious">
-            <label class="form-label">Profile photo</label>
-            <div class="profile-photo-preview" id="profilePhotoPreview"></div>
-            <input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file">
-            <button class="btn btn-secondary btn-sm" id="profilePhotoBtn">Upload profile photo</button>
-            <p class="profile-hint">Square photo recommended — min 400×400px. JPG, PNG or WEBP, max 10MB.</p>
-          </div>
-
-          <div class="form-field--spacious">
-            <label class="form-label">Portfolio <span class="profile-photo-count" id="portfolioCount"></span></label>
-            <p class="profile-hint">Upload your best work — shown publicly on your artist profile.</p>
-            <div class="profile-portfolio-grid" id="portfolioGrid"></div>
-            <input type="file" id="portfolioPhotoInput" accept="image/jpeg,image/png,image/webp" class="profile-photo-file" multiple>
-            <button class="btn btn-secondary btn-sm" id="portfolioPhotoBtn">Add portfolio image</button>
           </div>
 
         </div>

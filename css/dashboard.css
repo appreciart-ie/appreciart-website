@@ -662,7 +662,57 @@
 /* ── PROFILE ── */
 
 .profile-form {
-  max-width: 600px;
+  max-width: none;
+}
+
+/* Two-column body below the completeness banner: wide main + narrow rail */
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.profile-main {
+  min-width: 0;
+}
+
+.profile-rail {
+  min-width: 0;
+}
+
+/* Flat, square cards — bordered, no radius, no shadow */
+.profile-card {
+  border: 1px solid var(--light);
+  padding: 28px 28px 32px;
+}
+
+.profile-card + .profile-card {
+  margin-top: 28px;
+}
+
+.profile-card-title {
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--light);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mid);
+}
+
+@media (max-width: 600px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .profile-card {
+    padding: 22px 18px 26px;
+  }
+  .profile-card + .profile-card {
+    margin-top: 24px;
+  }
 }
 
 /* Completeness = black header panel (guest only); outranks everything below it */
