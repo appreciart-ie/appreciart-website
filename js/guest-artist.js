@@ -13,12 +13,30 @@
   // doesn't apply to them. Replace the form with a dashboard notice.
   if (localStorage.getItem('art_token')) {
     if (formInner) {
-      formInner.innerHTML =
-        '<div style="text-align:center;padding:60px 24px;">' +
-          '<h2 style="margin:0 0 12px;">You\'re already part of Appreciart</h2>' +
-          '<p style="margin:0 0 24px;color:#555;">This application is for new guest artists. Manage your profile and sessions from your dashboard.</p>' +
-          '<a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>' +
-        '</div>';
+      // CSP forbids inline style attributes (style-src 'self') — style via CSSOM.
+      const wrap = document.createElement('div');
+      wrap.style.textAlign = 'center';
+      wrap.style.padding = '60px 24px';
+
+      const title = document.createElement('h2');
+      title.style.margin = '0 0 12px';
+      title.textContent = "You're already part of Appreciart";
+
+      const text = document.createElement('p');
+      text.style.margin = '0 0 24px';
+      text.style.color = '#555';
+      text.textContent = 'This application is for new guest artists. Manage your profile and sessions from your dashboard.';
+
+      const cta = document.createElement('a');
+      cta.href = 'dashboard.html';
+      cta.className = 'btn btn-primary';
+      cta.textContent = 'Go to Dashboard';
+
+      wrap.appendChild(title);
+      wrap.appendChild(text);
+      wrap.appendChild(cta);
+      formInner.innerHTML = '';
+      formInner.appendChild(wrap);
     }
     return;
   }
