@@ -1499,6 +1499,29 @@ async function loadProfile() {
       const bookingEl    = document.getElementById('profileBookingUrl');
       const bookingRaw   = bookingEl ? bookingEl.value.trim() : undefined;
       const booking_url  = bookingRaw ? (/^https?:\/\//i.test(bookingRaw) ? bookingRaw : `https://${bookingRaw}`) : bookingRaw;
+
+      // Client-side sanity checks (UX only — the backend re-validates).
+      if (waEl)      waEl.classList.remove('form-input--error');
+      if (bookingEl) bookingEl.classList.remove('form-input--error');
+      if (waRaw && (waRaw.length < 8 || waRaw.length > 15)) {
+        waEl.classList.add('form-input--error');
+        window.toast('WhatsApp number looks wrong — use 8–15 digits incl. country code', 'error');
+        return;
+      }
+      if (booking_url) {
+        let urlOk = true;
+        try {
+          const u = new URL(booking_url);
+          // Structural check only: a real host needs at least one dot.
+          if (!u.hostname.includes('.')) urlOk = false;
+        } catch { urlOk = false; }
+        if (!urlOk) {
+          bookingEl.classList.add('form-input--error');
+          window.toast('Booking link doesn’t look like a valid URL', 'error');
+          return;
+        }
+      }
+
       _saving = true;
       setSaveState('saving');
       if (_saveStatusTimer) clearTimeout(_saveStatusTimer);
