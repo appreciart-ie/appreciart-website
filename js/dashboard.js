@@ -279,12 +279,13 @@
         ${b.client_email ? `<p class="booking-modal-detail">${esc(b.client_email)}</p>` : ''}
         ${b.client_phone ? `<p class="booking-modal-detail">${esc(b.client_phone)}</p>` : ''}
         ${b.style ? `<p class="booking-modal-detail">${esc(b.style)}</p>` : ''}
+        ${b.source_type === 'availability' ? '' : `
         <div class="form-field" id="bmStageField">
           <label class="form-label" for="bmStage">Status</label>
           <select class="form-input form-select" id="bmStage">
             ${STAGES.map(s => `<option value="${s}"${b.stage === s ? ' selected' : ''}>${stageLabel(s)}</option>`).join('')}
           </select>
-        </div>
+        </div>`}
         <div class="form-field">
           <label class="form-label" for="bmNotes">Notes</label>
           <input class="form-input" id="bmNotes" type="text" value="${esc(b.notes || '')}" placeholder="Internal notes">
@@ -296,7 +297,8 @@
       </div>
     `;
     document.body.appendChild(modal);
-    document.getElementById('bmStageField').style.marginTop = '20px';
+    const bmStageField = document.getElementById('bmStageField');
+    if (bmStageField) bmStageField.style.marginTop = '20px';
     requestAnimationFrame(() => modal.classList.add('open'));
 
     function closeModal() {
@@ -312,7 +314,8 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
     document.getElementById('bmSave').addEventListener('click', async () => {
-      const stage = document.getElementById('bmStage').value;
+      const stageEl = document.getElementById('bmStage');
+      const stage = stageEl ? stageEl.value : b.stage;
       const notes = document.getElementById('bmNotes').value.trim();
       try {
         const isAvailability = b.source_type === 'availability';
@@ -417,6 +420,10 @@
         <div class="consent-modal-section">
           ${row('Email', f.client_email)}
           ${row('Phone', f.client_phone)}
+          ${row('Date of birth', consentDate(f.date_of_birth))}
+          ${row('Eircode', f.eircode)}
+          ${row('Instagram', f.client_instagram)}
+          ${row('Referral source', f.referral_source)}
           ${row('Artist', f.artist_name)}
         </div>
         <div class="consent-modal-section">
@@ -424,6 +431,9 @@
           ${flagBlock(f.has_medications, 'Medications', f.medication_details)}
           ${flagBlock(f.has_bloodborne, 'Bloodborne', f.bloodborne_details)}
           ${row('Photo consent', f.photo_consent ? 'Yes' : 'No')}
+          ${row('Not fasting confirmed', f.confirm_not_fasting ? 'Yes' : 'No')}
+          ${row('No alcohol confirmed', f.confirm_no_alcohol ? 'Yes' : 'No')}
+          ${row('Signature', f.signature)}
         </div>
         <div class="cal-modal-actions">
           <button class="btn btn-secondary btn-sm" id="consentClose">Close</button>
