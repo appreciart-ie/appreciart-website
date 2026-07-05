@@ -2185,17 +2185,20 @@ async function loadProfile() {
   });
 
   // ── Change Password Modal ──
-  function showChangePasswordModal() {
+  function showChangePasswordModal({ voluntary = false } = {}) {
+    const existing = document.getElementById('pwModal');
+    if (existing) existing.remove();
+
     const modal = document.createElement('div');
     modal.id = 'pwModal';
     modal.className = 'dash-modal-overlay open';
     modal.innerHTML = `
       <div class="dash-modal">
-        <p class="dash-modal-tag">Welcome to Appreciart IE</p>
-        <h2 class="dash-modal-title">Set your password</h2>
+        <p class="dash-modal-tag">${voluntary ? 'Account' : 'Welcome to Appreciart IE'}</p>
+        <h2 class="dash-modal-title">${voluntary ? 'Change password' : 'Set your password'}</h2>
         <div class="form-field">
-          <label class="form-label" for="pwOld">Temporary password</label>
-          <input class="form-input" type="password" id="pwOld" placeholder="From your approval email" autocomplete="current-password">
+          <label class="form-label" for="pwOld">${voluntary ? 'Current password' : 'Temporary password'}</label>
+          <input class="form-input" type="password" id="pwOld" placeholder="${voluntary ? 'Your current password' : 'From your approval email'}" autocomplete="current-password">
         </div>
         <div class="form-field">
           <label class="form-label" for="pwNew">New password</label>
@@ -2208,10 +2211,23 @@ async function loadProfile() {
         <p class="dash-modal-err" id="pwErr"></p>
         <div class="dash-modal-actions">
           <button class="btn btn-primary" id="pwSave">Save password</button>
+          ${voluntary ? '<button class="btn btn-secondary" id="pwCancel">Cancel</button>' : ''}
         </div>
       </div>
     `;
     document.body.appendChild(modal);
+
+    function closePwModal() {
+      modal.remove();
+      document.removeEventListener('keydown', pwEscHandler);
+    }
+    function pwEscHandler(e) { if (e.key === 'Escape') closePwModal(); }
+
+    if (voluntary) {
+      document.addEventListener('keydown', pwEscHandler);
+      document.getElementById('pwCancel').addEventListener('click', closePwModal);
+      modal.addEventListener('click', e => { if (e.target === modal) closePwModal(); });
+    }
 
     document.getElementById('pwSave').addEventListener('click', async () => {
       const old = document.getElementById('pwOld').value;
@@ -2236,10 +2252,10 @@ async function loadProfile() {
         stored.must_change_password = false;
         localStorage.setItem('art_artist', JSON.stringify(stored));
 
-        modal.remove();
+        closePwModal();
         window.toast('Password updated', 'success');
 
-        if (artist.role === 'guest' && !artist.onboarding_done) {
+        if (!voluntary && artist.role === 'guest' && !artist.onboarding_done) {
           showOnboardingModal();
         }
       } catch {
@@ -2248,6 +2264,11 @@ async function loadProfile() {
         err.classList.add('dash-modal-err');
       }
     });
+  }
+
+  const changePwBtn = document.getElementById('changePwBtn');
+  if (changePwBtn) {
+    changePwBtn.addEventListener('click', () => showChangePasswordModal({ voluntary: true }));
   }
 
   // ── Onboarding Modal ──
