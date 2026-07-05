@@ -176,7 +176,7 @@
   ? (artist.whatsapp_url || artist.booking_url
       ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
      ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
-      : `<p class="section-body">Contact the studio to book</p>`)
+      : `<p class="section-body">Contact the studio on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to book.</p>`)
   : `<a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>`
 }`
 }

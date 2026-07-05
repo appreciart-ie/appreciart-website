@@ -143,6 +143,26 @@
   let _sseRetries = 0;
   const SSE_MAX_RETRIES = 5;
 
+  // Persistent stale-data note shown once SSE gives up for good.
+  function showSseStaleNotice() {
+    if (document.getElementById('sseStaleNotice')) return;
+    const anchor = document.querySelector('.cal-header') || calGrid;
+    if (!anchor || !anchor.parentNode) return;
+    const note = document.createElement('p');
+    note.id = 'sseStaleNotice';
+    note.textContent = 'Live updates paused — refresh the page to reconnect.';
+    note.style.fontSize   = '11px';
+    note.style.color      = '#636363';
+    note.style.margin     = '8px 0 0';
+    note.style.textAlign  = 'right';
+    anchor.parentNode.insertBefore(note, anchor.nextSibling);
+  }
+
+  function hideSseStaleNotice() {
+    const note = document.getElementById('sseStaleNotice');
+    if (note) note.remove();
+  }
+
   function initSSE() {
     const es = new EventSource(`${INTERNAL}/api/events?token=${encodeURIComponent(_token)}`);
     es.addEventListener('availability_update', () => {
@@ -166,10 +186,10 @@
         loadAvailability(false);
       } catch {}
     });
-    es.onopen = () => { _sseRetries = 0; };
+    es.onopen = () => { _sseRetries = 0; hideSseStaleNotice(); };
     es.onerror = () => {
       es.close();
-      if (_sseRetries >= SSE_MAX_RETRIES) return;
+      if (_sseRetries >= SSE_MAX_RETRIES) { showSseStaleNotice(); return; }
       _sseRetries++;
       const delay = Math.min(10000 * Math.pow(2, _sseRetries - 1), 120000);
       setTimeout(async () => {
@@ -222,6 +242,10 @@
   }
 
   async function loadBookings() {
+    // First load only — SSE/edit refreshes keep the current list until data arrives.
+    if (!bookingsList.innerHTML.trim()) {
+      bookingsList.innerHTML = '<p class="dash-empty">Loading sessions…</p>';
+    }
     try {
       const res  = await authFetch('/api/artist/sessions');
       const data = await res.json();
@@ -314,9 +338,11 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
     document.getElementById('bmSave').addEventListener('click', async () => {
+      const saveBtn = document.getElementById('bmSave');
       const stageEl = document.getElementById('bmStage');
       const stage = stageEl ? stageEl.value : b.stage;
       const notes = document.getElementById('bmNotes').value.trim();
+      setBtnBusy(saveBtn, true);
       try {
         const isAvailability = b.source_type === 'availability';
         const endpoint = isAvailability
@@ -335,9 +361,11 @@
           loadBookings();
         } else {
           window.toast('Failed to update booking', 'error');
+          setBtnBusy(saveBtn, false, 'Save');
         }
       } catch {
         window.toast('Error updating booking', 'error');
+        setBtnBusy(saveBtn, false, 'Save');
       }
     });
   }
@@ -368,6 +396,9 @@
 
   async function loadConsent() {
     if (!consentList) return;
+    if (!consentList.innerHTML.trim()) {
+      consentList.innerHTML = '<p class="dash-empty">Loading consent forms…</p>';
+    }
     try {
       const res  = await authFetch('/api/artist/consent');
       const data = await res.json();
@@ -471,6 +502,9 @@
   let guestSlotMap       = {};
 
   async function loadAvailability(showToast = true) {
+    if (!calGrid.innerHTML.trim()) {
+      calGrid.innerHTML = '<p class="dash-empty">Loading calendar…</p>';
+    }
     try {
       const endpoint = isGuest ? '/api/artist/my-availability' : '/api/artist/studio-availability';
       const res  = await authFetch(endpoint);
@@ -805,11 +839,13 @@
     const timeInput = document.getElementById('calSessionTime');
     setTimeout(() => nameInput.focus(), 200);
 
-    document.getElementById('calModalConfirm').addEventListener('click', () => {
+    document.getElementById('calModalConfirm').addEventListener('click', async (e) => {
       const name = nameInput.value.trim();
       if (!name) { nameInput.classList.add('form-input--error'); return; }
-      removeModal();
-      bookDate(date, name, timeInput.value, 'booking');
+      setBtnBusy(e.currentTarget, true);
+      const ok = await bookDate(date, name, timeInput.value, 'booking');
+      if (ok) removeModal();
+      else setBtnBusy(document.getElementById('calModalConfirm'), false, 'Confirm');
     });
 
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
@@ -844,9 +880,11 @@
     requestAnimationFrame(() => modal.classList.add('open'));
 
     const markAvailBtn = document.getElementById('calModalMarkAvail');
-    if (markAvailBtn) markAvailBtn.addEventListener('click', () => {
-      removeModal();
-      markAvailable(date);
+    if (markAvailBtn) markAvailBtn.addEventListener('click', async () => {
+      setBtnBusy(markAvailBtn, true);
+      const ok = await markAvailable(date);
+      if (ok) removeModal();
+      else setBtnBusy(markAvailBtn, false, 'Mark available');
     });
     document.getElementById('calModalBookClient').addEventListener('click', () => {
       removeModal();
@@ -954,11 +992,13 @@
     const timeInput = document.getElementById('calSessionTime');
     setTimeout(() => nameInput.focus(), 200);
 
-    document.getElementById('calModalConfirm').addEventListener('click', () => {
+    document.getElementById('calModalConfirm').addEventListener('click', async (e) => {
       const name = nameInput.value.trim();
       if (!name) { nameInput.classList.add('form-input--error'); return; }
-      removeModal();
-      bookDate(date, name, timeInput.value, selectedType);
+      setBtnBusy(e.currentTarget, true);
+      const ok = await bookDate(date, name, timeInput.value, selectedType);
+      if (ok) removeModal();
+      else setBtnBusy(document.getElementById('calModalConfirm'), false, 'Confirm');
     });
 
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
@@ -1017,12 +1057,14 @@
       });
     });
 
-    document.getElementById('calModalSave').addEventListener('click', () => {
+    document.getElementById('calModalSave').addEventListener('click', async (e) => {
       const name = document.getElementById('calEditName').value.trim();
       const time = document.getElementById('calEditTime').value;
       if (!name) { document.getElementById('calEditName').classList.add('form-input--error'); return; }
-      removeModal();
-      bookDate(date, name, time, selectedType);
+      setBtnBusy(e.currentTarget, true);
+      const ok = await bookDate(date, name, time, selectedType);
+      if (ok) removeModal();
+      else setBtnBusy(document.getElementById('calModalSave'), false, 'Save');
     });
 
     document.getElementById('calModalDelete').addEventListener('click', async () => {
@@ -1044,6 +1086,15 @@
     document.removeEventListener('keydown', onEsc);
   }
 
+  // In-flight button state — same spinner the Profile save bar uses.
+  const BTN_SPINNER = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>';
+  function setBtnBusy(btn, busy, idleLabel) {
+    if (!btn) return;
+    btn.disabled = busy;
+    if (busy) { btn.innerHTML = BTN_SPINNER; }
+    else      { btn.textContent = idleLabel; }
+  }
+
   async function markAvailable(date) {
     try {
       const res = await authFetch('/api/artist/availability', {
@@ -1056,12 +1107,14 @@
         const entry = { date, is_available: true, client_name: null, session_time: null, type: 'booking', artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
         if (idx >= 0) { studioAvailability[idx] = entry; } else { studioAvailability.push(entry); }
         renderCalendar();
+        return true;
       } else {
         window.toast('Failed to mark date', 'error');
       }
     } catch {
       window.toast('Error marking date', 'error');
     }
+    return false;
   }
 
   async function bookDate(date, clientName, sessionTime, type) {
@@ -1070,7 +1123,7 @@
         method: 'POST',
         body:   JSON.stringify({ date, is_available: true, client_name: clientName, session_time: sessionTime || null, type }),
       });
-      if (res.status === 409) { window.toast('No slots available for this date', 'error'); return; }
+      if (res.status === 409) { window.toast('No slots available for this date', 'error'); return false; }
       if (res.ok) {
         window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} saved — ${clientName}`, 'success');
         const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
@@ -1078,12 +1131,14 @@
         if (idx >= 0) { studioAvailability[idx] = { ...studioAvailability[idx], ...entry }; }
         else { studioAvailability.push(entry); }
         renderCalendar();
+        return true;
       } else {
         window.toast('Failed to save session', 'error');
       }
     } catch {
       window.toast('Error saving session', 'error');
     }
+    return false;
   }
 
   async function deleteDate(date) {
