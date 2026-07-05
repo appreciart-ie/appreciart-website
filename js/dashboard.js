@@ -310,6 +310,11 @@
             ${STAGES.map(s => `<option value="${s}"${b.stage === s ? ' selected' : ''}>${stageLabel(s)}</option>`).join('')}
           </select>
         </div>`}
+        ${b.source_type === 'booking' || b.source_type === 'availability' ? `
+        <div class="form-field">
+          <label class="form-label" for="bmDate">Date</label>
+          <input class="form-input" id="bmDate" type="date" value="${esc(b.date ? b.date.slice(0,10) : '')}">
+        </div>` : ''}
         <div class="form-field">
           <label class="form-label" for="bmNotes">Notes</label>
           <input class="form-input" id="bmNotes" type="text" value="${esc(b.notes || '')}" placeholder="Internal notes">
@@ -348,9 +353,18 @@
         const endpoint = isAvailability
           ? `/api/artist/availability/${b.id}`
           : `/api/artist/bookings/${b.id}`;
-        const body = isAvailability
-          ? JSON.stringify({ notes })
-          : JSON.stringify({ stage, notes });
+        let body;
+        const dateEl = document.getElementById('bmDate');
+        const dateChanged = dateEl && dateEl.value && dateEl.value !== (b.date ? b.date.slice(0,10) : '');
+        if (isAvailability) {
+          const payload = { notes };
+          if (dateChanged) payload.date = dateEl.value;
+          body = JSON.stringify(payload);
+        } else {
+          const payload = { stage, notes };
+          if (dateChanged) payload.date = dateEl.value;
+          body = JSON.stringify(payload);
+        }
         const res = await authFetch(endpoint, {
           method: 'PATCH',
           body,
@@ -360,7 +374,12 @@
           closeModal();
           loadBookings();
         } else {
-          window.toast('Failed to update booking', 'error');
+          let msg = 'Failed to update booking';
+          try {
+            const data = await res.json();
+            if (data && data.error) msg = data.error;
+          } catch { /* keep generic message */ }
+          window.toast(msg, 'error');
           setBtnBusy(saveBtn, false, 'Save');
         }
       } catch {
