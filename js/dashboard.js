@@ -89,7 +89,7 @@
   const calPrev      = document.getElementById('calPrev');
   const calNext      = document.getElementById('calNext');
 
-  function activateTab(name) {
+  function activateTab(name, persist = true) {
     const tab = Array.from(tabs).find(t => t.dataset.tab === name);
     const panel = document.getElementById(`tab-${name}`);
     if (!tab || !panel) return;
@@ -97,15 +97,92 @@
     panels.forEach(p => p.classList.remove('active'));
     tab.classList.add('active');
     panel.classList.add('active');
-    localStorage.setItem('art_active_tab', name);
+    if (persist) localStorage.setItem('art_active_tab', name);
   }
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => activateTab(tab.dataset.tab));
   });
 
+  // URL ?tab= (used by the installed PWA's start_url) is a one-time override:
+  // it must not clobber the artist's persisted last-active-tab preference.
+  const _urlTab = new URLSearchParams(window.location.search).get('tab');
   const _savedTab = localStorage.getItem('art_active_tab');
-  if (_savedTab) activateTab(_savedTab);
+  if (_urlTab && document.getElementById(`tab-${_urlTab}`)) {
+    activateTab(_urlTab, false);
+  } else if (_savedTab) {
+    activateTab(_savedTab);
+  }
+
+  // ── PWA: service worker, standalone mode, install hint ──
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
+  const _standalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (_standalone) document.body.classList.add('pwa-standalone');
+
+  (function setupInstallHint() {
+    if (_standalone) return;
+    if (localStorage.getItem('art_pwa_hint_dismissed')) return;
+    const ua = navigator.userAgent;
+    const isIos = /iPad|iPhone|iPod/.test(ua);
+    const isMobile = isIos || /Android/i.test(ua);
+    if (!isMobile) return;
+
+    let deferredPrompt = null;
+
+    function buildBanner(text, buttonLabel, onButton) {
+      const panel = document.getElementById('tab-availability');
+      if (!panel || document.getElementById('pwaInstallHint')) return;
+      const banner = document.createElement('div');
+      banner.className = 'pwa-hint';
+      banner.id = 'pwaInstallHint';
+      const msg = document.createElement('span');
+      msg.className = 'pwa-hint-text';
+      msg.textContent = text;
+      banner.appendChild(msg);
+      if (buttonLabel) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pwa-hint-install';
+        btn.textContent = buttonLabel;
+        btn.addEventListener('click', onButton);
+        banner.appendChild(btn);
+      }
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'pwa-hint-close';
+      close.setAttribute('aria-label', 'Dismiss');
+      close.textContent = '×';
+      close.addEventListener('click', () => {
+        localStorage.setItem('art_pwa_hint_dismissed', '1');
+        banner.remove();
+      });
+      banner.appendChild(close);
+      const header = panel.querySelector('.dash-panel-header');
+      if (header) header.insertAdjacentElement('afterend', banner);
+      else panel.prepend(banner);
+    }
+
+    if (isIos) {
+      buildBanner('Add your calendar to the home screen: tap Share, then "Add to Home Screen".');
+    } else {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        buildBanner('Install your calendar as an app on this phone.', 'Install', async () => {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+          deferredPrompt = null;
+          const el = document.getElementById('pwaInstallHint');
+          if (el) el.remove();
+        });
+      });
+    }
+  })();
 
   async function authFetch(path, options = {}) {
     const doFetch = (t) => fetch(`${INTERNAL}${path}`, {
