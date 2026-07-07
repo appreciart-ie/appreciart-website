@@ -1960,6 +1960,12 @@ async function loadProfile() {
     });
   }
 
+  // Standalone-mode logout icon delegates to the topbar logout logic.
+  const pwaLogoutBtn = document.getElementById('pwaLogout');
+  if (pwaLogoutBtn && dashLogout) {
+    pwaLogoutBtn.addEventListener('click', () => dashLogout.click());
+  }
+
   // ── Frozen (inactive guest) — read-only dashboard + reapply ──
   function applyFrozenState(a) {
     renderFrozenNotice(a);
