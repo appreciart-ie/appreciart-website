@@ -316,6 +316,11 @@
 
 .cal-nav:hover { border-color: var(--black); }
 
+.cal-nav:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+}
+
 .cal-today-btn {
   font-family: var(--font);
   font-size: 10px;
@@ -357,7 +362,7 @@
   padding: 6px;
   cursor: pointer;
   border: 1px solid var(--light);
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background-color 0.15s;
   position: relative;
   box-sizing: border-box;
 }
@@ -365,6 +370,15 @@
 .cal-day:hover { border-color: var(--light); }
 .cal-day.empty { cursor: default; pointer-events: none; }
 .cal-day.past  { opacity: 0.35; pointer-events: none; }
+
+.cal-day--weekend {
+  background: #fcfcfc;
+}
+
+.cal-day--selected {
+  border-color: var(--black);
+  background: #f2f2f2;
+}
 
 .cal-bar-overflow {
   font-size: 10px;
@@ -474,6 +488,11 @@
 .cal-day--today {
   outline: 2px solid var(--black);
   outline-offset: -2px;
+  background: #f7f7f7;
+}
+
+.cal-day--today .cal-day-num {
+  font-weight: 700;
 }
 
 .cal-day--full {
@@ -1545,6 +1564,16 @@
 .consent-modal-value--alert { color: #e53935; }
 .consent-modal-value--clear { color: var(--mid); opacity: 0.7; }
 /* ── PWA ── */
+body.pwa-standalone {
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--white);
+}
+
+body.pwa-standalone #site-header {
+  display: none;
+}
+
 body.pwa-standalone .dash-topbar-site {
   display: none;
 }
@@ -1556,57 +1585,156 @@ body.pwa-standalone #tab-availability .dash-panel-header {
   display: none;
 }
 
+body.pwa-standalone #tab-bookings,
+body.pwa-standalone #tab-consent,
+body.pwa-standalone #tab-profile,
+body.pwa-standalone .frozen-notice {
+  display: none !important;
+}
+
 body.pwa-standalone .dash-wrap {
   max-width: none;
+  margin: 0;
   padding: 0;
+  overflow: hidden;
   min-height: 0;
+  height: 100vh;
+  height: 100dvh;
 }
 
 body.pwa-standalone #tab-availability.active {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
   height: 100vh;
   height: 100dvh;
   box-sizing: border-box;
-  padding: calc(10px + env(safe-area-inset-top)) 10px calc(8px + env(safe-area-inset-bottom));
+  padding: calc(8px + env(safe-area-inset-top)) 8px calc(6px + env(safe-area-inset-bottom));
 }
 
 body.pwa-standalone #tab-availability .cal-header {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   padding-right: 44px; /* clear the fixed logout icon */
+}
+
+body.pwa-standalone #tab-availability .cal-month {
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+body.pwa-standalone #tab-availability .cal-nav {
+  width: 30px;
+  height: 30px;
+}
+
+body.pwa-standalone #tab-availability .cal-today-btn {
+  display: none;
 }
 
 body.pwa-standalone #tab-availability .cal-grid {
   flex: 1;
   min-height: 0;
+  gap: 1px;
+  border: 1px solid var(--light);
+  background: var(--light);
   grid-template-rows: auto; /* first row = day labels stays compact */
   grid-auto-rows: 1fr;      /* week rows share remaining height */
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+}
+
+body.pwa-standalone #tab-availability .cal-day-label {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  padding: 6px 0;
+  background: var(--off-white);
 }
 
 body.pwa-standalone #tab-availability .cal-day {
   min-height: 0;
+  border: 0;
+  background: var(--white);
+  padding: 4px 3px;
+}
+
+body.pwa-standalone #tab-availability .cal-day--weekend {
+  background: #fafafa;
+}
+
+body.pwa-standalone #tab-availability .cal-day--selected {
+  background: #f3f3f3;
+  box-shadow: inset 0 0 0 1px var(--black);
+}
+
+body.pwa-standalone #tab-availability .cal-day-num {
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+
+body.pwa-standalone #tab-availability .cal-bars {
+  margin-top: auto;
+  gap: 2px;
+}
+
+body.pwa-standalone #tab-availability .cal-bar,
+body.pwa-standalone #tab-availability .cal-bar-overflow,
+body.pwa-standalone #tab-availability .cal-guest-empty {
+  min-height: 4px;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+}
+
+body.pwa-standalone #tab-availability .cal-bar {
+  border-left: 0 !important;
+}
+
+body.pwa-standalone #tab-availability .cal-guest-empty {
+  background: #d9d9d9;
+  opacity: 1;
+}
+
+body.pwa-standalone #tab-availability .cal-guest-empty--full {
+  background: #f0c7c7;
 }
 
 body.pwa-standalone #tab-availability .cal-legend {
-  gap: 12px;
+  gap: 8px 12px;
   font-size: 10px;
+  line-height: 1.2;
   flex-shrink: 0;
+}
+
+body.pwa-standalone #tab-availability .cal-legend-item {
+  gap: 4px;
+  font-size: 10px;
+}
+
+body.pwa-standalone #tab-availability .cal-dot {
+  width: 8px;
+  height: 8px;
 }
 
 .pwa-logout { display: none; }
 
 body.pwa-standalone .pwa-logout {
   position: fixed;
-  top: calc(10px + env(safe-area-inset-top));
-  right: 10px;
+  top: calc(8px + env(safe-area-inset-top));
+  right: 8px;
   z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--white);
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--light);
   color: var(--black);
   cursor: pointer;

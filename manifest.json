@@ -1,6 +1,6 @@
 {
-  "name": "Appreciart Calendar",
-  "short_name": "Calendar",
+  "name": "Appreciart IE Calendar",
+  "short_name": "Appreciart",
   "start_url": "/dashboard.html?tab=availability&pwa=1",
   "scope": "/",
   "display": "standalone",

@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Calendar">
+  <meta name="apple-mobile-web-app-title" content="Appreciart">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/dashboard.css">
 </head>
@@ -188,9 +188,9 @@
       </div>
 
       <div class="cal-header">
-        <button class="cal-nav" id="calPrev">&#8592;</button>
-        <span class="cal-month" id="calMonth">—</span>
-        <button class="cal-nav" id="calNext">&#8594;</button>
+        <button class="cal-nav" id="calPrev" type="button" aria-label="Previous month">&#8592;</button>
+        <span class="cal-month" id="calMonth" aria-live="polite">—</span>
+        <button class="cal-nav" id="calNext" type="button" aria-label="Next month">&#8594;</button>
       </div>
 
       <div class="cal-grid" id="calGrid"></div>

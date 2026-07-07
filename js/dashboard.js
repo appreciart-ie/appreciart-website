@@ -121,7 +121,10 @@
 
   const _standalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
-  if (_standalone) document.body.classList.add('pwa-standalone');
+  if (_standalone) {
+    document.body.classList.add('pwa-standalone');
+    activateTab('availability', false);
+  }
 
   (function setupInstallHint() {
     if (_standalone) return;
@@ -642,6 +645,12 @@
     return studioAvailability.filter(a => a.date.slice(0, 10) === dateStr);
   }
 
+  function clearCalendarSelection() {
+    calGrid.querySelectorAll('.cal-day--selected').forEach(day => {
+      day.classList.remove('cal-day--selected');
+    });
+  }
+
   function renderCalendar() {
     const months = ['January','February','March','April','May','June',
                     'July','August','September','October','November','December'];
@@ -662,6 +671,7 @@
       const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const past    = date < today;
       const isToday = date.getTime() === today.getTime();
+      const isWeekend = date.getDay() === 0 || date.getDay() === 6;
       let bars = '';
       let cls = 'cal-day';
 
@@ -721,6 +731,7 @@
 
       if (past)    cls += ' past';
       if (isToday) cls += ' cal-day--today';
+      if (isWeekend) cls += ' cal-day--weekend';
 
       html += `<div class="${cls}" data-date="${dateStr}" ${past ? 'data-readonly="true"' : ''}>
         <span class="cal-day-num">${d}</span>
@@ -764,7 +775,11 @@
     // Click handlers — skipped entirely for a frozen (inactive) guest.
     if (!isFrozen) {
       calGrid.querySelectorAll('.cal-day:not(.empty):not(.past):not(.cal-day--full):not(.cal-day--blocked)').forEach(el => {
-        el.addEventListener('click', () => handleDayClick(el));
+        el.addEventListener('click', () => {
+          clearCalendarSelection();
+          el.classList.add('cal-day--selected');
+          handleDayClick(el);
+        });
       });
     }
 
@@ -1179,6 +1194,7 @@
   function removeModal() {
     const m = document.getElementById('calModal');
     if (m) { m.classList.remove('open'); setTimeout(() => m.remove(), 250); }
+    clearCalendarSelection();
     document.removeEventListener('keydown', onEsc);
   }
 
