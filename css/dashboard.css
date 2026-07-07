@@ -345,6 +345,33 @@
   margin-bottom: 24px;
 }
 
+.cal-grid--transition-prev {
+  animation: cal-slide-prev 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cal-grid--transition-next {
+  animation: cal-slide-next 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cal-grid--transition-fade {
+  animation: cal-fade 0.18s ease-out;
+}
+
+@keyframes cal-slide-prev {
+  from { opacity: 0.65; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes cal-slide-next {
+  from { opacity: 0.65; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes cal-fade {
+  from { opacity: 0.72; }
+  to   { opacity: 1; }
+}
+
 .cal-day-label {
   font-size: 9px;
   font-weight: 700;
@@ -1574,6 +1601,11 @@ body.pwa-standalone #site-header {
   display: none;
 }
 
+body.pwa-standalone #site-footer,
+body.pwa-standalone .footer {
+  display: none !important;
+}
+
 body.pwa-standalone .dash-topbar-site {
   display: none;
 }
@@ -1605,13 +1637,15 @@ body.pwa-standalone .dash-wrap {
 body.pwa-standalone #tab-availability.active {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
   height: 100vh;
   height: 100dvh;
   box-sizing: border-box;
-  padding: calc(8px + env(safe-area-inset-top)) 8px calc(6px + env(safe-area-inset-bottom));
+  padding: calc(8px + env(safe-area-inset-top)) 8px calc(4px + env(safe-area-inset-bottom));
+  animation: cal-fade 0.2s ease-out;
 }
 
 body.pwa-standalone #tab-availability .cal-header {
@@ -1638,6 +1672,8 @@ body.pwa-standalone #tab-availability .cal-today-btn {
 body.pwa-standalone #tab-availability .cal-grid {
   flex: 1;
   min-height: 0;
+  width: 100%;
+  max-height: 74dvh;
   gap: 1px;
   border: 1px solid var(--light);
   background: var(--light);
@@ -1675,46 +1711,33 @@ body.pwa-standalone #tab-availability .cal-day-num {
 }
 
 body.pwa-standalone #tab-availability .cal-bars {
-  margin-top: auto;
+  margin-top: 2px;
   gap: 2px;
 }
 
 body.pwa-standalone #tab-availability .cal-bar,
 body.pwa-standalone #tab-availability .cal-bar-overflow,
 body.pwa-standalone #tab-availability .cal-guest-empty {
-  min-height: 4px;
-  height: 4px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  font-size: 0;
-  line-height: 0;
-  color: transparent;
-}
-
-body.pwa-standalone #tab-availability .cal-bar {
-  border-left: 0 !important;
-}
-
-body.pwa-standalone #tab-availability .cal-guest-empty {
-  background: #d9d9d9;
-  opacity: 1;
-}
-
-body.pwa-standalone #tab-availability .cal-guest-empty--full {
-  background: #f0c7c7;
+  min-height: 0;
+  height: auto;
+  padding: 2px 4px;
+  border-radius: 1px;
+  font-size: 8px;
+  line-height: 1.25;
 }
 
 body.pwa-standalone #tab-availability .cal-legend {
-  gap: 8px 12px;
-  font-size: 10px;
+  display: flex;
+  gap: 6px 10px;
+  font-size: 9px;
   line-height: 1.2;
   flex-shrink: 0;
+  padding: 2px 0;
 }
 
 body.pwa-standalone #tab-availability .cal-legend-item {
   gap: 4px;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 body.pwa-standalone #tab-availability .cal-dot {

@@ -590,6 +590,7 @@
 
   let currentYear        = today.getFullYear();
   let currentMonth       = today.getMonth();
+  let calendarTransition = '';
 
   // Guests open the calendar on the month of their residency start, not today.
   if (isGuest && artist.guest_start_date) {
@@ -740,6 +741,21 @@
     }
 
     calGrid.innerHTML = html;
+
+    if (calendarTransition) {
+      const transitionClass = calendarTransition === 'prev'
+        ? 'cal-grid--transition-prev'
+        : calendarTransition === 'next'
+          ? 'cal-grid--transition-next'
+          : 'cal-grid--transition-fade';
+      calGrid.classList.remove('cal-grid--transition-prev', 'cal-grid--transition-next', 'cal-grid--transition-fade');
+      void calGrid.offsetWidth;
+      calGrid.classList.add(transitionClass);
+      setTimeout(() => {
+        calGrid.classList.remove(transitionClass);
+      }, 220);
+      calendarTransition = '';
+    }
 
     // Apply colours via JS (CSP safe)
     calGrid.querySelectorAll('.cal-bar[data-slug]').forEach(bar => {
@@ -1269,12 +1285,14 @@
   }
 
   calPrev.addEventListener('click', () => {
+    calendarTransition = 'prev';
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     renderCalendar();
   });
 
   calNext.addEventListener('click', () => {
+    calendarTransition = 'next';
     currentMonth++;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendar();
@@ -1286,6 +1304,7 @@
     todayBtn.className = 'cal-today-btn';
     todayBtn.textContent = 'Today';
     todayBtn.addEventListener('click', () => {
+      calendarTransition = 'fade';
       currentYear  = today.getFullYear();
       currentMonth = today.getMonth();
       renderCalendar();
