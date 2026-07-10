@@ -210,18 +210,23 @@
     let res = await doFetch(_token);
 
     if (res.status === 401) {
-      try {
-        const refreshRes = await refreshAccessToken();
-        if (!refreshRes.ok) throw new Error('refresh failed');
+      const refreshRes = await refreshAccessToken();
+      if (refreshRes.ok) {
         _token = refreshRes.token;
         localStorage.setItem('art_token', _token);
         res = await doFetch(_token);
-      } catch {
+      } else if (refreshRes.status === 401) {
+        // Real auth rejection: the refresh token itself is invalid/expired.
         localStorage.removeItem('art_token');
         localStorage.removeItem('art_artist');
         window.toast('Session expired. Please sign in again.', 'error');
         setTimeout(() => { window.location.href = 'login.html'; }, 800);
         throw new Error('session expired');
+      } else {
+        // Network error (status 0) or server hiccup: keep the session — the
+        // refresh cookie is still valid, so a retry can succeed.
+        window.toast('Connection issue — please try again', 'error');
+        throw new Error('refresh unavailable');
       }
     }
 
