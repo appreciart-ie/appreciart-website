@@ -72,6 +72,15 @@
            ${bookUrl ? `<a href="${esc(bookUrl)}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
         : `<a href="https://wa.me/353838882759" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp the Studio</a>`;
 
+      // Guest visit period — same formatting as homepage guest cards (js/index.js)
+      const guestStart = artist.guest_start_date
+        ? new Date(artist.guest_start_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
+        : '';
+      const guestEnd = artist.guest_end_date
+        ? new Date(artist.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
+        : '';
+      const guestDateRange = guestStart && guestEnd ? `${guestStart} – ${guestEnd}` : '';
+
       const instaHandle = artist.instagram || '';
       const instaUrl    = instaHandle ? `https://instagram.com/${encodeURIComponent(instaHandle.replace('@', ''))}` : '#';
 
@@ -115,7 +124,8 @@
       const availHtml = loggedInArtist
         ? `<p class="availability-empty">You're signed in as an artist. Manage sessions from your <a href="dashboard.html">Dashboard</a>.</p>`
         : artist.role === 'guest'
-        ? `<p class="availability-empty">Bookings are handled directly with this artist.</p>
+        ? `${guestDateRange ? `<p class="artist-guest-dates">At the studio ${esc(guestDateRange)}</p>` : ''}
+           <p class="availability-empty">Bookings are handled directly with this artist.</p>
            <div class="cta-row artist-contact-row">${guestContactBtns}</div>`
         : availableSlots.length > 0
         ? `${monthBlocks}<p class="availability-hint">Tap a date to book your session.</p>`

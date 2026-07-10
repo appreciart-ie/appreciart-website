@@ -281,6 +281,14 @@
       margin-top: 8px;
     }
 
+    /* Guest visit period (guests only) */
+    .artist-guest-dates {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--black);
+      margin-top: 20px;
+    }
+
     .availability-empty {
       font-size: 14px;
       font-weight: 300;
