@@ -7,6 +7,8 @@
         // Load inline iframe on first play
         if (iframe && iframe.dataset.src && !iframe.src) {
           iframe.src = iframe.dataset.src;
+          const thumb = wrap.querySelector('.exh-item-thumb');
+          if (thumb) thumb.style.display = 'none';
         }
 
         // Open lightbox with autoplay version
