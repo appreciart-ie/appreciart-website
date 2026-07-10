@@ -2,6 +2,14 @@
 
 (function () {
   const container = document.getElementById('site-footer');
+
+  // Installed PWA (standalone): no public-site footer on any page in scope.
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) {
+    if (container) container.remove();
+    return;
+  }
   const CSS_COLOR = /^#[0-9a-fA-F]{3,6}$/;
   const rawWaveColor = container?.dataset.waveColor || '#ffffff';
   const rawWaveBg    = container?.dataset.waveBg    || '#ffffff';

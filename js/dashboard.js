@@ -46,6 +46,17 @@
 
   const isGuest = artist.role === 'guest';
 
+  // Standalone (installed PWA) detection — hoisted so early setup below can
+  // remove (not just CSS-hide) any element that links out of the calendar.
+  const _standalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (_standalone) {
+    const siteLink = document.querySelector('.dash-topbar-site');
+    if (siteLink) siteLink.remove();
+    const publicProfileLink = document.getElementById('profileViewLink');
+    if (publicProfileLink) publicProfileLink.remove();
+  }
+
   // Set once loadProfile() resolves: a guest whose residency has ended. When true
   // the dashboard renders normally but all interactivity is stripped (read-only).
   let isFrozen = false;
@@ -119,8 +130,6 @@
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 
-  const _standalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone === true;
   if (_standalone) {
     document.body.classList.add('pwa-standalone');
     activateTab('availability', false);
@@ -1371,7 +1380,10 @@
       if (data.is_public && !_liveModalSeen) {
         _liveModalSeen = true;
         localStorage.setItem('art_profile_live_seen', '1');
-        showProfileLiveModal();
+        // Standalone (installed PWA): the modal links to artist.html, which must
+        // not open inside the locked-down calendar scope — use a link-free toast.
+        if (_standalone) window.toast('Your profile is now live', 'success');
+        else showProfileLiveModal();
       } else if (!data.is_public && _wasPublic === true) {
         const miss = (data.missing || []).join(', ');
         window.toast('Your profile is no longer visible on the site' + (miss ? ' — missing: ' + miss : ''), 'info');

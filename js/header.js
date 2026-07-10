@@ -8,6 +8,16 @@
   const isDashboard = window.location.pathname.includes('dashboard');
   if (isDashboard) { document.getElementById('site-header').style.display = 'none'; }
 
+  // Installed PWA (standalone): never render public-site navigation on any page
+  // in scope — the calendar app must not offer a path into the public site.
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) {
+    const header = document.getElementById('site-header');
+    if (header) header.remove();
+    return;
+  }
+
   let artistName = '';
   if (isLoggedIn && stored) {
     try { artistName = JSON.parse(stored).name || ''; } catch {}

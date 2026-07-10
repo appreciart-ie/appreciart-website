@@ -22,6 +22,17 @@
 
   if (!form) return;
 
+  // Installed PWA (standalone): bare login form only — remove (not hide) every
+  // path into the public site. "Forgot password?" stays: it's part of the auth flow.
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) {
+    const accessBtnEl = document.getElementById('accessBtn');
+    if (accessBtnEl) accessBtnEl.remove();
+    const accessModalEl = document.getElementById('accessModal');
+    if (accessModalEl) accessModalEl.remove();
+  }
+
   const existing = localStorage.getItem('art_token');
   if (existing) { window.location.href = 'dashboard.html'; return; }
 
@@ -57,13 +68,15 @@
   if (modalClose)    modalClose.addEventListener('click', closeModal);
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
 
-  accessModal.addEventListener('click', (e) => {
-    if (e.target === accessModal) closeModal();
-  });
+  if (accessModal) {
+    accessModal.addEventListener('click', (e) => {
+      if (e.target === accessModal) closeModal();
+    });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && accessModal.classList.contains('open')) closeModal();
-  });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && accessModal.classList.contains('open')) closeModal();
+    });
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
