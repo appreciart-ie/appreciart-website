@@ -1,14 +1,6 @@
 (function () {
     const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
-    document.querySelectorAll('img[data-hide-on-error="true"]').forEach(img => {
-      img.addEventListener('error', () => {
-        const parentBg = img.getAttribute('data-parent-bg-on-error');
-        if (parentBg && img.parentElement) img.parentElement.style.background = parentBg;
-        img.style.display = 'none';
-      }, { once: true });
-    });
-
     // Load resident profile photos
     document.querySelectorAll('.resident-photo[data-slug]').forEach(img => {
       const slug = img.dataset.slug;
@@ -54,10 +46,12 @@
             const card = document.createElement('div');
             card.className = 'guest-card';
             card.innerHTML =
-              '<div class="guest-photo-wrap">' +
-                '<img alt="' + esc(guest.name) + '">' +
-                (dateRange ? '<span class="guest-dates-badge">' + esc(dateRange) + '</span>' : '') +
-              '</div>' +
+              '<a href="' + esc(ctaHref) + '" aria-label="' + esc(guest.name) + ' profile">' +
+                '<div class="guest-photo-wrap">' +
+                  '<img alt="' + esc(guest.name) + '">' +
+                  (dateRange ? '<span class="guest-dates-badge">' + esc(dateRange) + '</span>' : '') +
+                '</div>' +
+              '</a>' +
               (month ? '<p class="guest-month">' + esc(month) + '</p>' : '') +
               '<h3 class="guest-name">' + esc(guest.name) + '</h3>' +
               (styles ? '<p class="guest-styles">' + esc(styles) + '</p>' : '') +
@@ -83,7 +77,10 @@
           });
         })
         .catch(() => {
-          if (empty) empty.style.display = 'block';
+          if (empty) {
+            empty.textContent = "Couldn't load guest artists right now. Please try again later.";
+            empty.style.display = 'block';
+          }
         });
     }
   })();

@@ -4,6 +4,8 @@ residentCards.forEach(card => {
   card.addEventListener('touchstart', e => {
     // if tapping a link inside, let it through
     if (e.target.closest('a')) return;
+    // styles/actions already forced visible by CSS — don't block page scroll
+    if (window.matchMedia('(max-width: 768px), (hover: none)').matches) return;
     e.preventDefault();
     const isActive = card.classList.contains('active');
     residentCards.forEach(c => c.classList.remove('active'));
@@ -13,7 +15,11 @@ residentCards.forEach(card => {
 
 // Hide images that fail to load (no inline onerror per security rules)
 document.querySelectorAll('img[data-hide-on-error]').forEach(img => {
-  img.addEventListener('error', () => { img.style.display = 'none'; });
+  img.addEventListener('error', () => {
+    const parentBg = img.getAttribute('data-parent-bg-on-error');
+    if (parentBg && img.parentElement) img.parentElement.style.background = parentBg;
+    img.style.display = 'none';
+  }, { once: true });
 });
 
 const revealObserver = new IntersectionObserver((entries) => {
@@ -44,4 +50,14 @@ if (reviewsTrack && reviewsPrev && reviewsNext) {
   const step = () => reviewsTrack.querySelector('.review-card')?.offsetWidth + 32 || 320;
   reviewsPrev.addEventListener('click', () => reviewsTrack.scrollBy({ left: -step(), behavior: 'smooth' }));
   reviewsNext.addEventListener('click', () => reviewsTrack.scrollBy({ left:  step(), behavior: 'smooth' }));
+}
+
+// Guests nav arrows
+const guestsTrackEl = document.getElementById('guestsTrack');
+const guestsPrev    = document.getElementById('guestsPrev');
+const guestsNext    = document.getElementById('guestsNext');
+if (guestsTrackEl && guestsPrev && guestsNext) {
+  const step = () => guestsTrackEl.querySelector('.guest-card')?.offsetWidth + 20 || 280;
+  guestsPrev.addEventListener('click', () => guestsTrackEl.scrollBy({ left: -step(), behavior: 'smooth' }));
+  guestsNext.addEventListener('click', () => guestsTrackEl.scrollBy({ left:  step(), behavior: 'smooth' }));
 }
