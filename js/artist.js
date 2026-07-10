@@ -13,22 +13,28 @@
     const artToken = localStorage.getItem('art_token');
     const loggedInArtistData = artToken ? (() => { try { return JSON.parse(localStorage.getItem('art_artist')); } catch { return null; } })() : null;
 
-    // Load artist data (includes profile_url + portfolio from backend) + availability in parallel
-    Promise.all([
+    // Load artist data (includes profile_url + portfolio from backend) + availability in parallel.
+    // Single load per page — the Stripe return handler reuses this promise instead of re-rendering.
+    const initialLoad = Promise.all([
       fetchArtist(slug),
       fetchAvailability(slug),
-    ]).then(([artist, availData]) => {
-      if (!artist) { renderNotFound(); return; }
-      renderArtist(artist, availData.availability, availData.date_images);
-    }).catch(() => renderNotFound());
+    ]).then(([artistRes, availData]) => {
+      if (artistRes.artist) {
+        renderArtist(artistRes.artist, availData.availability, availData.date_images);
+        return true;
+      }
+      if (artistRes.error) renderLoadError(); else renderNotFound();
+      return false;
+    }).catch(() => { renderLoadError(); return false; });
 
     async function fetchArtist(slug) {
       try {
         const res  = await fetch(`${INTERNAL}/api/public/artists/${slug}`, { signal: AbortSignal.timeout(12000) });
-        if (!res.ok) return null;
+        if (res.status === 404) return { notFound: true };
+        if (!res.ok) return { error: true };
         const data = await res.json();
-        return data.artist || null;
-      } catch { return null; }
+        return data.artist ? { artist: data.artist } : { notFound: true };
+      } catch { return { error: true }; }
     }
 
     async function fetchAvailability(slug) {
@@ -42,7 +48,10 @@
 
     function renderArtist(artist, availability, dateImages) {
       const isOwnPage = loggedInArtistData && loggedInArtistData.slug === artist.slug;
-      const loggedInArtist = !!artToken && !isOwnPage;
+      // Only suppress booking actions on RESIDENT pages (hides the public Stripe
+      // flow from logged-in artists). A guest's contact CTA has no conflicting
+      // flow, so it always renders regardless of any artist token.
+      const loggedInArtist = !!artToken && !isOwnPage && artist.role !== 'guest';
       // Update page title + meta description
       document.getElementById('page-title').textContent = `${artist.name} — Appreciart IE`;
       const metaDesc = document.querySelector('meta[name="description"]');
@@ -54,6 +63,14 @@
       const styles = (artist.styles || []).map(s =>
         `<span class="artist-style-tag">${esc(s)}</span>`
       ).join('');
+
+      // Guest contact buttons — same https-only guard as profile_url
+      const waUrl   = isSafeUrl(artist.whatsapp_url) ? artist.whatsapp_url : '';
+      const bookUrl = isSafeUrl(artist.booking_url)  ? artist.booking_url  : '';
+      const guestContactBtns = (waUrl || bookUrl)
+        ? `${waUrl ? `<a href="${esc(waUrl)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
+           ${bookUrl ? `<a href="${esc(bookUrl)}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
+        : `<a href="https://wa.me/353838882759" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp the Studio</a>`;
 
       const instaHandle = artist.instagram || '';
       const instaUrl    = instaHandle ? `https://instagram.com/${encodeURIComponent(instaHandle.replace('@', ''))}` : '#';
@@ -98,7 +115,8 @@
       const availHtml = loggedInArtist
         ? `<p class="availability-empty">You're signed in as an artist. Manage sessions from your <a href="dashboard.html">Dashboard</a>.</p>`
         : artist.role === 'guest'
-        ? `<p class="availability-empty">Book directly with this artist using the options below.</p>`
+        ? `<p class="availability-empty">Bookings are handled directly with this artist.</p>
+           <div class="cta-row artist-contact-row">${guestContactBtns}</div>`
         : availableSlots.length > 0
         ? `${monthBlocks}<p class="availability-hint">Tap a date to book your session.</p>`
         : `<p class="availability-empty">No dates currently available. Contact us on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to enquire.</p>`;
@@ -158,7 +176,7 @@
         <div class="artist-portfolio">
           <div class="artist-section-header">
             <span class="artist-section-label">Portfolio</span>
-            <span class="artist-section-count"></span>
+            <span class="artist-section-count">${portfolio.length ? `${portfolio.length} ${portfolio.length === 1 ? 'piece' : 'pieces'}` : ''}</span>
           </div>
           <div class="portfolio-grid">${portfolioHtml}</div>
         </div>
@@ -173,10 +191,7 @@
      <h2 class="section-title">Book with ${esc(artist.name)}</h2>
      <p class="section-body">Start the conversation — tell us what you have in mind.</p>
      ${artist.role === 'guest'
-  ? (artist.whatsapp_url || artist.booking_url
-      ? `${artist.whatsapp_url ? `<a href="${esc(artist.whatsapp_url)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
-     ${artist.booking_url  ? `<a href="${esc(artist.booking_url)}"  class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Book directly</a>` : ''}`
-      : `<p class="section-body">Contact the studio on <a href="https://wa.me/353838882759" target="_blank" rel="noopener noreferrer">WhatsApp</a> to book.</p>`)
+  ? `<div class="cta-row">${guestContactBtns}</div>`
   : `<a href="bookings.html?artist=${encodeURIComponent(artist.slug)}" class="btn btn-primary">Book a Session</a>`
 }`
 }
@@ -256,7 +271,7 @@
     // Fetch Stripe public key from config
     (async () => {
       try {
-        const res = await fetch(`${INTERNAL}/api/public/config`);
+        const res = await fetch(`${INTERNAL}/api/public/config`, { signal: AbortSignal.timeout(10000) });
         if (res.ok) {
           const data = await res.json();
           stripePublishableKey = data.stripePublishableKey;
@@ -434,17 +449,26 @@
     if (returnParams.get('paid') === '1') {
       const redirectStatus = returnParams.get('redirect_status');
       if (!redirectStatus || redirectStatus === 'succeeded' || redirectStatus === 'processing') {
-        Promise.all([fetchArtist(slug), fetchAvailability(slug)])
-          .then(([artist, availData]) => {
-            if (artist) renderArtist(artist, availData.availability, availData.date_images);
-            document.getElementById('bmFormBody').style.display = 'none';
-            document.getElementById('bmSuccess').classList.add('visible');
-            document.getElementById('bmOverlay').classList.add('open');
-          });
+        // Reuse the single initial load — no second fetch/render pass
+        initialLoad.then(() => {
+          document.getElementById('bmFormBody').style.display = 'none';
+          document.getElementById('bmSuccess').classList.add('visible');
+          document.getElementById('bmOverlay').classList.add('open');
+        });
       } else {
         toast('Payment was not completed — no money was taken. Please try again.', 'error');
         window.history.replaceState({}, '', `${window.location.pathname}?slug=${encodeURIComponent(slug)}`);
       }
+    }
+
+    function renderLoadError() {
+      root.innerHTML = `
+        <div class="artist-not-found">
+          <h1>Something went wrong</h1>
+          <p>Couldn't load this profile right now — please check your connection and try again.</p>
+          <a href="${esc(`artist.html?slug=${encodeURIComponent(slug)}`)}" class="btn btn-primary btn--mt">Try Again</a>
+        </div>
+      `;
     }
 
     function renderNotFound() {
