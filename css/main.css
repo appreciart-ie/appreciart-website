@@ -567,25 +567,9 @@ a   { color: inherit; text-decoration: none; }
   object-fit: cover;
   object-position: center top;
   display: block;
-  transition: aspect-ratio 0.4s ease;
+  transition: transform 0.4s ease;
   border-radius: 0;
 }
-
-/* frosted blur at bottom — disabled, caused visible white frame */
-/*
-.resident-card::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 30%;
-  bottom: 0; left: 0;
-  mask: linear-gradient(transparent, black 80%);
-  backdrop-filter: blur(12px);
-  transition: translate 0.25s;
-  pointer-events: none;
-  z-index: 1;
-}
-*/
 
 .resident-content {
   padding: 12px 0 0;
@@ -639,21 +623,23 @@ a   { color: inherit; text-decoration: none; }
 .resident-insta:hover { color: var(--black); }
 .resident-insta svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-/* Hover state — desktop */
+/* Hover state — desktop (paint-only: transform, no layout shift) */
 .resident-card:hover .resident-photo,
 .resident-card.active .resident-photo {
-  aspect-ratio: 1/1;
-  object-position: center 20%;
+  transform: scale(1.02);
 }
-
-.resident-card:hover::before,
-.resident-card.active::before { translate: 0 100%; }
 
 .resident-card:hover .resident-styles,
 .resident-card.active .resident-styles { opacity: 1; transform: translateY(0); }
 
 .resident-card:hover .resident-actions,
 .resident-card.active .resident-actions { opacity: 1; transform: translateY(0); }
+
+/* No-hover devices (tablets etc.) — always show styles/actions */
+@media (hover: none) {
+  .resident-styles,
+  .resident-actions { opacity: 1; transform: none; }
+}
 
 /* GUESTS */
 .guests-section { background: var(--off-white); padding: var(--sv) 0; }
@@ -1080,22 +1066,8 @@ a   { color: inherit; text-decoration: none; }
   .nav-hamburger { display: flex; }
   .about-grid { grid-template-columns: 1fr; }
   .about-video { aspect-ratio: 16/9; }
-  .residents-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
-  .guests-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .footer-top { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
-  .footer-brand-row { flex-direction: column; align-items: center; gap: 10px; }
-  .footer-mid { flex-direction: column; align-items: center; gap: 20px; text-align: center; }
-  .footer-nav { justify-content: center; }
-  .footer-social { justify-content: center; }
-  .footer-bottom { flex-direction: column; align-items: center; text-align: center; gap: 8px; }
-  .footer-bottom-links { justify-content: center; gap: 20px; }
-  .collab-x-title { display: block; font-size: 0.5em; margin: 6px 0; white-space: normal; }
-  .collab-visual { grid-template-columns: 1fr 1fr; }
-}
 
-@media (max-width: 480px) {
-  .hero-actions { flex-direction: column; align-items: stretch; }
-  .hero-actions .btn { text-align: center; }
+  /* Residents — list-row layout (avoids orphaned 3rd card in a 2-col grid) */
   .residents-grid { grid-template-columns: 1fr; gap: 0; }
   .resident-card {
     display: flex;
@@ -1119,6 +1091,21 @@ a   { color: inherit; text-decoration: none; }
   .resident-styles { opacity: 1; transform: none; font-size: 9px; margin-bottom: 10px; }
   .resident-actions { opacity: 1; transform: none; gap: 8px; flex-wrap: wrap; width: 100%; justify-content: flex-start; }
   .resident-insta { font-size: 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 120px; }
+  .guests-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .footer-top { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+  .footer-brand-row { flex-direction: column; align-items: center; gap: 10px; }
+  .footer-mid { flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .footer-nav { justify-content: center; }
+  .footer-social { justify-content: center; }
+  .footer-bottom { flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+  .footer-bottom-links { justify-content: center; gap: 20px; }
+  .collab-x-title { display: block; font-size: 0.5em; margin: 6px 0; white-space: normal; }
+  .collab-visual { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { text-align: center; }
   .guest-card { width: 72vw; }
   .guest-apply-photos { display: none; }
 
