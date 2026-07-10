@@ -514,8 +514,9 @@
     }
     try {
       const res  = await authFetch('/api/artist/consent');
+      if (!res.ok) throw new Error('consent fetch failed: ' + res.status);
       const data = await res.json();
-      const forms = Array.isArray(data) ? data : (data.forms || data.consent || []);
+      const forms = Array.isArray(data) ? data : (data.consent_forms || []);
 
       if (!forms.length) {
         consentList.innerHTML = '<p class="dash-empty"><svg class="dash-empty-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>No consent forms yet.<span class="dash-empty-sub">Forms clients submit before their session will appear here.</span></p>';
@@ -564,7 +565,7 @@
         <div class="consent-modal-section">
           ${row('Email', f.client_email)}
           ${row('Phone', f.client_phone)}
-          ${row('Date of birth', consentDate(f.date_of_birth))}
+          ${row('Date of birth', f.date_of_birth ? consentDate(f.date_of_birth) : '')}
           ${row('Eircode', f.eircode)}
           ${row('Instagram', f.client_instagram)}
           ${row('Referral source', f.referral_source)}
