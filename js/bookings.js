@@ -126,15 +126,13 @@
               '<span class="guest-artist-cta">View Profile →</span>';
             guestGrid.appendChild(card);
 
-            fetch(INTERNAL_API + '/api/public/artists/' + encodeURIComponent(guest.slug), { signal: AbortSignal.timeout(8000) })
-              .then(r => r.json())
-              .then(d => {
-                const photoWrap = document.getElementById('gap-' + guest.slug);
-                if (photoWrap && d.artist && isSafeUrl(d.artist.profile_url)) {
-                  photoWrap.innerHTML = '<img src="' + esc(d.artist.profile_url) + '" alt="' + esc(guest.name) + '">';
-                }
-              })
-              .catch(() => {});
+            // profile_url comes on the list response — no per-guest request
+            if (isSafeUrl(guest.profile_url)) {
+              const photoWrap = document.getElementById('gap-' + guest.slug);
+              if (photoWrap) {
+                photoWrap.innerHTML = '<img src="' + esc(guest.profile_url) + '" alt="' + esc(guest.name) + '">';
+              }
+            }
           });
         }
       } catch (e) {
@@ -149,7 +147,7 @@
         const btn = document.createElement('button');
         btn.className = 'artist-btn';
         btn.dataset.slug = artist.slug;
-        const profileSrc = artist.profile_url || `images/resident-artists/${esc(artist.slug)}-profile.webp`;
+        const profileSrc = isSafeUrl(artist.profile_url) ? artist.profile_url : `images/resident-artists/${esc(artist.slug)}-profile.webp`;
         btn.innerHTML = `
           <img src="${esc(profileSrc)}"
                alt="${esc(artist.name)}">
@@ -165,22 +163,6 @@
             btnImg.onerror = null;
           });
         }
-
-        // Fetch profile_url from individual endpoint
-        fetch(`${INTERNAL_API}/api/public/artists/${artist.slug}`, { signal: AbortSignal.timeout(8000) })
-          .then(r => r.json())
-          .then(data => {
-            const url = data.artist && data.artist.profile_url;
-            if (isSafeUrl(url)) {
-              const img = btn.querySelector('img');
-              if (img) img.src = url;
-              if (selectedArtist && selectedArtist.slug === artist.slug) {
-                selectedArtist.profile_url = url;
-                updateSummary();
-              }
-            }
-          })
-          .catch(() => {});
 
         if (preselect && artist.slug === preselect) {
           selectArtist(artist, btn);

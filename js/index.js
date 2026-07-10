@@ -1,27 +1,23 @@
 (function () {
     const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
 
-    // Load resident profile photos
-    document.querySelectorAll('.resident-photo[data-slug]').forEach(img => {
-      const slug = img.dataset.slug;
-      fetch(`${INTERNAL_API}/api/public/artists/${slug}`, { signal: AbortSignal.timeout(8000) })
-        .then(r => r.ok ? r.json() : Promise.reject())
-        .then(data => {
-          const url = data.artist && data.artist.profile_url;
-          if (isSafeUrl(url)) img.src = url;
-        })
-        .catch(() => {});
-    });
-
-    // Load guest artists dynamically
+    // Single list fetch feeds both resident photos and guest cards
+    // (profile_url now comes on the list endpoint — no per-artist requests)
     const track   = document.getElementById('guestsTrack');
     const empty   = document.getElementById('guestsEmpty');
     const section = document.querySelector('.guests-section');
 
-    if (track) {
-      fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(8000) })
+    fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(8000) })
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
+          // Resident profile photos
+          const residents = data.residents || [];
+          document.querySelectorAll('.resident-photo[data-slug]').forEach(img => {
+            const artist = residents.find(a => a.slug === img.dataset.slug);
+            if (artist && isSafeUrl(artist.profile_url)) img.src = artist.profile_url;
+          });
+
+          if (!track) return;
           const guests = data.guests || [];
 
           if (!guests.length) {
@@ -61,19 +57,14 @@
 
             const cardImg = card.querySelector('img');
             if (cardImg) {
-              cardImg.addEventListener('error', () => {
+              const hidePhoto = () => {
                 if (cardImg.parentElement) cardImg.parentElement.style.background = 'var(--light)';
                 cardImg.style.display = 'none';
-              });
+              };
+              cardImg.addEventListener('error', hidePhoto);
+              if (isSafeUrl(guest.profile_url)) cardImg.src = guest.profile_url;
+              else hidePhoto();
             }
-
-            // Load profile photo
-            fetch(`${INTERNAL_API}/api/public/artists/${encodeURIComponent(guest.slug)}`, { signal: AbortSignal.timeout(8000) })
-              .then(r => r.ok ? r.json() : Promise.reject())
-              .then(d => {
-                if (cardImg && d.artist && isSafeUrl(d.artist.profile_url)) cardImg.src = d.artist.profile_url;
-              })
-              .catch(() => {});
           });
         })
         .catch(() => {
@@ -82,5 +73,4 @@
             empty.style.display = 'block';
           }
         });
-    }
   })();
