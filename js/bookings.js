@@ -65,7 +65,7 @@
     // ── Fetch public config ──
     async function fetchConfig() {
       try {
-        const res = await fetch(`${INTERNAL_API}/api/public/config`);
+        const res = await fetch(`${INTERNAL_API}/api/public/config`, { signal: AbortSignal.timeout(10000) });
         if (!res.ok) throw new Error(`Config endpoint returned ${res.status}`);
         const data = await res.json();
         stripePublishableKey = data.stripePublishableKey;
