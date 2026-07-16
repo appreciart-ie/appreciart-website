@@ -731,7 +731,7 @@
         const availLabel = initials ? `${initials} · Free` : 'Available';
         const label      = isAvailable ? availLabel : [nameLabel, timeLabel, typeLabel].filter(Boolean).join(' · ');
         const barClass   = isAvailable ? 'cal-bar cal-bar--available' : isConsultation ? 'cal-bar cal-bar--consultation' : 'cal-bar cal-bar--booked';
-        return `<span class="${barClass}" style="min-width:0"
+        return `<span class="${barClass} cal-bar--minw0"
           data-slug="${esc(e.artist_slug)}"
           data-mine="${isMine}"
           data-consultation="${isConsultation}"

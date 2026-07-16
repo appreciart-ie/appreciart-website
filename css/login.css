@@ -210,3 +210,8 @@
   .login-wrap { padding: 60px var(--px) 40px; align-items: flex-start; }
   .modal-box { padding: 32px 20px; }
 }
+
+.section-title--login {
+  margin-top: 8px;
+  margin-bottom: 6px;
+}

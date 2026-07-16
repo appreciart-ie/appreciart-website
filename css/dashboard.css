@@ -1806,3 +1806,7 @@ body.pwa-standalone .pwa-logout:hover { border-color: var(--black); }
   padding: 4px;
   cursor: pointer;
 }
+
+.cal-bar--minw0 {
+  min-width: 0;
+}
