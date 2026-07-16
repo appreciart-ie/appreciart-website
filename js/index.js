@@ -1,5 +1,5 @@
 (function () {
-    const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
+    const INTERNAL_API = 'https://api.appreciart.ie';
 
     // Single list fetch feeds both resident photos and guest cards
     // (profile_url now comes on the list endpoint — no per-artist requests)

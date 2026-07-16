@@ -1,5 +1,5 @@
 (function () {
-      const INTERNAL_API_URL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+      const INTERNAL_API_URL = 'https://api.appreciart.ie';
 
       // Set max date for date of birth (today)
       const dobInput = document.getElementById('date_of_birth');

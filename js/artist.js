@@ -1,5 +1,5 @@
   (function () {
-    const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+    const INTERNAL = 'https://api.appreciart.ie';
 
     const slug = new URLSearchParams(window.location.search).get('slug');
     const root = document.getElementById('artist-root');

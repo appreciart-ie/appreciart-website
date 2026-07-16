@@ -119,7 +119,7 @@
 
   async function signOut() {
     try {
-      await fetch('https://appreciart-internal-production-ee3c.up.railway.app/api/auth/logout', {
+      await fetch('https://api.appreciart.ie/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
         signal: AbortSignal.timeout(5000),

@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+  const INTERNAL = 'https://api.appreciart.ie';
 
   const form       = document.getElementById('loginForm');
   const emailInput = document.getElementById('email');

@@ -2,7 +2,7 @@
   (function () {
     'use strict';
 
-    const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+    const INTERNAL = 'https://api.appreciart.ie';
 
     const lightbox    = document.getElementById('galleryLightbox');
     const lightboxImg = document.getElementById('lightboxImg');

@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const INTERNAL = 'https://appreciart-internal-production-ee3c.up.railway.app';
+  const INTERNAL = 'https://api.appreciart.ie';
 
   let _token = localStorage.getItem('art_token');
   let _refreshPromise = null;

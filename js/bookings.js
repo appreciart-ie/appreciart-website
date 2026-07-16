@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const INTERNAL_API = 'https://appreciart-internal-production-ee3c.up.railway.app';
+    const INTERNAL_API = 'https://api.appreciart.ie';
 
     // Artist calendar colours (mirrors dashboard/admin). Guest fallback = gold.
     const ARTIST_COLOURS = {
