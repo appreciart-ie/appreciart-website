@@ -83,30 +83,37 @@
         : '';
       const guestDateRange = guestStart && guestEnd ? `${guestStart} – ${guestEnd}` : '';
 
-      // Editorial guest visit block — day / month / year as separate parts
+      // Editorial guest visit block — month sits above the day numerals.
+      // Same-month visits (the common case) show the month once; visits that
+      // span two months show each month above its own date. No year.
       const gStartD = artist.guest_start_date ? new Date(artist.guest_start_date) : null;
       const gEndD   = artist.guest_end_date   ? new Date(artist.guest_end_date)   : null;
-      const gDay = d => String(d.getDate()).padStart(2, '0');
-      const gMon = d => d.toLocaleDateString('en-IE', { month: 'short' }).toUpperCase();
-      const guestVisitYear = (gStartD && gEndD)
-        ? (gStartD.getFullYear() === gEndD.getFullYear()
-            ? String(gStartD.getFullYear())
-            : `${gStartD.getFullYear()} – ${gEndD.getFullYear()}`)
-        : '';
-      const guestVisitHtml = (gStartD && gEndD)
+      const gDay      = d => String(d.getDate()).padStart(2, '0');
+      const gMonShort = d => d.toLocaleDateString('en-IE', { month: 'short' }).toUpperCase();
+      const gMonLong  = d => d.toLocaleDateString('en-IE', { month: 'long'  }).toUpperCase();
+      const gSameMonth = gStartD && gEndD
+        && gStartD.getFullYear() === gEndD.getFullYear()
+        && gStartD.getMonth() === gEndD.getMonth();
+      const guestVisitHtml = !(gStartD && gEndD)
+        ? ''
+        : gSameMonth
         ? `<div class="guest-visit">
-             <div class="guest-visit-range">
-               <span class="guest-visit-role gv-frole">From</span>
-               <span class="guest-visit-day gv-fday">${esc(gDay(gStartD))}</span>
-               <span class="guest-visit-mon gv-fmon">${esc(gMon(gStartD))}</span>
-               <span class="guest-visit-sep gv-sep" aria-hidden="true"></span>
-               <span class="guest-visit-role gv-trole">To</span>
-               <span class="guest-visit-day gv-tday">${esc(gDay(gEndD))}</span>
-               <span class="guest-visit-mon gv-tmon">${esc(gMon(gEndD))}</span>
-               <span class="guest-visit-year gv-year">${esc(guestVisitYear)}</span>
+             <span class="guest-visit-mon guest-visit-mon--lead">${esc(gMonLong(gStartD))}</span>
+             <div class="guest-visit-range guest-visit-range--single">
+               <span class="guest-visit-day">${esc(gDay(gStartD))}</span>
+               <span class="guest-visit-sep" aria-hidden="true"></span>
+               <span class="guest-visit-day">${esc(gDay(gEndD))}</span>
              </div>
            </div>`
-        : '';
+        : `<div class="guest-visit">
+             <div class="guest-visit-range guest-visit-range--split">
+               <span class="guest-visit-mon gv-fmon">${esc(gMonShort(gStartD))}</span>
+               <span class="guest-visit-day gv-fday">${esc(gDay(gStartD))}</span>
+               <span class="guest-visit-sep gv-sep" aria-hidden="true"></span>
+               <span class="guest-visit-mon gv-tmon">${esc(gMonShort(gEndD))}</span>
+               <span class="guest-visit-day gv-tday">${esc(gDay(gEndD))}</span>
+             </div>
+           </div>`;
 
       const instaHandle = artist.instagram || '';
       const instaUrl    = instaHandle ? `https://instagram.com/${encodeURIComponent(instaHandle.replace('@', ''))}` : '#';

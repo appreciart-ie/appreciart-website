@@ -294,26 +294,17 @@
       margin-top: 24px;
     }
 
-    .guest-visit-range {
-      display: grid;
-      grid-template-columns: auto auto auto;
-      grid-template-areas:
-        "frole .   trole"
-        "fday  sep tday"
-        "fmon  .   tmon"
-        ".     .   tyear";
-      column-gap: 18px;
-      row-gap: 4px;
-      align-items: center;
-      justify-items: start;
-    }
-
-    .guest-visit-role {
+    .guest-visit-mon {
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.26em;
       text-transform: uppercase;
       color: var(--mid);
+    }
+
+    .guest-visit-mon--lead {
+      display: block;
+      margin-bottom: 8px;
     }
 
     .guest-visit-day {
@@ -324,35 +315,37 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .guest-visit-mon {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.26em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
-
     .guest-visit-sep {
       width: 32px;
       height: 1px;
       background: var(--light);
     }
 
-    .guest-visit-year {
-      font-size: 12px;
-      font-weight: 300;
-      letter-spacing: 0.08em;
-      color: var(--mid);
+    /* Same-month visit — month once, days side by side */
+    .guest-visit-range--single {
+      display: flex;
+      align-items: center;
+      gap: 22px;
     }
 
-    .gv-frole { grid-area: frole; }
-    .gv-trole { grid-area: trole; }
-    .gv-fday  { grid-area: fday; }
-    .gv-tday  { grid-area: tday; }
-    .gv-fmon  { grid-area: fmon; }
-    .gv-tmon  { grid-area: tmon; }
-    .gv-sep   { grid-area: sep; }
-    .gv-year  { grid-area: tyear; }
+    /* Two-month visit — each month above its own date */
+    .guest-visit-range--split {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      grid-template-areas:
+        "fmon .   tmon"
+        "fday sep tday";
+      column-gap: 26px;
+      row-gap: 6px;
+      align-items: center;
+      justify-items: start;
+    }
+
+    .gv-fmon { grid-area: fmon; }
+    .gv-tmon { grid-area: tmon; }
+    .gv-fday { grid-area: fday; }
+    .gv-tday { grid-area: tday; }
+    .gv-sep  { grid-area: sep; }
 
     .availability-empty {
       font-size: 14px;
