@@ -1,7 +1,7 @@
 # TASKS.md — Tracked Backlog (Appreciart IE Frontend)
 
 > Format: `- [ ] [block] — description — severity — effort (S/M/L)`
-> Verified against source on 2026-07-15 (HEAD `3e38760`). Only incomplete / pending / known-broken
+> Verified against source on 2026-07-17 (HEAD `d70e862`). Only incomplete / pending / known-broken
 > items — nothing already working. See SPECIFY.md for how the system behaves today.
 
 ## Launch blockers / infrastructure
@@ -10,14 +10,14 @@
       publishable key (verified live 2026-07-15). Frontend no longer hardcodes keys, so this is a
       coordinated backend/env change, but gallery.html DOES hardcode 4 Stripe Price IDs that must be
       re-created as live prices at the same time. — severity: high — effort: M
-- [ ] [infra] Point `appreciart.ie` → Cloudflare Pages (still on appreciart-website.pages.dev; no
-      custom-domain references anywhere in the repo). — severity: high — effort: M
-- [ ] [infra] Migrate API host to `api.appreciart.ie` so the refresh cookie becomes same-site
-      (fixes iOS PWA session persistence — Safari ITP purges the cross-site `sameSite:none` cookie).
-      Verified: 0 references to the new host; the Railway URL is hardcoded in 12 files
-      (`_headers` + artist.js, bookings.js, consent.js, dashboard.js, forgot-password.js, gallery.js,
-      guest-artist.js, header.js, index.js, login.js, reset-password.js). Depends on the domain task
-      above and a backend cookie-domain change. — severity: high — effort: M
+- [x] [infra] Point `appreciart.ie` → Cloudflare Pages. — severity: high — effort: M
+      — RESOLVED 2026-07-17: custom domain now live on appreciart.ie (Cloudflare Pages config,
+      outside repo). Confirmed by user.
+- [x] [infra] Migrate API host to `api.appreciart.ie` (frontend side). — severity: high — effort: M
+      — RESOLVED in `4332c49` (Fase 1: CSP transitional) + `1022df4` (Fase 2: 11 endpoints repointed)
+      + `d70e862` (Fase 3: Railway host removed from CSP). Verified 2026-07-17: 0 Railway references
+      remain, 12 files now target api.appreciart.ie, connect-src cleaned. NOTE: backend cookie-domain
+      change (other repo) still pending for the same-site refresh cookie to take effect.
 - [ ] [infra] Backend integration gaps from the June audit (other repo, tracked here for launch
       visibility): missing SSE emissions (payments webhook deposit_paid, admin guest approve/reject,
       consent submission), missing admin SSE handlers for `application_update`/`consent_update`,
@@ -68,9 +68,9 @@
 - [ ] [pwa] Swipe gesture month navigation — audited as "confirmed absent, small effort to add";
       re-verified today: still absent (no touch/pointer handlers on the calendar grid; buttons only).
       — severity: med — effort: S
-- [ ] [pwa] iOS session persistence — blocked on the `api.appreciart.ie` migration (see infra);
-      until then installed-PWA users on iOS get logged out when Safari purges the cross-site refresh
-      cookie. No frontend workaround in place. — severity: high — effort: M (dependency)
+- [ ] [pwa] iOS session persistence — frontend dependency (api.appreciart.ie migration) now DONE
+      as of 2026-07-17; remaining blocker is the backend cookie-domain change (other repo) so the
+      refresh cookie becomes same-site. No frontend work left here. — severity: high — effort: M (backend dep)
 
 ## Calendar UX (queued from earlier full audit — none built)
 
