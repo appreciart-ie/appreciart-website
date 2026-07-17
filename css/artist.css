@@ -316,7 +316,7 @@
     }
 
     .guest-visit-sep {
-      width: 32px;
+      width: 28px;
       height: 1px;
       background: var(--light);
     }
@@ -325,7 +325,7 @@
     .guest-visit-range--single {
       display: flex;
       align-items: center;
-      gap: 22px;
+      gap: 18px;
     }
 
     /* Two-month visit — each month above its own date */
@@ -335,10 +335,11 @@
       grid-template-areas:
         "fmon .   tmon"
         "fday sep tday";
-      column-gap: 26px;
+      column-gap: 16px;
       row-gap: 6px;
       align-items: center;
       justify-items: start;
+      justify-content: start;
     }
 
     .gv-fmon { grid-area: fmon; }
