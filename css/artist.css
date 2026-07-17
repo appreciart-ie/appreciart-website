@@ -295,15 +295,25 @@
     }
 
     .guest-visit-range {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto auto auto;
+      grid-template-areas:
+        "frole .   trole"
+        "fday  sep tday"
+        "fmon  .   tmon"
+        ".     .   tyear";
+      column-gap: 18px;
+      row-gap: 4px;
       align-items: center;
-      gap: 28px;
+      justify-items: start;
     }
 
-    .guest-visit-point {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .guest-visit-role {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
     }
 
     .guest-visit-day {
@@ -329,23 +339,20 @@
     }
 
     .guest-visit-year {
-      display: block;
-      margin-top: 14px;
       font-size: 12px;
       font-weight: 300;
       letter-spacing: 0.08em;
       color: var(--mid);
     }
 
-    .guest-visit-caption {
-      display: block;
-      margin-top: 10px;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.26em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
+    .gv-frole { grid-area: frole; }
+    .gv-trole { grid-area: trole; }
+    .gv-fday  { grid-area: fday; }
+    .gv-tday  { grid-area: tday; }
+    .gv-fmon  { grid-area: fmon; }
+    .gv-tmon  { grid-area: tmon; }
+    .gv-sep   { grid-area: sep; }
+    .gv-year  { grid-area: tyear; }
 
     .availability-empty {
       font-size: 14px;

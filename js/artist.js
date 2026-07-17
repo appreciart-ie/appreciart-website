@@ -96,18 +96,15 @@
       const guestVisitHtml = (gStartD && gEndD)
         ? `<div class="guest-visit">
              <div class="guest-visit-range">
-               <div class="guest-visit-point">
-                 <span class="guest-visit-day">${esc(gDay(gStartD))}</span>
-                 <span class="guest-visit-mon">${esc(gMon(gStartD))}</span>
-               </div>
-               <span class="guest-visit-sep" aria-hidden="true"></span>
-               <div class="guest-visit-point">
-                 <span class="guest-visit-day">${esc(gDay(gEndD))}</span>
-                 <span class="guest-visit-mon">${esc(gMon(gEndD))}</span>
-               </div>
+               <span class="guest-visit-role gv-frole">From</span>
+               <span class="guest-visit-day gv-fday">${esc(gDay(gStartD))}</span>
+               <span class="guest-visit-mon gv-fmon">${esc(gMon(gStartD))}</span>
+               <span class="guest-visit-sep gv-sep" aria-hidden="true"></span>
+               <span class="guest-visit-role gv-trole">To</span>
+               <span class="guest-visit-day gv-tday">${esc(gDay(gEndD))}</span>
+               <span class="guest-visit-mon gv-tmon">${esc(gMon(gEndD))}</span>
+               <span class="guest-visit-year gv-year">${esc(guestVisitYear)}</span>
              </div>
-             <span class="guest-visit-year">${esc(guestVisitYear)}</span>
-             <span class="guest-visit-caption">Guest residency · Ballsbridge</span>
            </div>`
         : '';
 
