@@ -289,6 +289,64 @@
       margin-top: 20px;
     }
 
+    /* Editorial guest visit block */
+    .guest-visit {
+      margin-top: 24px;
+    }
+
+    .guest-visit-range {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .guest-visit-point {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .guest-visit-day {
+      font-size: clamp(44px, 7vw, 64px);
+      font-weight: 300;
+      line-height: 1;
+      color: var(--black);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .guest-visit-mon {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .guest-visit-sep {
+      width: 32px;
+      height: 1px;
+      background: var(--light);
+    }
+
+    .guest-visit-year {
+      display: block;
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: var(--mid);
+    }
+
+    .guest-visit-caption {
+      display: block;
+      margin-top: 10px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
     .availability-empty {
       font-size: 14px;
       font-weight: 300;

@@ -83,6 +83,34 @@
         : '';
       const guestDateRange = guestStart && guestEnd ? `${guestStart} – ${guestEnd}` : '';
 
+      // Editorial guest visit block — day / month / year as separate parts
+      const gStartD = artist.guest_start_date ? new Date(artist.guest_start_date) : null;
+      const gEndD   = artist.guest_end_date   ? new Date(artist.guest_end_date)   : null;
+      const gDay = d => String(d.getDate()).padStart(2, '0');
+      const gMon = d => d.toLocaleDateString('en-IE', { month: 'short' }).toUpperCase();
+      const guestVisitYear = (gStartD && gEndD)
+        ? (gStartD.getFullYear() === gEndD.getFullYear()
+            ? String(gStartD.getFullYear())
+            : `${gStartD.getFullYear()} – ${gEndD.getFullYear()}`)
+        : '';
+      const guestVisitHtml = (gStartD && gEndD)
+        ? `<div class="guest-visit">
+             <div class="guest-visit-range">
+               <div class="guest-visit-point">
+                 <span class="guest-visit-day">${esc(gDay(gStartD))}</span>
+                 <span class="guest-visit-mon">${esc(gMon(gStartD))}</span>
+               </div>
+               <span class="guest-visit-sep" aria-hidden="true"></span>
+               <div class="guest-visit-point">
+                 <span class="guest-visit-day">${esc(gDay(gEndD))}</span>
+                 <span class="guest-visit-mon">${esc(gMon(gEndD))}</span>
+               </div>
+             </div>
+             <span class="guest-visit-year">${esc(guestVisitYear)}</span>
+             <span class="guest-visit-caption">Guest residency · Ballsbridge</span>
+           </div>`
+        : '';
+
       const instaHandle = artist.instagram || '';
       const instaUrl    = instaHandle ? `https://instagram.com/${encodeURIComponent(instaHandle.replace('@', ''))}` : '#';
 
@@ -126,7 +154,7 @@
       const availHtml = loggedInArtist
         ? `<p class="availability-empty">You're signed in as an artist. Manage sessions from your <a href="dashboard.html">Dashboard</a>.</p>`
         : artist.role === 'guest'
-        ? `${guestDateRange ? `<p class="artist-guest-dates">At the studio ${esc(guestDateRange)}</p>` : ''}
+        ? `${guestVisitHtml || (guestDateRange ? `<p class="artist-guest-dates">At the studio ${esc(guestDateRange)}</p>` : '')}
            <p class="availability-empty">Bookings are handled directly with this artist.</p>
            <div class="cta-row artist-contact-row">${guestContactBtns}</div>`
         : availableSlots.length > 0
