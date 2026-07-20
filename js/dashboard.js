@@ -818,6 +818,18 @@
     updateLegend();
   }
 
+  function changeMonth(direction) {
+    calendarTransition = direction;
+    if (direction === 'prev') {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    } else if (direction === 'next') {
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    }
+    renderCalendar();
+  }
+
   // ── Legend ──
   function updateLegend() {
     const legend = document.querySelector('.cal-legend');
@@ -1299,19 +1311,32 @@
     }
   }
 
-  calPrev.addEventListener('click', () => {
-    calendarTransition = 'prev';
-    currentMonth--;
-    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar();
-  });
+  calPrev.addEventListener('click', () => changeMonth('prev'));
+  calNext.addEventListener('click', () => changeMonth('next'));
 
-  calNext.addEventListener('click', () => {
-    calendarTransition = 'next';
-    currentMonth++;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    renderCalendar();
-  });
+  // ── Swipe gesture (PWA calendar navigation) ──
+  let swipeStartX = 0;
+  let swipeStartY = 0;
+
+  calGrid.addEventListener('touchstart', (e) => {
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  calGrid.addEventListener('touchend', (e) => {
+    if (!e.changedTouches.length) return;
+    const swipeEndX = e.changedTouches[0].clientX;
+    const swipeEndY = e.changedTouches[0].clientY;
+
+    const deltaX = swipeEndX - swipeStartX;
+    const deltaY = swipeEndY - swipeStartY;
+
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+    if (Math.abs(deltaX) < 50) return;
+
+    if (deltaX < 0) changeMonth('next');
+    else changeMonth('prev');
+  }, { passive: true });
 
   const calHeader = document.querySelector('.cal-header');
   if (calHeader) {
