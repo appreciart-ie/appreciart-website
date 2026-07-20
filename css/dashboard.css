@@ -506,6 +506,32 @@
   border: 1px solid var(--light);
 }
 
+.cal-filter-btn {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mid);
+  background: none;
+  border: 1px solid var(--light);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  margin-left: auto;
+}
+
+.cal-filter-btn:hover {
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.cal-filter-btn[data-active="true"] {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
 /* ── GUEST CALENDAR ── */
 .cal-day--blocked {
   opacity: 0.2;

@@ -668,6 +668,7 @@
   }
 
   function renderCalendar() {
+    const filterMineSessions = localStorage.getItem(`art_calendar_filter_mine_${artist.slug}`) === 'true';
     const months = ['January','February','March','April','May','June',
                     'July','August','September','October','November','December'];
     calMonth.textContent = `${months[currentMonth]} ${currentYear}`;
@@ -794,6 +795,13 @@
       bar.style.color      = '#ffffff';
     });
 
+    // Apply filter "only my sessions" if active (residents only)
+    if (filterMineSessions && !isGuest) {
+      calGrid.querySelectorAll('.cal-bar[data-mine="false"]').forEach(bar => {
+        bar.style.display = 'none';
+      });
+    }
+
     // Tooltip
     calGrid.querySelectorAll('.cal-bar[data-tooltip]').forEach(bar => {
       bar.addEventListener('mouseenter', e => showTooltip(e, bar.dataset.tooltip));
@@ -816,6 +824,35 @@
 
     // Update legend
     updateLegend();
+
+    // Setup filter button (residents only)
+    if (!isGuest) {
+      setupFilterButton(filterMineSessions);
+    }
+  }
+
+  function setupFilterButton(isActive) {
+    let filterBtn = document.getElementById('calFilterMine');
+    if (!filterBtn) {
+      const legend = document.querySelector('.cal-legend');
+      if (!legend) return;
+      filterBtn = document.createElement('button');
+      filterBtn.id = 'calFilterMine';
+      filterBtn.className = 'cal-filter-btn';
+      filterBtn.type = 'button';
+      legend.parentNode.insertBefore(filterBtn, legend.nextSibling);
+    }
+
+    filterBtn.textContent = 'Show only my sessions';
+    filterBtn.setAttribute('data-active', isActive ? 'true' : 'false');
+    filterBtn.removeEventListener('click', handleFilterToggle);
+    filterBtn.addEventListener('click', handleFilterToggle);
+  }
+
+  function handleFilterToggle() {
+    const currentState = localStorage.getItem(`art_calendar_filter_mine_${artist.slug}`) === 'true';
+    localStorage.setItem(`art_calendar_filter_mine_${artist.slug}`, !currentState ? 'true' : 'false');
+    renderCalendar();
   }
 
   function changeMonth(direction) {
