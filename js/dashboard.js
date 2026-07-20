@@ -422,7 +422,17 @@
     document.body.appendChild(modal);
     const bmStageField = document.getElementById('bmStageField');
     if (bmStageField) bmStageField.style.marginTop = '20px';
-    requestAnimationFrame(() => modal.classList.add('open'));
+    requestAnimationFrame(() => {
+      modal.classList.add('open');
+
+      // Apply read-only mode in PWA standalone
+      if (_standalone) {
+        document.getElementById('bmDate')?.setAttribute('disabled', 'disabled');
+        document.getElementById('bmStage')?.setAttribute('disabled', 'disabled');
+        document.getElementById('bmNotes')?.setAttribute('disabled', 'disabled');
+        document.getElementById('bmSave').hidden = true;
+      }
+    });
 
     function closeModal() {
       modal.classList.remove('open');
