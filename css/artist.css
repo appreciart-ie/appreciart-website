@@ -331,6 +331,11 @@
       letter-spacing: 0.02em;
     }
 
+    .guest-visit-badge-icon {
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
     .guest-visit-mon {
       font-size: 9px;
       font-weight: 700;
