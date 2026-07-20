@@ -94,24 +94,55 @@
       const gSameMonth = gStartD && gEndD
         && gStartD.getFullYear() === gEndD.getFullYear()
         && gStartD.getMonth() === gEndD.getMonth();
+
+      // Badge: days remaining until end of guest residency
+      let badgeHtml = '';
+      if (gStartD && gEndD) {
+        const now = new Date(); now.setHours(0,0,0,0);
+        const daysLeft = Math.ceil((gEndD - now) / 86400000);
+        if (daysLeft > 1) {
+          badgeHtml = `<span class="guest-visit-badge">${daysLeft} days left</span>`;
+        } else if (daysLeft === 1) {
+          badgeHtml = `<span class="guest-visit-badge guest-visit-badge--last">Last day</span>`;
+        } else if (daysLeft === 0) {
+          badgeHtml = `<span class="guest-visit-badge guest-visit-badge--today">Today only</span>`;
+        }
+      }
+
       const guestVisitHtml = !(gStartD && gEndD)
         ? ''
         : gSameMonth
         ? `<div class="guest-visit">
+             <div class="guest-visit-header">
+               <span class="guest-visit-label">AT THE STUDIO</span>
+               ${badgeHtml}
+             </div>
              <span class="guest-visit-mon guest-visit-mon--lead">${esc(gMonLong(gStartD))}</span>
              <div class="guest-visit-range guest-visit-range--single">
                <span class="guest-visit-day">${esc(gDay(gStartD))}</span>
                <span class="guest-visit-sep" aria-hidden="true"></span>
                <span class="guest-visit-day">${esc(gDay(gEndD))}</span>
              </div>
+             <div class="guest-visit-location">
+               <svg class="guest-visit-location-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+               <span>Ballsbridge, Dublin</span>
+             </div>
            </div>`
         : `<div class="guest-visit">
+             <div class="guest-visit-header">
+               <span class="guest-visit-label">AT THE STUDIO</span>
+               ${badgeHtml}
+             </div>
              <div class="guest-visit-range guest-visit-range--split">
                <span class="guest-visit-mon gv-fmon">${esc(gMonShort(gStartD))}</span>
                <span class="guest-visit-day gv-fday">${esc(gDay(gStartD))}</span>
                <span class="guest-visit-sep gv-sep" aria-hidden="true"></span>
                <span class="guest-visit-mon gv-tmon">${esc(gMonShort(gEndD))}</span>
                <span class="guest-visit-day gv-tday">${esc(gDay(gEndD))}</span>
+             </div>
+             <div class="guest-visit-location">
+               <svg class="guest-visit-location-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+               <span>Ballsbridge, Dublin</span>
              </div>
            </div>`;
 

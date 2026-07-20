@@ -294,6 +294,41 @@
       margin-top: 24px;
     }
 
+    .guest-visit-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .guest-visit-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .guest-visit-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: #2e7d32;
+      padding: 4px 10px;
+      border-radius: 0;
+      white-space: nowrap;
+    }
+
+    .guest-visit-badge--last {
+      background: #c8a400;
+    }
+
+    .guest-visit-badge--today {
+      background: #e53935;
+    }
+
     .guest-visit-mon {
       font-size: 9px;
       font-weight: 700;
@@ -347,6 +382,22 @@
     .gv-fday { grid-area: fday; }
     .gv-tday { grid-area: tday; }
     .gv-sep  { grid-area: sep; }
+
+    .guest-visit-location {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sec-grey);
+      letter-spacing: 0.02em;
+    }
+
+    .guest-visit-location-icon {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
 
     .availability-empty {
       font-size: 14px;
