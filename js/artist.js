@@ -101,11 +101,11 @@
         const now = new Date(); now.setHours(0,0,0,0);
         const daysLeft = Math.ceil((gEndD - now) / 86400000);
         if (daysLeft > 1) {
-          badgeHtml = `<div class="guest-visit-badge-subtle"><svg class="guest-visit-badge-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>${daysLeft} days left</span></div>`;
+          badgeHtml = `<div class="guest-visit-badge-subtle">⏰ <span>${daysLeft} days left</span></div>`;
         } else if (daysLeft === 1) {
-          badgeHtml = `<div class="guest-visit-badge-subtle"><svg class="guest-visit-badge-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Last day</span></div>`;
+          badgeHtml = `<div class="guest-visit-badge-subtle">⏰ <span>Last day</span></div>`;
         } else if (daysLeft === 0) {
-          badgeHtml = `<div class="guest-visit-badge-subtle"><svg class="guest-visit-badge-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Today only</span></div>`;
+          badgeHtml = `<div class="guest-visit-badge-subtle">⏰ <span>Today only</span></div>`;
         }
       }
 
