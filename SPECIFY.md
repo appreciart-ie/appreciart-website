@@ -1,10 +1,10 @@
 # SPECIFY.md — Appreciart IE Frontend: What the System Actually Does Today
 
-> Verified against source on 2026-07-15 (branch `main`, HEAD `3e38760`). This document supersedes the
+> Verified against source on 2026-07-21 (branch `main`, HEAD `df80c29`). This document supersedes the
 > equivalent sections of CLAUDE.md where they disagree — every claim here was checked against the code,
-> not copied from docs. Backend: `https://appreciart-internal-production-ee3c.up.railway.app` (Railway).
-> Deploy: push to `main` → Cloudflare Pages (`appreciart-website.pages.dev`). No build step; plain
-> HTML/CSS/JS served as-is.
+> not copied from docs. Backend: `https://api.appreciart.ie`.
+> Deploy: push to `main` → Cloudflare Pages, served at `appreciart.ie` (project
+> `appreciart-website.pages.dev`). No build step; plain HTML/CSS/JS served as-is.
 
 ---
 
@@ -71,8 +71,8 @@ Steps: **1 Artist · 2 Date · 3 Details · 4 Payment**, `goToStep()` guards for
 (step ≥2 needs `selectedArtist`, ≥3 needs `selectedDay`, 4 needs `clientSecret`). A summary rail
 shows artist/date/deposit and a clickable stepper (backwards only).
 
-- Init: `fetchConfig()` (Stripe key from `/api/public/config` — note: this call has **no timeout
-  signal**, unlike every other fetch) then `Stripe(key)`. URL params `?artist=` preselects,
+- Init: `fetchConfig()` (Stripe key from `/api/public/config`, 10s timeout like every other fetch
+  since `08e1772`) then `Stripe(key)`. URL params `?artist=` preselects,
   `?date=YYYY-MM-DD` pre-picks once availability loads.
 - Step 1: residents from `GET /api/public/artists` as photo buttons; guests render in a separate
   "guest artists" grid as profile links (guests are not bookable through the wizard). Artist colour
@@ -317,14 +317,18 @@ WhatsApp number, guest-only; booking link, guest-only; Account card with change-
   **removed from the DOM**, not CSS-hidden; (4) a failed token refresh due to network error does
   **not** log the artist out — only a real 401 does (applies to authFetch, the 13-min timer, and the
   visibility handler).
-- **Swipe gesture month navigation: confirmed still absent.** There are no touch/pointer swipe
-  handlers anywhere in dashboard.js; month nav is buttons only.
-- **iOS session persistence / domain migration: not started.** The plan is to serve the API from
-  `api.appreciart.ie` so the refresh cookie becomes same-site (Safari ITP currently purges the
-  cross-site pages.dev ↔ railway.app cookie in the installed PWA). Verified today: **zero**
-  references to `api.appreciart.ie` in the repo, and the Railway URL is still hardcoded in **12
-  files** — `_headers` (CSP connect-src) plus `js/artist.js, bookings.js, consent.js, dashboard.js,
-  forgot-password.js, gallery.js, guest-artist.js, header.js, index.js, login.js, reset-password.js`.
+- **Swipe gesture month navigation: implemented** (`0786cc6`, 2026-07-20). `touchstart`/`touchend`
+  handlers on `calGrid` capture start/end coordinates; swipes whose vertical movement dominates, or
+  whose horizontal delta is under 50px, are ignored. Otherwise left → next month, right → previous,
+  delegating to the shared `changeMonth()` so the gesture inherits the same slide transition as the
+  prev/next buttons.
+- **API domain migration: complete on the frontend** (`4332c49` → `1022df4` → `d70e862`, 2026-07-17).
+  Verified 2026-07-21: **zero** references to the old Railway host remain anywhere in the repo, and
+  **12 files** now target `api.appreciart.ie` — `_headers` (CSP connect-src) plus `js/artist.js,
+  bookings.js, consent.js, dashboard.js, forgot-password.js, gallery.js, guest-artist.js, header.js,
+  index.js, login.js, reset-password.js`. **iOS session persistence is not resolved by this alone**:
+  the remaining blocker is the backend cookie-domain change (other repo) needed for the refresh
+  cookie to be issued same-site. No frontend work is outstanding here.
 
 ---
 
@@ -363,28 +367,35 @@ marina `#E64A19`, renan `#1565C0`, guest `#B8860B`.
 - `default-src 'self'`; `script-src 'self' 'unsafe-inline'` + js.stripe.com + googletagmanager.com
   (inline **scripts** allowed for GTM/Stripe; avoid adding more);
 - `style-src 'self'` — **no inline styles**; all dynamic styling must use CSSOM. Inline `style="…"`
-  attributes are silently blocked by the browser (three violations exist today — see TASKS.md);
+  attributes are silently blocked by the browser (the three known violations were fixed in `5df31a3`);
 - `img-src 'self' data: res.cloudinary.com i.ytimg.com` (ytimg added for YouTube facades; `blob:`
   deliberately absent);
-- `connect-src`: self, Stripe (api/m/m.network), the Railway backend, api.cloudinary.com, GA;
+- `connect-src`: self, Stripe (api/m/m.network), `api.appreciart.ie`, api.cloudinary.com, GA;
 - `frame-src`: js.stripe.com, hooks.stripe.com, youtube.com, youtube-nocookie.com;
 - `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`.
 Plus `nosniff`, `X-Frame-Options DENY`, `Referrer-Policy strict-origin-when-cross-origin`,
 restrictive Permissions-Policy; `/api/* → Cache-Control: no-store`; `/sw.js → no-cache`.
 
 **Auth model**: 15-min JWT access token in `localStorage.art_token`; artist object in
-`localStorage.art_artist`; 30-day httpOnly refresh cookie (`sameSite: none` — required while frontend
-and API live on different domains, and the root cause of the iOS PWA logout issue).
+`localStorage.art_artist`; 30-day httpOnly refresh cookie, currently `sameSite: none`. Frontend and
+API now share a root domain (`appreciart.ie` / `api.appreciart.ie`), so the original cross-site
+explanation for the iOS PWA logout **no longer applies**. Two things remain open, neither confirmed
+as the cause: the backend cookie-domain change is still pending (other repo), so the cookie is not
+yet actually issued same-site; and a login-before-install sequencing issue observed 2026-07-21 has
+not been root-caused. Do not treat either as diagnosed.
 
 ---
 
 ## Block 7 — Known Issues Inventory
 
-Every unresolved item, each re-verified against current code today, lives in **TASKS.md** (checkbox
-backlog). Headlines: payments are still Stripe **test-mode** (the backend's `/api/public/config`
-serves a `pk_test_…` key — verified live today; the frontend no longer hardcodes any key);
-`appreciart.ie` domain and the `api.appreciart.ie` migration have not happened (12 files still
-hardcode the Railway URL); PWA swipe navigation and the queued calendar UX polish (colour
-fill/outline availability encoding, tap feedback, modal copy cleanup) are not built; dashboard
-booking cards, tab counts and tab fade transitions from CLAUDE.md's "What's Next" are still open;
-and there are three inline-style CSP violations plus a missing fetch timeout in bookings.js.
+Every unresolved item, each re-verified against current code, lives in **TASKS.md** (checkbox
+backlog). Headlines as of 2026-07-21: payments are still Stripe **test-mode** (the backend's
+`/api/public/config` serves a `pk_test_…` key; the frontend no longer hardcodes any key, but
+gallery.html still hardcodes 4 Stripe Price IDs that must be re-created as live prices at the same
+time). The `appreciart.ie` domain and the `api.appreciart.ie` migration are both **done**, as is PWA
+swipe navigation. Still open: the queued calendar UX polish (colour fill/outline availability
+encoding — partially addressed, see the TASKS.md note — tap feedback, modal copy cleanup); dashboard
+session cards, tab counts and tab fade transitions from CLAUDE.md's "What's Next"; and three auth
+findings logged 2026-07-21 (multi-tab refresh race, duplicated logout, uncleared per-artist state).
+The three inline-style CSP violations (`5df31a3`) and the missing bookings.js fetch timeout
+(`08e1772`) are fixed.
