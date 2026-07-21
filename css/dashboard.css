@@ -1771,6 +1771,14 @@ body.pwa-standalone #tab-availability .cal-dot {
   height: 8px;
 }
 
+body.pwa-standalone #tab-availability #calFilterMine {
+  font-size: 8px;
+  padding: 4px 8px;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
 .pwa-logout { display: none; }
 
 body.pwa-standalone .pwa-logout {
