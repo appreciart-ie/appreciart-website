@@ -95,6 +95,11 @@
 - [ ] [calendar-ux] Colour fill vs outline encoding for artist availability (e.g. filled = booked,
       outlined = available) — today availability is a black 50%-opacity bar, visually close to
       consultations (artist colour at 45% opacity). — severity: med — effort: M
+      — NOTE 2026-07-21: partial distinction already exists via border-left (solid vs dashed) and
+      font-weight (700 vs 400) in `.cal-bar--available` / `--booked` / `--consultation`. However,
+      `renderCalendar()` still applies opacity 0.5/0.45 via CSSOM on top of these, which visually
+      flattens the distinction. Needs visual review (screenshot) before deciding if this counts as
+      resolved or if the opacity should be reduced/removed.
 - [ ] [calendar-ux] Tap-feedback improvements on day cells (current feedback is only the
       `cal-day--selected` outline; no active/pressed state, notable in the PWA). — severity: low — effort: S
 - [ ] [calendar-ux] Copy cleanup across calendar modals — inconsistent verbs for the same actions:
