@@ -507,29 +507,64 @@
 }
 
 .cal-filter-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
   font-family: var(--font);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--mid);
-  background: none;
-  border: 1px solid var(--light);
-  padding: 6px 12px;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-  margin-left: auto;
+  transition: color 0.2s;
 }
 
-.cal-filter-btn:hover {
-  color: var(--black);
-  border-color: var(--black);
+/* track */
+.cal-filter-btn::before {
+  content: '';
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 34px;
+  height: 18px;
+  border: 1px solid var(--light);
+  background: var(--off-white);
+  transition: background 0.2s, border-color 0.2s;
 }
+
+/* knob */
+.cal-filter-btn::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: var(--mid);
+  transition: left 0.2s ease, background 0.2s;
+}
+
+.cal-filter-btn:hover { color: var(--black); }
+.cal-filter-btn:hover::before { border-color: var(--black); }
 
 .cal-filter-btn[data-active="true"] {
+  color: var(--black);
+}
+
+.cal-filter-btn[data-active="true"]::before {
   background: var(--black);
-  color: var(--white);
   border-color: var(--black);
+}
+
+.cal-filter-btn[data-active="true"]::after {
+  left: 19px;
+  background: var(--white);
 }
 
 /* ── GUEST CALENDAR ── */
@@ -1772,11 +1807,26 @@ body.pwa-standalone #tab-availability .cal-dot {
 }
 
 body.pwa-standalone #tab-availability #calFilterMine {
-  font-size: 8px;
-  padding: 4px 8px;
-  letter-spacing: 0.1em;
-  margin-top: 2px;
+  align-self: flex-start;
   flex-shrink: 0;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+body.pwa-standalone #tab-availability #calFilterMine::before {
+  width: 30px;
+  height: 16px;
+}
+
+body.pwa-standalone #tab-availability #calFilterMine::after {
+  width: 10px;
+  height: 10px;
+}
+
+body.pwa-standalone #tab-availability #calFilterMine[data-active="true"]::after {
+  left: 17px;
 }
 
 .pwa-logout { display: none; }
