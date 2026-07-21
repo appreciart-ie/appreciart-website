@@ -1829,6 +1829,19 @@ body.pwa-standalone #tab-availability #calFilterMine[data-active="true"]::after 
   left: 17px;
 }
 
+/* Read-only booking modal in standalone: .btn sets display, so [hidden] needs
+   an author rule to win the cascade */
+body.pwa-standalone #bookingModal #bmSave[hidden] {
+  display: none;
+}
+
+body.pwa-standalone #bookingModal .form-input:disabled,
+body.pwa-standalone #bookingModal .form-select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background: var(--off-white);
+}
+
 .pwa-logout { display: none; }
 
 body.pwa-standalone .pwa-logout {
