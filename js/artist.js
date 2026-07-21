@@ -350,17 +350,19 @@
     let bmDay        = null;
     let bmYear       = null;
     let bmMonth      = null;
+    let payEl        = null;
 
-    // Fetch Stripe public key from config
-    (async () => {
+    // Fetch Stripe public key from config. Awaited before any payment-intent
+    // request so a missing key can never leave an orphan booking behind.
+    const configReady = (async () => {
       try {
         const res = await fetch(`${INTERNAL}/api/public/config`, { signal: AbortSignal.timeout(10000) });
-        if (res.ok) {
-          const data = await res.json();
-          stripePublishableKey = data.stripePublishableKey;
-        }
+        if (!res.ok) throw new Error(`Config endpoint returned ${res.status}`);
+        const data = await res.json();
+        stripePublishableKey = data.stripePublishableKey || null;
       } catch (err) {
         console.error('[artist] Failed to fetch config:', err.message);
+        stripePublishableKey = null;
       }
     })();
 
@@ -378,6 +380,14 @@
       document.getElementById('bmOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';
 
+      // Tear down any Payment Element from a previous date before reopening —
+      // remounting into a live container leaves a stale element bound to the
+      // old clientSecret.
+      if (payEl) {
+        try { payEl.destroy(); } catch (err) { console.error('[artist] Payment Element destroy failed:', err.message); }
+        payEl = null;
+      }
+
       // Reset modal state
       document.getElementById('bmFormBody').style.display = 'block';
       document.getElementById('bmSuccess').classList.remove('visible');
@@ -387,6 +397,9 @@
       document.getElementById('bmProceedBtn').disabled = false;
       document.getElementById('bmProceedBtn').textContent = 'Continue to Payment';
       document.getElementById('bmPayErr').classList.remove('visible');
+      document.getElementById('bmSetupErr').classList.remove('visible');
+      document.getElementById('bmPayBtn').disabled = true;
+      document.getElementById('bmPayBtn').textContent = 'Confirm & Pay';
       bmSecret = null; bmElements = null; bmBookingId = null;
     }
 
@@ -418,8 +431,28 @@
       if (!name || !phone || !email || !emailRe.test(email)) return;
 
       const btn = document.getElementById('bmProceedBtn');
+      // Setup errors render outside #bmPaymentSection, which is still hidden here
+      const errEl = document.getElementById('bmSetupErr');
+      errEl.classList.remove('visible');
       btn.disabled = true;
       btn.textContent = 'Setting up payment...';
+
+      // Stripe must be ready BEFORE the booking is created — otherwise a
+      // missing/failed config leaves a paid-for-nothing booking on the backend.
+      await configReady;
+      if (!bmStripe && stripePublishableKey) {
+        try { bmStripe = Stripe(stripePublishableKey); }
+        catch (err) { console.error('[artist] Stripe init failed:', err.message); }
+      }
+      if (!bmStripe) {
+        const msg = 'Payments are temporarily unavailable. Please refresh and try again, or contact us on WhatsApp.';
+        toast(msg, 'error');
+        errEl.textContent = msg;
+        errEl.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Continue to Payment';
+        return;
+      }
 
       const dateStr = `${bmYear}-${String(bmMonth + 1).padStart(2,'0')}-${String(bmDay).padStart(2,'0')}`;
 
@@ -456,7 +489,6 @@
           return;
         }
 
-        if (!bmStripe && stripePublishableKey) bmStripe = Stripe(stripePublishableKey);
         bmElements = bmStripe.elements({
           clientSecret: bmSecret,
           appearance: {
@@ -477,7 +509,7 @@
           },
         });
 
-        const payEl = bmElements.create('payment', {
+        payEl = bmElements.create('payment', {
           layout: { type: 'accordion', defaultCollapsed: false, radios: true },
           paymentMethodOrder: ['apple_pay', 'google_pay', 'klarna', 'card'],
         });
@@ -490,8 +522,8 @@
         btn.classList.add('bm-hidden');
 
       } catch (err) {
-        document.getElementById('bmPayErr').textContent = err.message || 'Something went wrong. Please try again.';
-        document.getElementById('bmPayErr').classList.add('visible');
+        errEl.textContent = err.message || 'Something went wrong. Please try again.';
+        errEl.classList.add('visible');
         btn.disabled = false;
         btn.textContent = 'Continue to Payment';
       }
