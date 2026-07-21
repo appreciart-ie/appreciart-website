@@ -36,13 +36,24 @@
     setLoading(true);
 
     try {
-      await fetch(`${INTERNAL}/api/auth/forgot-password`, {
+      const res = await fetch(`${INTERNAL}/api/auth/forgot-password`, {
         method:      'POST',
         credentials: 'include',
         headers:     { 'Content-Type': 'application/json' },
         body:        JSON.stringify({ email }),
         signal:      AbortSignal.timeout(12000),
       });
+
+      if (res.status === 429) {
+        toast('Too many attempts. Please wait a few minutes and try again.', 'error');
+        setMsg('Too many attempts. Please wait a few minutes and try again.', true);
+        return;
+      }
+      if (!res.ok) {
+        toast('Something went wrong. Please try again.', 'error');
+        setMsg('Something went wrong. Please try again.', true);
+        return;
+      }
 
       // Response is always a generic 200 (no account enumeration).
       // Show the same message regardless of whether the email exists.

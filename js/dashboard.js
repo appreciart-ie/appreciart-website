@@ -22,6 +22,8 @@
 
   let artist;
   try { artist = JSON.parse(stored); } catch {
+    localStorage.removeItem('art_token');
+    localStorage.removeItem('art_artist');
     window.toast('Invalid session. Please sign in again.', 'error');
     setTimeout(() => { window.location.href = 'login.html'; }, 800);
     return;

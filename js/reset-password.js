@@ -64,6 +64,10 @@
         signal:      AbortSignal.timeout(12000),
       });
 
+      if (res.status === 429) {
+        toast('Too many attempts. Please wait a few minutes and try again.', 'error');
+        return;
+      }
       if (!res.ok) {
         // 400 → invalid/expired token. Show the invalid-link state.
         showInvalid();
