@@ -58,10 +58,28 @@ Render logic:
 client_phone, style?, description?, placement?, size?, date }` (date `YYYY-MM-DD`) → response
 `{ client_secret, booking_id, deposit_amount }` → mandatory `showDepositConfirm(deposit)` modal →
 Stripe Payment Element (flat theme, order: apple_pay, google_pay, klarna, card) →
-`stripe.confirmPayment` with `redirect: 'if_required'`; return URL is `artist.html?slug=…&paid=1`.
-On redirect return, `paid=1` + `redirect_status` of absent/`succeeded`/`processing` shows the success
-panel (reusing `initialLoad`); any other status shows a "no money was taken" toast and cleans the URL.
+`stripe.confirmPayment` with `redirect: 'if_required'`; return URL is
+`artist.html?slug=…&paid=1&booking_id=…` (Stripe appends `payment_intent` + `redirect_status`).
 The Stripe publishable key is fetched at page load from `GET /api/public/config` — **not hardcoded**.
+
+**Post-payment outcome (A4 — identical logic and copy in `artist.js` and `bookings.js`):**
+`redirect_status` is resolved into three distinct states, never one blanket success message:
+- `succeeded` → full confirmation panel as authored (black check icon, "Booking Confirmed").
+- `processing` → *pending* variant of the same panel: neutral `--mid` circle + clock icon, title
+  "Payment Processing", body stating the payment isn't approved yet and confirmation arrives by
+  email. Needed because async methods (Klarna) sit in `processing` indefinitely.
+- **absent** → treated as `processing`, never as confirmation, so a hand-typed `?success=1` /
+  `?paid=1` cannot produce a false positive. It is then verified against the backend and upgraded
+  to the confirmed panel only if `deposit_paid === true`; any failure leaves it pending.
+- anything else (`failed`, …) → "no money was taken" error toast + URL cleanup (unchanged).
+The inline, non-redirect confirm path reads `result.paymentIntent.status` for the same distinction
+instead of assuming success.
+
+`GET /api/public/bookings/:id?payment_intent=…` — **not documented previously; discovered while
+implementing A4.** Verified live against the backend: `400 {"error":"payment_intent is required"}`
+when the query param is missing, `404 {"error":"Booking not found"}` for an unknown id. The success
+payload was not observed — presumed to be the booking carrying `deposit_paid`, so the frontend reads
+it tolerantly as `data.booking || data` and requires `deposit_paid === true`.
 
 ### bookings.html (4-step wizard) — `js/bookings.js`
 If `art_token` is present the whole layout is replaced with a "You're signed in as an artist" notice
@@ -85,8 +103,9 @@ shows artist/date/deposit and a clickable stepper (backwards only).
   checkbox. "Proceed to Payment" enables only when required fields + artist + day are set.
 - Step 4: same payment-intent endpoint/payload as artist.html plus `marketing_consent`; deposit
   confirm modal; Payment Element (destroying any prior instance); return URL
-  `bookings.html?success=1&booking_id=…&payment_intent=…`. Redirect return handled the same way as
-  artist.html (success panel or "not completed" toast).
+  `bookings.html?success=1&booking_id=…&payment_intent=…`. Redirect return handled exactly as in
+  artist.html — same three-state outcome logic, same backend verification, same user-facing copy
+  (see "Post-payment outcome" above).
 
 ### gallery.html — `js/gallery.js`
 Four **hardcoded** `.gallery-work-card` blocks in HTML, each carrying `data-img/artist/title/medium/
