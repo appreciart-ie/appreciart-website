@@ -665,6 +665,9 @@
       margin: 0 auto 24px;
     }
 
+    /* Async methods still pending — neutral, not a confirmation */
+    .success-icon--pending { background: var(--mid, #636363); }
+
     .success-title {
       font-size: 28px;
       font-weight: 900;

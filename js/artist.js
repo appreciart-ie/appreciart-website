@@ -539,7 +539,7 @@
       try {
         result = await bmStripe.confirmPayment({
           elements: bmElements,
-          confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${encodeURIComponent(bmArtistSlug)}&paid=1` },
+          confirmParams: { return_url: `${window.location.href.split('?')[0]}?slug=${encodeURIComponent(bmArtistSlug)}&paid=1&booking_id=${encodeURIComponent(bmBookingId)}` },
           redirect: 'if_required',
         });
       } catch (err) {
@@ -555,24 +555,75 @@
         return;
       }
 
-      document.getElementById('bmFormBody').style.display = 'none';
-      document.getElementById('bmSuccess').classList.add('visible');
+      // Completed without a redirect (card / instant methods). 'processing'
+      // means Stripe hasn't approved it yet — don't claim it's confirmed.
+      const piStatus = result.paymentIntent && result.paymentIntent.status;
+      showBmSuccess(piStatus === 'processing' ? 'processing' : 'confirmed');
     });
 
+    // Success panel — two outcomes share it (same logic + copy as bookings.js):
+    //   'confirmed'  → deposit received, black check icon (markup as authored)
+    //   'processing' → async method (Klarna etc.) still pending: neutral icon, no claim of payment
+    const bmSuccessEl = document.getElementById('bmSuccess');
+    const bmSuccessMarkup = bmSuccessEl ? bmSuccessEl.innerHTML : '';
+
+    function showBmSuccess(state) {
+      if (state === 'processing') {
+        const icon  = bmSuccessEl.querySelector('.bm-success-icon');
+        const title = bmSuccessEl.querySelector('.bm-success-title');
+        const body  = bmSuccessEl.querySelector('.bm-success-body');
+        if (icon) {
+          icon.classList.add('bm-success-icon--pending');
+          icon.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+        }
+        if (title) title.textContent = 'Payment Processing';
+        if (body) {
+          body.innerHTML = "Your payment hasn't been approved yet — some payment methods take a while. You'll get an email confirmation once it goes through, and we'll email you if it doesn't.<br><br>Nothing else is needed from you right now.";
+        }
+      } else {
+        bmSuccessEl.innerHTML = bmSuccessMarkup;
+      }
+      document.getElementById('bmFormBody').style.display = 'none';
+      bmSuccessEl.classList.add('visible');
+    }
+
     // Handle return from Stripe redirect (3DS / Klarna)
+    // A missing redirect_status is never treated as confirmation (a hand-typed
+    // ?paid=1 must not produce a false positive) — it falls back to 'processing'
+    // and is upgraded only if the backend says deposit_paid.
+    async function isDepositPaid(id, pi) {
+      if (!id || !pi) return false;
+      try {
+        const res = await fetch(
+          `${INTERNAL}/api/public/bookings/${encodeURIComponent(id)}?payment_intent=${encodeURIComponent(pi)}`,
+          { signal: AbortSignal.timeout(10000) }
+        );
+        if (!res.ok) return false;
+        const data = await res.json();
+        const booking = data.booking || data;
+        return booking.deposit_paid === true;
+      } catch {
+        return false;
+      }
+    }
+
     const returnParams = new URLSearchParams(window.location.search);
     if (returnParams.get('paid') === '1') {
       const redirectStatus = returnParams.get('redirect_status');
-      if (!redirectStatus || redirectStatus === 'succeeded' || redirectStatus === 'processing') {
-        // Reuse the single initial load — no second fetch/render pass
-        initialLoad.then(() => {
-          document.getElementById('bmFormBody').style.display = 'none';
-          document.getElementById('bmSuccess').classList.add('visible');
-          document.getElementById('bmOverlay').classList.add('open');
-        });
-      } else {
+      if (redirectStatus && redirectStatus !== 'succeeded' && redirectStatus !== 'processing') {
         toast('Payment was not completed — no money was taken. Please try again.', 'error');
         window.history.replaceState({}, '', `${window.location.pathname}?slug=${encodeURIComponent(slug)}`);
+      } else {
+        // Reuse the single initial load — no second fetch/render pass
+        initialLoad.then(() => {
+          showBmSuccess(redirectStatus === 'succeeded' ? 'confirmed' : 'processing');
+          document.getElementById('bmOverlay').classList.add('open');
+          if (redirectStatus !== 'succeeded') {
+            isDepositPaid(returnParams.get('booking_id'), returnParams.get('payment_intent')).then((paid) => {
+              if (paid) showBmSuccess('confirmed');
+            });
+          }
+        });
       }
     }
 

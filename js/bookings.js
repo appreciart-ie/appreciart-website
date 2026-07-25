@@ -598,26 +598,72 @@
         return;
       }
 
-      // Payment succeeded without redirect
-      showSuccess();
+      // Completed without a redirect (card / instant methods). 'processing'
+      // means Stripe hasn't approved it yet — don't claim it's confirmed.
+      const piStatus = result.paymentIntent && result.paymentIntent.status;
+      showSuccess(piStatus === 'processing' ? 'processing' : 'confirmed');
     });
 
     // ── Success state ──
-    function showSuccess() {
+    // Two outcomes share this screen (same logic + copy as artist.js):
+    //   'confirmed'  → deposit received, black check icon (markup as authored)
+    //   'processing' → async method (Klarna etc.) still pending: neutral icon, no claim of payment
+    const successMarkup = bookingSuccess ? bookingSuccess.innerHTML : '';
+
+    function showSuccess(state) {
+      if (state === 'processing') {
+        const icon  = bookingSuccess.querySelector('.success-icon');
+        const title = bookingSuccess.querySelector('.success-title');
+        const body  = bookingSuccess.querySelector('.success-body');
+        if (icon) {
+          icon.classList.add('success-icon--pending');
+          icon.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+        }
+        if (title) title.textContent = 'Payment Processing';
+        if (body) {
+          body.innerHTML = "Your payment hasn't been approved yet — some payment methods take a while. You'll get an email confirmation once it goes through, and we'll email you if it doesn't.<br><br>Nothing else is needed from you right now.";
+        }
+      } else {
+        bookingSuccess.innerHTML = successMarkup;
+      }
       bookingLayout.style.display = 'none';
       bookingSuccess.classList.add('visible');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ── Handle return from Stripe redirect ──
+    // A missing redirect_status is never treated as confirmation (a hand-typed
+    // ?success=1 must not produce a false positive) — it falls back to
+    // 'processing' and is upgraded only if the backend says deposit_paid.
+    async function isDepositPaid(id, pi) {
+      if (!id || !pi) return false;
+      try {
+        const res = await fetch(
+          `${INTERNAL_API}/api/public/bookings/${encodeURIComponent(id)}?payment_intent=${encodeURIComponent(pi)}`,
+          { signal: AbortSignal.timeout(10000) }
+        );
+        if (!res.ok) return false;
+        const data = await res.json();
+        const booking = data.booking || data;
+        return booking.deposit_paid === true;
+      } catch {
+        return false;
+      }
+    }
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === '1') {
       const redirectStatus = params.get('redirect_status');
-      if (!redirectStatus || redirectStatus === 'succeeded' || redirectStatus === 'processing') {
-        showSuccess();
-      } else {
+      if (redirectStatus && redirectStatus !== 'succeeded' && redirectStatus !== 'processing') {
         toast('Payment was not completed — no money was taken. Please try again.', 'error');
         window.history.replaceState({}, '', window.location.pathname);
+      } else if (redirectStatus === 'succeeded') {
+        showSuccess('confirmed');
+      } else {
+        showSuccess('processing');
+        isDepositPaid(params.get('booking_id'), params.get('payment_intent')).then((paid) => {
+          if (paid) showSuccess('confirmed');
+        });
       }
     }
 
