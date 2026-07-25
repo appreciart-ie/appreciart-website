@@ -42,6 +42,7 @@
     const proceedBtn      = document.getElementById('proceedBtn');
     const submitBtn       = document.getElementById('submitBtn');
     const paymentError    = document.getElementById('paymentError');
+    const setupError      = document.getElementById('setupError');
     const depositAmountEl = document.getElementById('depositAmount');
     const bookingSuccess  = document.getElementById('bookingSuccess');
     const bookingLayout   = document.getElementById('bookingLayout');
@@ -173,6 +174,11 @@
     function selectArtist(artist, btnEl) {
       selectedArtist = artist;
       selectedDay    = null;
+      selectedDate   = null;
+      clientSecret   = null;
+      depositAmountEl.textContent = '—';
+      summaryDeposit.textContent  = '—';
+      setupError.classList.remove('visible');
 
       document.querySelectorAll('.artist-btn').forEach(b => b.classList.remove('active'));
       const btn = btnEl || artistSelector.querySelector(`[data-slug="${CSS.escape(artist.slug)}"]`);
@@ -448,6 +454,7 @@
     proceedBtn.addEventListener('click', async () => {
       if (!validateForm()) return;
 
+      setupError.classList.remove('visible');
       proceedBtn.disabled = true;
       proceedBtn.textContent = 'Setting up payment...';
 
@@ -538,8 +545,8 @@
       } catch (err) {
         const errMsg = err.message || 'Something went wrong. Please try again.';
         toast(errMsg, 'error');
-        paymentError.textContent = errMsg;
-        paymentError.classList.add('visible');
+        setupError.textContent = errMsg;
+        setupError.classList.add('visible');
         proceedBtn.textContent = 'Proceed to Payment';
         proceedBtn.disabled = false;
       }

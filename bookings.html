@@ -77,7 +77,7 @@
           <div class="summary-row summary-row--deposit">
             <span class="summary-row-label">Refundable deposit</span>
             <div class="summary-row-value">
-              <span class="summary-deposit" id="summaryDeposit">€100</span>
+              <span class="summary-deposit" id="summaryDeposit">—</span>
             </div>
           </div>
         </div>
@@ -209,6 +209,7 @@
             </label>
           </div>
 
+          <div class="form-error" id="setupError"></div>
           <div class="step-actions">
             <button class="btn-step-back" data-goto="2">Back</button>
             <button class="btn-proceed" id="proceedBtn" disabled>Proceed to Payment</button>
@@ -223,7 +224,7 @@
           <div class="payment-section" id="paymentSection">
             <div class="deposit-summary">
               <span class="deposit-summary-label">Refundable deposit</span>
-              <span class="deposit-summary-amount" id="depositAmount">€100</span>
+              <span class="deposit-summary-amount" id="depositAmount">—</span>
             </div>
 
             <p class="deposit-note">
