@@ -445,9 +445,26 @@
       proceedBtn.disabled = !ready;
     }
 
+    // A field edit after a PaymentIntent already exists means the details it
+    // was created from are stale — invalidate it so proceeding re-POSTs
+    // fresh instead of reusing a booking/PaymentIntent for old details.
+    function invalidateClientSecret() {
+      if (!clientSecret) return;
+      clientSecret  = null;
+      bookingId     = null;
+      paymentIntent = null;
+      if (paymentElement) {
+        paymentElement.destroy();
+        paymentElement = null;
+      }
+      submitBtn.disabled = true;
+      depositAmountEl.textContent = '—';
+      summaryDeposit.textContent  = '—';
+    }
+
     ['clientName','clientPhone','clientEmail','style','placement','description'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('input', checkProceedButton);
+      if (el) el.addEventListener('input', () => { invalidateClientSecret(); checkProceedButton(); });
     });
 
     // ── Proceed to payment ──
