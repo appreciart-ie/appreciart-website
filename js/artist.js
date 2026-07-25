@@ -46,6 +46,13 @@
       } catch { return { availability: [], date_images: [] }; }
     }
 
+    // Parse "YYYY-MM-DD" (or an ISO string) as *local* midnight — new Date(str)
+    // treats it as UTC, so local getters slip a day in negative-offset zones.
+    function parseYMD(s) {
+      const [y, m, d] = String(s).slice(0, 10).split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
     function renderArtist(artist, availability, dateImages) {
       const isOwnPage = loggedInArtistData && loggedInArtistData.slug === artist.slug;
       // Only suppress booking actions on RESIDENT pages (hides the public Stripe
@@ -145,7 +152,7 @@
       const availableSlots = availability;
       const byMonth = {};
       availableSlots.forEach(a => {
-        const d     = new Date(a.date);
+        const d     = parseYMD(a.date);
         const key   = `${d.getFullYear()}-${d.getMonth()}`;
         const label = d.toLocaleString('en-IE', { month: 'long', year: 'numeric' });
         if (!byMonth[key]) byMonth[key] = { label, year: d.getFullYear(), month: d.getMonth(), slots: [] };
@@ -159,7 +166,7 @@
             const url = dateImgMap.get(day) || '';
             const isBooked = bookedDays && bookedDays.has(date.slice(0, 10));
             const disabled = isPast || isBooked;
-            const dateObj   = new Date(date);
+            const dateObj   = parseYMD(date);
             const dayLabel  = dateObj.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
             const ariaLabel = disabled
               ? `Unavailable — ${dayLabel}`
@@ -367,12 +374,11 @@
     })();
 
     function openBookingModal(day, artistSlug, artistName, dateStr) {
-      const [dy, dm, dd] = dateStr ? dateStr.split('-').map(Number) : [];
-      const d      = dateStr ? new Date(dy, dm - 1, dd) : new Date();
+      const d      = dateStr ? parseYMD(dateStr) : new Date();
       bmDay        = day;
       bmArtistSlug = artistSlug;
-      bmYear       = dateStr ? dy : d.getFullYear();
-      bmMonth      = dateStr ? dm - 1 : d.getMonth();
+      bmYear       = d.getFullYear();
+      bmMonth      = d.getMonth();
       const monthName = d.toLocaleString('en-IE', { month: 'long' });
 
       document.getElementById('bmTitle').textContent    = `Book with ${artistName}`;

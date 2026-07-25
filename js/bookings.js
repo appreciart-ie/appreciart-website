@@ -58,6 +58,13 @@
     function pad(n) { return String(n).padStart(2, '0'); }
     function dateKey(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
     function keyFor(y, m, day) { return `${y}-${pad(m + 1)}-${pad(day)}`; }
+    // Parse "YYYY-MM-DD" (or an ISO string) as *local* midnight.
+    // new Date('2026-08-12') is UTC midnight, so local getters return the
+    // previous day in negative-offset timezones. Same pattern as artist.js.
+    function parseYMD(s) {
+      const [y, m, d] = String(s).slice(0, 10).split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
     function artistColour(a) {
       if (!a) return '#000000';
       return ARTIST_COLOURS[a.slug] || GUEST_COLOUR;
@@ -216,7 +223,7 @@
         const allSlots = (data.availability || []);
 
         allSlots.forEach(a => {
-          const d   = new Date(a.date);
+          const d   = parseYMD(a.date);
           const key = dateKey(d);
           if (a.booked) {
             bookedSet.add(key);
@@ -240,7 +247,7 @@
         // pre-selected date already points elsewhere.
         let startMk = minMonthKey;
         if (selectedDate && availMap.has(selectedDate)) {
-          const sd = new Date(selectedDate);
+          const sd = parseYMD(selectedDate);
           startMk = sd.getFullYear() * 12 + sd.getMonth();
         }
         currentYear  = Math.floor(startMk / 12);
@@ -250,7 +257,7 @@
 
         // Re-apply a pre-selected (URL/back-nav) date if still available
         if (selectedDate && availMap.has(selectedDate)) {
-          const sd = new Date(selectedDate);
+          const sd = parseYMD(selectedDate);
           selectedDay = sd.getDate();
           markSelectedCell();
           next2Btn.disabled = false;
@@ -337,7 +344,7 @@
     function pickDay(day, dateStr) {
       selectedDay  = day;
       selectedDate = dateStr;
-      const d = new Date(dateStr);
+      const d = parseYMD(dateStr);
       currentYear  = d.getFullYear();
       currentMonth = d.getMonth();
       markSelectedCell();
