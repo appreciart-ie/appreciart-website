@@ -63,6 +63,12 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request, { ignoreSearch: true }))
+      // Offline: serve the cached copy; for a navigation to a page that was
+      // never cached (forgot/reset-password), fall back to the app shell rather
+      // than letting respondWith resolve undefined and show the browser error.
+      .catch(() => caches.match(event.request, { ignoreSearch: true })
+        .then((hit) => hit || (event.request.mode === 'navigate'
+          ? caches.match('/dashboard.html')
+          : undefined)))
   );
 });

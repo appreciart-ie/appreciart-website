@@ -1,21 +1,33 @@
 {
+  "id": "/dashboard.html",
   "name": "Appreciart IE Calendar",
   "short_name": "Appreciart",
+  "description": "Studio calendar and bookings for Appreciart IE artists.",
+  "lang": "en-IE",
   "start_url": "/dashboard.html?tab=availability&pwa=1",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "theme_color": "#0a0a0a",
-  "background_color": "#ffffff",
+  "background_color": "#0a0a0a",
   "icons": [
     {
       "src": "/images/favicon/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/images/favicon/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

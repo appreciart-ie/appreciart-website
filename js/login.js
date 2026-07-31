@@ -24,9 +24,7 @@
 
   // Installed PWA (standalone): bare login form only — remove (not hide) every
   // path into the public site. "Forgot password?" stays: it's part of the auth flow.
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone === true;
-  if (isStandalone) {
+  if (window.isStandalone && window.isStandalone()) {
     const accessBtnEl = document.getElementById('accessBtn');
     if (accessBtnEl) accessBtnEl.remove();
     const accessModalEl = document.getElementById('accessModal');
@@ -106,16 +104,20 @@
         signal:      AbortSignal.timeout(12000),
       });
 
-      const data = await res.json();
-
+      // Check status before parsing: an error page (HTML body) would otherwise
+      // throw in .json() and mask the real 429/401 with a generic message.
       if (!res.ok) {
         if (res.status === 429) {
           setError('Too many attempts. Please wait a few minutes and try again.');
+        } else if (res.status >= 500) {
+          setError('Server error. Please try again in a moment.');
         } else {
           setError('Invalid credentials. Please try again.');
         }
         return;
       }
+
+      const data = await res.json();
 
       localStorage.setItem('art_token',  data.token);
       localStorage.setItem('art_artist', JSON.stringify({

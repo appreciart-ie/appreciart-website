@@ -15,6 +15,14 @@
   <meta name="apple-mobile-web-app-title" content="Appreciart">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/dashboard.css">
+  <script>
+    // Capture beforeinstallprompt as early as possible: it can fire before
+    // js/dashboard.js runs, and a missed event means no Install button at all.
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      window.__pwaInstallPrompt = e;
+    });
+  </script>
 </head>
 <body>
 

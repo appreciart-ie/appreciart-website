@@ -4,12 +4,14 @@
   const container = document.getElementById('site-footer');
 
   // Installed PWA (standalone): no public-site footer on any page in scope.
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone === true;
-  if (isStandalone) {
+  if (window.isStandalone && window.isStandalone()) {
     if (container) container.remove();
     return;
   }
+
+  // dashboard.html and login.html deliberately have no #site-footer: the public
+  // footer must not be appended to them.
+  if (!container) return;
   const CSS_COLOR = /^#[0-9a-fA-F]{3,6}$/;
   const rawWaveColor = container?.dataset.waveColor || '#ffffff';
   const rawWaveBg    = container?.dataset.waveBg    || '#ffffff';
@@ -67,11 +69,7 @@
     </footer>
   `;
 
-  if (container) {
-    container.innerHTML = html;
-  } else {
-    document.body.insertAdjacentHTML('beforeend', html);
-  }
+  container.innerHTML = html;
 
   const cookiesBtn = document.getElementById('footerCookiesBtn');
   if (cookiesBtn) {

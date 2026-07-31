@@ -50,8 +50,7 @@
 
   // Standalone (installed PWA) detection — hoisted so early setup below can
   // remove (not just CSS-hide) any element that links out of the calendar.
-  const _standalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone === true;
+  const _standalone = !!(window.isStandalone && window.isStandalone());
   if (_standalone) {
     const siteLink = document.querySelector('.dash-topbar-site');
     if (siteLink) siteLink.remove();
@@ -139,7 +138,23 @@
 
   (function setupInstallHint() {
     if (_standalone) return;
-    if (localStorage.getItem('art_pwa_hint_dismissed')) return;
+
+    // Dismissal (× or a declined native prompt) snoozes the hint for 30 days
+    // rather than silencing it forever. Legacy '1' values are treated as a
+    // dismissal with no timestamp — snooze from first sight instead of never.
+    const HINT_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000;
+    const HINT_KEY = 'art_pwa_hint_dismissed';
+    function snoozeHint() {
+      try { localStorage.setItem(HINT_KEY, String(Date.now())); } catch {}
+    }
+    const _dismissedRaw = localStorage.getItem(HINT_KEY);
+    if (_dismissedRaw) {
+      const at = Number(_dismissedRaw);
+      if (!Number.isFinite(at) || at === 1) { snoozeHint(); return; }
+      if (Date.now() - at < HINT_SNOOZE_MS) return;
+      localStorage.removeItem(HINT_KEY);
+    }
+
     const ua = navigator.userAgent;
     const isIos = /iPad|iPhone|iPod/.test(ua);
     const isMobile = isIos || /Android/i.test(ua);
@@ -171,7 +186,7 @@
       close.setAttribute('aria-label', 'Dismiss');
       close.textContent = '×';
       close.addEventListener('click', () => {
-        localStorage.setItem('art_pwa_hint_dismissed', '1');
+        snoozeHint();
         banner.remove();
       });
       banner.appendChild(close);
@@ -183,17 +198,29 @@
     if (isIos) {
       buildBanner('Add your calendar to the home screen: tap Share, then "Add to Home Screen".');
     } else {
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
+      function showAndroidBanner(e) {
         deferredPrompt = e;
         buildBanner('Install your calendar as an app on this phone.', 'Install', async () => {
           if (!deferredPrompt) return;
           deferredPrompt.prompt();
-          await deferredPrompt.userChoice;
+          const choice = await deferredPrompt.userChoice;
           deferredPrompt = null;
+          window.__pwaInstallPrompt = null;
+          // Declining snoozes on the same 30-day clock as the × button, so the
+          // two dismissal paths no longer behave differently.
+          if (!choice || choice.outcome !== 'accepted') snoozeHint();
           const el = document.getElementById('pwaInstallHint');
           if (el) el.remove();
         });
+      }
+
+      // beforeinstallprompt can fire before this script runs; an inline handler
+      // in <head> stashes the event, so check for it first.
+      if (window.__pwaInstallPrompt) showAndroidBanner(window.__pwaInstallPrompt);
+      else window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.__pwaInstallPrompt = e;
+        showAndroidBanner(e);
       });
     }
   })();
@@ -1609,7 +1636,12 @@
         window.toast('Your profile is no longer visible on the site' + (miss ? ' — missing: ' + miss : ''), 'info');
       }
       _wasPublic = !!data.is_public;
-    } catch {}
+    } catch (err) {
+      // Session-expiry redirects from authFetch stay silent; anything else is
+      // a real failure the artist should see rather than a stale visibility state.
+      if (err && err.message === 'session expired') return;
+      window.toast('Could not check your profile visibility — try again shortly', 'error');
+    }
   }
 
   function showProfileLiveModal() {
@@ -2476,12 +2508,19 @@ async function loadProfile() {
         const res = await fetch(INTERNAL + '/api/public/slots/range?from=' + from + '&to=' + to, {
           signal: AbortSignal.timeout(8000),
         });
-        if (!res.ok) return;
+        if (!res.ok) throw new Error('slots range failed: ' + res.status);
         const data = await res.json();
         slotMap = {};
         (data.days || []).forEach(d => { slotMap[d.date] = d.available; });
         renderCal();
-      } catch {}
+      } catch {
+        // Visible failure: an empty grid would read as "no studio availability"
+        // when in fact the request never landed.
+        slotMap = {};
+        renderCal();
+        errEl.textContent = 'Could not load studio availability — dates may be incomplete.';
+        errEl.style.display = 'block';
+      }
     }
 
     function renderCal() {

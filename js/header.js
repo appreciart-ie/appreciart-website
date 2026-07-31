@@ -10,9 +10,7 @@
 
   // Installed PWA (standalone): never render public-site navigation on any page
   // in scope — the calendar app must not offer a path into the public site.
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone === true;
-  if (isStandalone) {
+  if (window.isStandalone && window.isStandalone()) {
     const header = document.getElementById('site-header');
     if (header) header.remove();
     return;

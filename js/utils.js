@@ -11,6 +11,28 @@ function esc(str) {
     .replace(/\//g, '&#x2F;');
 }
 
+// Installed-PWA detection — single source of truth for every "is this the
+// locked-down calendar app?" decision (header/footer removal, login access
+// modal, dashboard escape-hatch links). Three signals, any one is enough:
+//   1. display-mode standalone OR minimal-ui — Android can downgrade a
+//      standalone manifest to minimal-ui and the app is still installed;
+//      treating only `standalone` as installed leaves site links visible.
+//   2. navigator.standalone — iOS home-screen apps.
+//   3. ?pwa=1 — carried by the manifest start_url, belt-and-braces for when
+//      matchMedia reports neither.
+function isStandalone() {
+  try {
+    if (window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+  } catch { /* matchMedia unavailable: fall through to the other signals */ }
+  if (window.navigator.standalone === true) return true;
+  try {
+    if (new URLSearchParams(window.location.search).get('pwa') === '1') return true;
+  } catch { /* malformed query string: not standalone */ }
+  return false;
+}
+window.isStandalone = isStandalone;
+
 // Only allow https URLs for API-derived image/link targets
 function isSafeUrl(url) {
   return typeof url === 'string' && /^https:\/\//.test(url);
