@@ -1914,6 +1914,14 @@ async function loadProfile() {
       // Client-side sanity checks (UX only — the backend re-validates).
       if (waEl)      waEl.classList.remove('form-input--error');
       if (bookingEl) bookingEl.classList.remove('form-input--error');
+      // National-format numbers (leading 0) have a plausible length, so the
+      // 8–15 check below can't catch them: "0871234567" is 10 digits and would
+      // save as a wa.me link WhatsApp rejects.
+      if (waRaw && waRaw.startsWith('0')) {
+        waEl.classList.add('form-input--error');
+        window.toast('Include the country code (e.g. 353 for Ireland) — don’t start with 0', 'error');
+        return;
+      }
       if (waRaw && (waRaw.length < 8 || waRaw.length > 15)) {
         waEl.classList.add('form-input--error');
         window.toast('WhatsApp number looks wrong — use 8–15 digits incl. country code', 'error');

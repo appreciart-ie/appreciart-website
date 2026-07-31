@@ -15,11 +15,15 @@ residentCards.forEach(card => {
 
 // Hide images that fail to load (no inline onerror per security rules)
 document.querySelectorAll('img[data-hide-on-error]').forEach(img => {
-  img.addEventListener('error', () => {
+  const hide = () => {
     const parentBg = img.getAttribute('data-parent-bg-on-error');
     if (parentBg && img.parentElement) img.parentElement.style.background = parentBg;
     img.style.display = 'none';
-  }, { once: true });
+  };
+  // Already failed before this script ran (404 / negative cache / offline):
+  // the error event fired during parse and will never fire again.
+  if (img.complete && img.naturalWidth === 0) hide();
+  img.addEventListener('error', hide, { once: true });
 });
 
 const revealObserver = new IntersectionObserver((entries) => {

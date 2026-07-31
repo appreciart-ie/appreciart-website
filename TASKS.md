@@ -125,6 +125,10 @@
       plain labels. — severity: low — effort: S
 - [ ] [dashboard] Tab fade transition — panels toggle `display:none/block` with no animation
       (calendar month transitions exist; tab switches don't). — severity: low — effort: S
+- [ ] [dashboard] Carregamento do campo WhatsApp assume formato exacto "https://wa.me/{numero}"
+      ao extrair dígitos (dashboard.js:1684) — se o backend mudar o formato de saída no futuro,
+      o replace falha silenciosamente e a URL inteira vai parar ao campo de dígitos.
+      Não é bug hoje. — severity: low — effort: S
 - [x] [dashboard] dashboard.js:734 emits `style="min-width:0"` inside calendar-bar markup — blocked
       by CSP (style attribute), so it does nothing; either remove or move to the stylesheet.
       — severity: low — effort: S
@@ -176,6 +180,11 @@
       — severity: low — effort: S
 - [ ] [profile] M2 — parse seguro em syncVisibility.
       — severity: low — effort: S
+- [ ] [security] whatsapp_url/booking_url aceitam qualquer host https sem restrição
+      — decisão deliberada de 2026-07-31: contas são aprovadas manualmente pelo admin,
+      artistas são considerados confiáveis, mitigação já existe via esse processo de
+      aprovação. Reconsiderar apenas se o sistema deixar de exigir aprovação manual
+      (ex: auto-registo de guests). — severity: info — effort: —
 
 ## Guest Lifecycle
 

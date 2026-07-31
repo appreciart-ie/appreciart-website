@@ -48,6 +48,12 @@ function showDepositConfirm(depositAmount) {
     const continueBtn = document.getElementById('confirmDepositContinue');
     if (!overlay || !bodyEl || !cancelBtn || !continueBtn) { resolve(true); return; }
 
+    // Re-entrancy guard: two concurrent calls would share the same DOM nodes,
+    // so a single click would settle both promises. Benign with today's
+    // call-sites (both behind a network await on one button), refused outright
+    // so a future third call-site can't reintroduce it.
+    if (overlay.classList.contains('open')) { resolve(false); return; }
+
     bodyEl.textContent = `Your €${depositAmount} deposit secures this slot and is fully refundable if cancelled at least 48 hours before your appointment.`;
     overlay.classList.add('open');
     continueBtn.focus();

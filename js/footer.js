@@ -12,7 +12,7 @@
   // dashboard.html and login.html deliberately have no #site-footer: the public
   // footer must not be appended to them.
   if (!container) return;
-  const CSS_COLOR = /^#[0-9a-fA-F]{3,6}$/;
+  const CSS_COLOR = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
   const rawWaveColor = container?.dataset.waveColor || '#ffffff';
   const rawWaveBg    = container?.dataset.waveBg    || '#ffffff';
   const waveColor = CSS_COLOR.test(rawWaveColor) ? rawWaveColor : '#ffffff';

@@ -1,12 +1,19 @@
 'use strict';
 
 (function () {
+  const INTERNAL    = 'https://api.appreciart.ie';
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
   const token       = localStorage.getItem('art_token');
   const stored      = localStorage.getItem('art_artist');
   const isLoggedIn  = !!token;
   const isDashboard = window.location.pathname.includes('dashboard');
-  if (isDashboard) { document.getElementById('site-header').style.display = 'none'; }
+  // Dashboard has its own chrome: hide the container and stop — no point
+  // building the whole public nav into a hidden element.
+  if (isDashboard) {
+    const dashHeader = document.getElementById('site-header');
+    if (dashHeader) dashHeader.style.display = 'none';
+    return;
+  }
 
   // Installed PWA (standalone): never render public-site navigation on any page
   // in scope — the calendar app must not offer a path into the public site.
@@ -49,7 +56,7 @@
   const authBtnDesktop = isLoggedIn
     ? `<div class="nav-artist" id="navArtist">
          <button class="nav-artist-btn" id="navArtistBtn">
-           ${esc(artistName).toUpperCase()}
+           ${esc(artistName.toUpperCase())}
            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
            </svg>
@@ -117,7 +124,7 @@
 
   async function signOut() {
     try {
-      await fetch('https://api.appreciart.ie/api/auth/logout', {
+      await fetch(`${INTERNAL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
         signal: AbortSignal.timeout(5000),
