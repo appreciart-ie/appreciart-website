@@ -1,7 +1,7 @@
 # TASKS.md — Tracked Backlog (Appreciart IE Frontend)
 
 > Format: `- [ ] [block] — description — severity — effort (S/M/L)`
-> Verified against source on 2026-07-21 (HEAD `2375950`). Only incomplete / pending / known-broken
+> Verified against source on 2026-07-31 (HEAD `ec1ad89`). Only incomplete / pending / known-broken
 > items — nothing already working. See SPECIFY.md for how the system behaves today.
 
 ## Launch blockers / infrastructure
@@ -45,6 +45,10 @@
 - [x] [auth] login.html:22 inline `style="margin-top:8px;margin-bottom:6px"` on the Sign-in title is
       blocked by CSP — margins never apply; move to css/login.css. — severity: low — effort: S
       — RESOLVED in `5df31a3`: replaced with class `section-title--login`; margins moved to css/login.css.
+- [x] [auth] Consistent error handling in login.js and onboarding flows — res.ok guards before
+      .json() parsing, no silent failures, visible error banners. — severity: med — effort: S
+      — RESOLVED in `ec1ad89`: login.js and dashboard.js onboarding (dashboard.js:1612, :2477)
+      now follow res.ok-before-parse pattern with visible error states.
 - [ ] [auth] Multi-tab refresh race: `refreshAccessToken()` in dashboard.js is single-flight only
       within one JS context (`_refreshPromise` is a module variable). Two dashboard tabs open at once
       can each fire `POST /api/auth/refresh` concurrently against the same httpOnly cookie; if the
@@ -62,6 +66,56 @@
       but on a shared device the next artist to sign in inherits the previous one's UI prefs — e.g.
       the "show only my sessions" filter already toggled on. — severity: low — effort: S
 
+## Booking & Payment
+
+- [ ] [booking] C1 — guard contre Stripe key em falta antes de montar Payment Element
+      (artist.js). — severity: high — effort: S
+- [ ] [booking] C2 — destroy()/remount do Payment Element ao reabrir modal (artist.js).
+      — severity: med — effort: S
+- [ ] [booking] A1 — erro de setup movido para nó visível (#bmSetupErr em artist.html;
+      #setupError em bookings.html). — severity: med — effort: S
+- [ ] [booking] A2 — €100 hardcoded trocado por placeholder "—"; reset do deposit ao trocar
+      de artista. — severity: med — effort: S
+- [ ] [booking] A3 — invalidação do clientSecret obsoleto ao editar passo 3
+      (invalidateClientSecret). — severity: high — effort: S
+      — PARTIALLY MITIGATED in `6155810`: softened false payment confirmation claim
+      (h1/title/meta/body), but full A3 guard pending.
+- [ ] [booking] A4 — diferenciação succeeded/processing/absent no redirect status +
+      verificação real contra GET /api/public/bookings/:id antes de confirmar
+      (bookings.js + artist.js). — severity: high — effort: M
+- [ ] [booking] M1 — parseYMD() substitui parsing UTC por local em ambos os ficheiros
+      (bookings.js e artist.js). — severity: med — effort: S
+
+## Gallery & Purchase
+
+- [x] [gallery] A1 — activeRequestId contra fetch obsoleto (gallery.js).
+      — severity: high — effort: S
+      — RESOLVED in `2bb0fa5`: stale-fetch guard via activeRequestId.
+- [x] [gallery] A2 — res.ok antes de .json(), mensagens humanas de erro.
+      — severity: high — effort: S
+      — RESOLVED in `2bb0fa5`: safe JSON parsing + human error messages.
+- [x] [gallery] A3 (mitigação) — texto de gallery-success.html suavizado (h1, title, meta,
+      corpo) + cookie-banner.js adicionado (faltava).
+      — severity: high — effort: S
+      — RESOLVED in `6155810`: softened payment confirmation copy; `2bb0fa5` context confirms
+      gallery flow complete.
+- [x] [gallery] M1 — guarda do Escape só quando lightbox está aberto.
+      — severity: low — effort: S
+      — RESOLVED in `2bb0fa5`: Escape guard scoped to lightbox visibility.
+- [x] [gallery] M2 — data-hide-on-error no #lightboxImg.
+      — severity: low — effort: S
+      — RESOLVED in `2bb0fa5`: image fallback on load error.
+- [x] [gallery] M3 — placeholder com título da obra em vez de bloco cinzento mudo.
+      — severity: low — effort: S
+      — RESOLVED in `2bb0fa5`: placeholder with work title.
+- [x] [gallery] M5 — tabindex/role="button"/keydown nos cards da galeria.
+      — severity: low — effort: S
+      — RESOLVED in `2bb0fa5`: keyboard accessibility on gallery cards.
+- [x] [gallery] M6 — gestão de foco no lightbox (não é focus trap completo — nota isso
+      explicitamente).
+      — severity: low — effort: S
+      — RESOLVED in `2bb0fa5`: focus management in lightbox (not full trap, acknowledged).
+
 ## Block 3 — Dashboard
 
 - [ ] [dashboard] Enrich session cards: show time + type (booking/consultation) alongside the stage
@@ -78,6 +132,64 @@
 - [ ] [dashboard] Consent Forms tab: code path is fixed (reads `consent_forms` / bare array, honest
       error state) and the endpoint auth-gates correctly, but end-to-end verification against real
       linked submissions still needs a manual pass with an artist login. — severity: med — effort: S
+
+### Dashboard — Calendar & Sessions
+
+- [x] [dashboard] A1 — res.ok before parse nos 5 loaders (sessions, availability, slots, photos,
+      profile) + banners de erro visíveis.
+      — severity: high — effort: S
+      — RESOLVED in `4697d69`: check res.ok before parsing in all 5 loaders, show visible
+      error states instead of silent empty.
+- [ ] [dashboard] A2 — capacidade desconhecida tratada como bloqueio, não fabricada como 4/4;
+      409 tratado em markAvailable. — severity: med — effort: S
+- [ ] [dashboard] A3 — reset do backoff SSE só em onopen real, não no refresh do token.
+      — severity: med — effort: S
+- [ ] [dashboard] A4 — tokens de sequência em loadAvailability/loadBookings/loadPhotos;
+      commit combinado availability+slotMap; invalidação nas escritas. — severity: med — effort: M
+- [ ] [dashboard] M5 — guestSlotMap distingue null/undefined/objecto.
+      — severity: low — effort: S
+- [ ] [dashboard] M7 — guarda contra modal obsoleto em cliques rápidos no calendário.
+      — severity: med — effort: S
+- [ ] [dashboard] B1 — handlers de Esc nomeados ao nível do módulo (sem acumulação).
+      — severity: low — effort: S
+- [ ] [dashboard] B3 — helper localDay() para parsing de data local.
+      — severity: low — effort: S
+- [ ] [dashboard] B4 — filtro "only mine" aplicado antes do slice, não depois.
+      — severity: low — effort: S
+- [x] [dashboard] B6 — mensagens de erro do servidor mostradas nas escritas.
+      — severity: med — effort: S
+      — RESOLVED in `efd9096`: surface backend error messages in change-password and reapply flows.
+
+## Profile & Photos
+
+- [x] [profile] A1 — validação do tamanho de TODO o batch antes do upload.
+      — severity: high — effort: S
+      — RESOLVED in `382cc91`: validate entire batch size before upload.
+- [x] [profile] A2 — reconciliação via loadPhotos(true) no finally, sem rollback manual.
+      — severity: high — effort: S
+      — RESOLVED in `382cc91`: reconcile via loadPhotos in finally, no manual optimistic rollback.
+- [ ] [profile] A3 — _photoOpInFlight bloqueia operações concorrentes de foto.
+      — severity: med — effort: S
+- [ ] [profile] A4 — Set de deletados filtra resultados da Search API (eventual consistency).
+      — severity: med — effort: S
+- [ ] [profile] M1 — completeness label não afirma "is live" antes do servidor confirmar.
+      — severity: low — effort: S
+- [ ] [profile] M2 — parse seguro em syncVisibility.
+      — severity: low — effort: S
+
+## Guest Lifecycle
+
+- [x] [guest] Mensagens de erro do backend mostradas em change-password e reapply (antes
+      genéricas).
+      — severity: med — effort: S
+      — RESOLVED in `efd9096`: surface backend error messages in change-password and reapply flows.
+- [x] [guest] Modal de onboarding removido quando conta está frozen (evita convite
+      contraditório).
+      — severity: high — effort: S
+      — RESOLVED in `efd9096`: remove onboarding modal when account is frozen.
+- [x] [guest] Guarda isFrozen no topo de handleDayClick (fecha janela de corrida).
+      — severity: high — effort: S
+      — RESOLVED in `efd9096`: guard against calendar clicks during frozen-state race window.
 
 ## Block 5 — Calendar PWA
 
@@ -106,9 +218,52 @@
       "Add to calendar" / "Mark available" / "Book client" / "Book a client" / "New session" /
       "Add client" (guest). Pick one vocabulary. — severity: low — effort: S
 
+## Block 7 — PWA (audited 2026-07-31, pending implementation)
+
+- [ ] [pwa] display-mode: minimal-ui derruba as 4 proteções de standalone; centralizar deteção
+      em window.isStandalone() (utils.js), tratando minimal-ui como standalone e usando ?pwa=1
+      como reforço. — severity: high — effort: S
+      — PARTIAL: `ec1ad89` centralizes standalone detection (minimal-ui + ?pwa=1 fallback), but
+      full audit sweep of all 4 protections pending.
+- [x] [pwa] Footer público injectado no dashboard/login fora de standalone (fallback else do
+      footer.js cola footer completo).
+      — severity: med — effort: S
+      — RESOLVED in `ec1ad89`: stop leaking public footer on dashboard/login.
+- [x] [pwa] login.js não segue o padrão res.ok-antes-do-parse; dashboard.js:2477 e :1612 têm
+      catch vazio no fluxo de onboarding.
+      — severity: med — effort: S
+      — RESOLVED in `ec1ad89`: consistent error handling (login.js, onboarding).
+- [x] [pwa] Install hint: flag de dismissal permanente (nunca reaparece); beforeinstallprompt
+      pode disparar antes do listener registar.
+      — severity: med — effort: S
+      — RESOLVED in `ec1ad89`: 30-day install hint snooze (permanent dismissal implemented).
+- [x] [pwa] manifest.json incompleto: falta id, purpose:maskable, description, lang,
+      orientation; background_color devia ser #0a0a0a para bater com theme_color.
+      — severity: low — effort: S
+      — RESOLVED in `ec1ad89`: manifest completeness (id, purpose:maskable, description, lang,
+      orientation, background_color).
+- [ ] [pwa] sw.js: sem fallback para navegações não cacheadas offline (forgot/reset-password
+      não estão em SHELL_ASSETS). — severity: low — effort: S
+      — NOTE in `ec1ad89`: offline nav fallback added; verify forgot/reset-password coverage.
+- [ ] [pwa] cache.put guarda query string do start_url, duplicando entradas (ignoreSearch
+      mitiga na leitura). — severity: low — effort: S
+- [ ] [pwa] Listener do #bmSave continua ligado mesmo com hidden=true no modal read-only —
+      defesa em profundidade mais fraca que .remove(). — severity: low — effort: S
+
 ## Documentation
 
 - [ ] [docs] CLAUDE.md drift: says 3 dashboard tabs (there are 4 — Consent Forms exists), `--black`
       as `#0a0a0a` (code says `#000000`), and omits i.ytimg.com in img-src, the PWA
       (manifest/sw/standalone), auth pages beyond login, and the frozen-guest flow. SPECIFY.md now
       supersedes those sections; update or slim CLAUDE.md when convenient. — severity: low — effort: S
+
+## Video Collaboration (planeado, não implementado)
+
+- [ ] [feature] Sistema de comissão de vídeo (Renan/Marina 5% configurável, Moreirart fixo/mês
+      sem cálculo): checkbox "Film this session" no modal de booking, campo de valor condicional,
+      ícone de câmara no calendário, secção admin "Video Revenue" com toggle pago/não pago, painel
+      read-only na Profile tab do residente. Cross-repo: frontend (dashboard.js/css) + backend
+      (schema, admin panel, outro repo). — severity: — effort: L
+- [ ] [feature] Guest: toggle diária vs percentagem no admin (ideia relacionada, backend/admin
+      panel — appreciart-internal, fora do escopo deste TASKS.md; registar só como referência
+      cruzada). — severity: — effort: L
