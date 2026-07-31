@@ -87,8 +87,11 @@
           signal: AbortSignal.timeout(15000),
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+        // res.ok before parsing — a 502/503 from the platform returns HTML,
+        // and res.json() would throw a parser error over the real failure.
+        let data = null;
+        try { data = await res.json(); } catch (_) { data = null; }
+        if (!res.ok) throw new Error((data && data.error) || 'Something went wrong');
 
         toast('Application submitted successfully', 'success');
         formInner.style.display = 'none';
@@ -123,6 +126,34 @@
   var rangeEnd   = null;
   var slotMap    = {};
 
+  // Availability is merged, never replaced: several ranges (initial 3 months,
+  // the selected range, months reached via prev/next) are loaded independently.
+  // slotSeq orders the requests; slotSeqByDate remembers which request last
+  // wrote each date, so a slow older response can't overwrite a newer one.
+  var slotSeq       = 0;
+  var slotSeqByDate = {};
+  var loadedMonths  = {};
+  var calWarnEl     = null;
+
+  // Don't let the user page back before the current month.
+  var minYear  = new Date().getFullYear();
+  var minMonth = new Date().getMonth();
+
+  function setCalWarning(show) {
+    if (!calGrid || !calGrid.parentElement) return;
+    if (!calWarnEl) {
+      calWarnEl = document.createElement('p');
+      calWarnEl.className = 'ga-cal-warning';
+      calWarnEl.textContent = 'Could not verify availability — try refreshing the page.';
+      // CSP forbids inline style attributes (style-src 'self') — style via CSSOM.
+      calWarnEl.style.fontSize = '11px';
+      calWarnEl.style.color    = '#c0392b';
+      calWarnEl.style.margin   = '8px 0 0';
+      calGrid.parentElement.appendChild(calWarnEl);
+    }
+    calWarnEl.style.display = show ? 'block' : 'none';
+  }
+
   function toISO(y, m, d) {
     return y + '-' + String(m + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
   }
@@ -144,16 +175,35 @@
   }
 
   async function fetchSlots(from, to) {
+    var seq = ++slotSeq;
     try {
       const res = await fetch(INTERNAL + '/api/public/slots/range?from=' + from + '&to=' + to, {
         signal: AbortSignal.timeout(8000),
       });
-      if (!res.ok) return;
+      if (!res.ok) throw new Error('Slots endpoint returned ' + res.status);
       const data = await res.json();
-      slotMap = {};
-      (data.days || []).forEach(function(d) { slotMap[d.date] = d.available; });
+      // Merge, don't replace — and skip dates a newer request already wrote.
+      (data.days || []).forEach(function(d) {
+        if (!d || !d.date) return;
+        if (slotSeqByDate[d.date] > seq) return;
+        slotSeqByDate[d.date] = seq;
+        slotMap[d.date] = d.available;
+      });
+      setCalWarning(false);
       renderCal();
-    } catch (_) {}
+    } catch (_) {
+      setCalWarning(true);
+    }
+  }
+
+  // Load a whole calendar month once, so months outside the initial 3-month
+  // window don't render as fully available.
+  function fetchMonth(y, m) {
+    var key = y + '-' + m;
+    if (loadedMonths[key]) return;
+    loadedMonths[key] = true;
+    var last = new Date(y, m + 1, 0).getDate();
+    fetchSlots(toISO(y, m, 1), toISO(y, m, last));
   }
 
   function renderCal() {
@@ -225,19 +275,33 @@
     });
   }
 
+  function atMinMonth() {
+    return calYear === minYear && calMonth === minMonth;
+  }
+
+  function syncPrevState() {
+    if (calPrev) calPrev.disabled = atMinMonth();
+  }
+
   if (calPrev) calPrev.addEventListener('click', function() {
+    if (atMinMonth()) return;
     calMonth--;
     if (calMonth < 0) { calMonth = 11; calYear--; }
+    fetchMonth(calYear, calMonth);
     renderCal();
+    syncPrevState();
   });
 
   if (calNext) calNext.addEventListener('click', function() {
     calMonth++;
     if (calMonth > 11) { calMonth = 0; calYear++; }
+    fetchMonth(calYear, calMonth);
     renderCal();
+    syncPrevState();
   });
 
   renderCal();
+  syncPrevState();
 
   // Load initial slot availability for next 3 months
   (function() {
@@ -245,6 +309,11 @@
     var from  = toISO(now.getFullYear(), now.getMonth(), now.getDate());
     var end   = new Date(now.getFullYear(), now.getMonth() + 3, 0);
     var to    = toISO(end.getFullYear(), end.getMonth(), end.getDate());
+    // Mark the covered months as loaded so paging into them doesn't refetch.
+    for (var i = 0; i < 3; i++) {
+      var d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      loadedMonths[d.getFullYear() + '-' + d.getMonth()] = true;
+    }
     fetchSlots(from, to);
   })();
 

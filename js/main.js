@@ -13,8 +13,8 @@ residentCards.forEach(card => {
   }, { passive: false });
 });
 
-// Hide images that fail to load (no inline onerror per security rules)
-document.querySelectorAll('img[data-hide-on-error]').forEach(img => {
+// Hide images/videos that fail to load (no inline onerror per security rules)
+document.querySelectorAll('img[data-hide-on-error], video[data-hide-on-error]').forEach(img => {
   const hide = () => {
     const parentBg = img.getAttribute('data-parent-bg-on-error');
     if (parentBg && img.parentElement) img.parentElement.style.background = parentBg;
@@ -22,7 +22,7 @@ document.querySelectorAll('img[data-hide-on-error]').forEach(img => {
   };
   // Already failed before this script ran (404 / negative cache / offline):
   // the error event fired during parse and will never fire again.
-  if (img.complete && img.naturalWidth === 0) hide();
+  if (img.tagName === 'VIDEO' ? img.error : (img.complete && img.naturalWidth === 0)) hide();
   img.addEventListener('error', hide, { once: true });
 });
 

@@ -259,6 +259,47 @@
 - [ ] [pwa] Listener do #bmSave continua ligado mesmo com hidden=true no modal read-only —
       defesa em profundidade mais fraca que .remove(). — severity: low — effort: S
 
+## Blocks 6/8/10/11/13 — leftovers (audited 2026-07-31, low severity)
+
+- [ ] [guest-artist] O formulário não é um `<form>`: `guest-artist.html:408` é um `<div
+      id="gaFormInner">` com um `<button>` solto. Enter não submete, sem semântica de form para
+      leitores de ecrã/autofill, e nenhum campo tem `name` (exceto o honeypot). Inconsistente com
+      consent.js/login.js. — severity: low — effort: M
+- [ ] [guest-artist] Sem scroll/focus para o primeiro erro em `js/guest-artist.js` (`if (!valid)
+      return;`) — em mobile o Submit parece não fazer nada. consent.js faz `scrollIntoView`.
+      — severity: low — effort: S
+- [ ] [guest-artist] Imagens sem `data-hide-on-error`: 6 slides do carrossel do estúdio
+      (`guest-artist.html:103-118`) e 13 avatares `.ga-review-avatar` — todos Cloudinary externo.
+      — severity: low — effort: S
+- [ ] [guest-artist] Código morto: `const maxScroll` em `js/guest-artist.js` nunca é usado.
+      — severity: low — effort: S
+- [ ] [consent] Nenhum input tem `maxlength`, incluindo as três `<textarea>` médicas — defesa
+      depende inteiramente do backend. guest-artist.html tem maxlength em todos.
+      — severity: low — effort: S
+- [ ] [consent] Erro em cascata confuso: com nome/apelido vazios a validação de assinatura falha
+      sempre e mostra "Signature must match your full name exactly", escondendo a causa real.
+      — severity: low — effort: S
+- [ ] [consent] DECISÃO PENDENTE: validação de idade 18+. `date_of_birth` é opcional
+      ("recommended") mas a declaração assinada afirma "I am 18 years of age or older". Hoje uma
+      data de 2015 passa sem aviso. Implicações legais — decisão do dono, não técnica.
+      — severity: — effort: S
+- [ ] [exhibitions] Lightbox sem gestão de foco: sem focus trap, sem devolver o foco ao elemento
+      que abriu, e o handler de Escape corre mesmo com o lightbox fechado (repõe
+      `document.body.style.overflow`). — severity: low — effort: S
+- [ ] [exhibitions] Os `<iframe data-src>` inline em `exhibitions.html` ficam sem uso agora que o
+      play abre só o lightbox — remover se não voltarem a ser usados. — severity: low — effort: S
+- [ ] [index] Nota (sem risco real): `js/index.js:45` usa `esc()` em `ctaHref`, que é construído
+      localmente com `encodeURIComponent` — correto, mas `isSafeUrl()` é o guard convencional para
+      URLs. `profile_url` já usa `isSafeUrl` corretamente. — severity: low — effort: S
+- [ ] [static] Open Graph incompleto: about/contact-us/faqs têm `og:title`/`og:url`/`og:type` mas
+      sem `og:image` nem `og:description`; privacy-policy e terms-of-use não têm OG nenhum.
+      — severity: low — effort: S
+- [ ] [static] As 5 páginas estáticas carregam `js/utils.js` e `js/toast.js` sem nenhum consumidor
+      (não têm script de página). Duas requisições desnecessárias por página; indentação dos
+      `<script>` também inconsistente. — severity: low — effort: S
+- [ ] [static] `faqs.html`: as `<h2 class="faq-question">` não têm `id`, logo não há deep-link para
+      uma pergunta — e a página está no sitemap. — severity: low — effort: S
+
 ## Documentation
 
 - [ ] [docs] CLAUDE.md drift: says 3 dashboard tabs (there are 4 — Consent Forms exists), `--black`

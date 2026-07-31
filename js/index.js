@@ -18,7 +18,9 @@
           });
 
           if (!track) return;
-          const guests = data.guests || [];
+          // Without a slug the card would link to artist.html?slug=undefined —
+          // drop those rather than render dead profile links.
+          const guests = (data.guests || []).filter(g => g && g.slug && g.name);
 
           if (!guests.length) {
             if (empty) empty.style.display = 'block';

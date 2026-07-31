@@ -7,9 +7,15 @@
 
       // Populate the artist dropdown from the same source bookings.html uses,
       // so the choices always match the artists the backend will accept.
+      let artistsFailed = false;
+
       (async function loadConsentArtists() {
         const select = document.getElementById('artist_name');
         if (!select) return;
+        // Block submission until the list resolves — on a slow connection the
+        // form is otherwise submittable with an empty artist_name.
+        const btn = document.getElementById('submitBtn');
+        if (btn) btn.disabled = true;
         try {
           const res = await fetch(`${INTERNAL_API_URL}/api/public/artists`, { signal: AbortSignal.timeout(10000) });
           if (!res.ok) throw new Error(`Artists endpoint returned ${res.status}`);
@@ -25,11 +31,14 @@
           });
         } catch (err) {
           console.error('[consent] Failed to load artists:', err.message);
+          artistsFailed = true;
           const opt = document.createElement('option');
           opt.value = '';
           opt.disabled = true;
           opt.textContent = 'Could not load artists — please refresh';
           select.appendChild(opt);
+        } finally {
+          if (btn) btn.disabled = false;
         }
       })();
 
@@ -75,14 +84,14 @@
       function showError(id, msg) {
         const el    = document.getElementById(`err-${id}`);
         const input = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
-        if (el) { if (msg) el.textContent = msg; el.style.display = 'block'; }
+        if (el) { if (msg) el.textContent = msg; el.classList.add('visible'); }
         if (input) input.classList.add('error');
       }
 
       function clearError(id) {
         const el    = document.getElementById(`err-${id}`);
         const input = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
-        if (el) el.style.display = 'none';
+        if (el) el.classList.remove('visible');
         if (input) input.classList.remove('error');
       }
 
@@ -96,7 +105,7 @@
         let valid    = true;
 
         ['first_name','last_name','email','phone','artist_name','signature','session-confirm'].forEach(clearError);
-        errGen.style.display = 'none';
+        errGen.classList.remove('visible');
 
         const firstName  = document.getElementById('first_name').value.trim();
         const lastName   = document.getElementById('last_name').value.trim();
@@ -108,7 +117,12 @@
         if (!firstName)  { showError('first_name'); valid = false; }
         if (!lastName)   { showError('last_name');  valid = false; }
         if (!phone)      { showError('phone');       valid = false; }
-        if (!artistName) { showError('artist_name'); valid = false; }
+        if (!artistName) {
+          showError('artist_name', artistsFailed
+            ? 'Could not load artist list — refresh the page and try again'
+            : 'Please select an artist');
+          valid = false;
+        }
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           showError('email', 'Valid email required'); valid = false;
@@ -124,7 +138,7 @@
           showError('session-confirm', 'Please confirm both statements before proceeding'); valid = false;
         }
 
-        if (!valid) { document.querySelector('.form-error[style*="display: block"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+        if (!valid) { document.querySelector('.form-error.visible')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
 
         btn.disabled = true;
         btn.textContent = 'Submitting...';
@@ -165,23 +179,28 @@
             signal: AbortSignal.timeout(25000),
           });
 
-          const data = await res.json();
+          // res.ok before parsing — a 502/503 from the platform returns HTML,
+          // and res.json() would throw, reporting a network error that isn't one.
+          let data = null;
+          try { data = await res.json(); } catch (_) { data = null; }
 
-          if (res.ok && data.ok) {
+          if (res.ok && data && data.ok) {
             toast('Form submitted successfully', 'success');
             document.getElementById('formWrap').style.display = 'none';
             document.getElementById('successState').classList.add('visible');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
-            errGen.textContent = data.error || 'Something went wrong. Please try again.';
-            errGen.style.display = 'block';
+            const msg = (data && data.error) || `Submission failed (${res.status}). Please try again.`;
+            toast(msg, 'error');
+            errGen.textContent = msg;
+            errGen.classList.add('visible');
             btn.disabled = false;
             btn.textContent = 'Submit Form';
           }
         } catch {
           toast('Connection error. Please try again.', 'error');
           errGen.textContent = 'Connection error. Please check your connection and try again.';
-          errGen.style.display = 'block';
+          errGen.classList.add('visible');
           btn.disabled = false;
           btn.textContent = 'Submit Form';
         }
