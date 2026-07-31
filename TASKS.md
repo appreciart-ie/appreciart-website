@@ -6,10 +6,17 @@
 
 ## Launch blockers / infrastructure
 
-- [ ] [infra] Switch Stripe to live mode — backend `/api/public/config` still serves a `pk_test_…`
-      publishable key (verified live 2026-07-15). Frontend no longer hardcodes keys, so this is a
-      coordinated backend/env change, but gallery.html DOES hardcode 4 Stripe Price IDs that must be
-      re-created as live prices at the same time. — severity: high — effort: M
+- [x] [infra] Switch Stripe to live mode. — severity: high — effort: M
+      — RESOLVED 2026-07-31: live keys set in Railway by the user. Verified the same day —
+      `GET https://api.appreciart.ie/api/public/config` returns a `pk_live_…` key.
+      No frontend change was required and none is pending: the key is never hardcoded here,
+      `fetchConfig()` in js/bookings.js and js/artist.js read `data.stripePublishableKey`
+      from the backend, so an env change propagates on its own.
+      NOTE: the 4 `price_…` values in gallery.html are NOT Stripe objects — they are internal
+      lookup keys the backend resolves against its own GALLERY_WORKS dictionary ({amount, name})
+      and turns into dynamic `price_data` (fix already applied in appreciart-internal).
+      Gallery checkout is therefore mode-agnostic by design and works in test and live alike.
+      No risk, no action pending on the frontend side.
 - [x] [infra] Point `appreciart.ie` → Cloudflare Pages. — severity: high — effort: M
       — RESOLVED 2026-07-17: custom domain now live on appreciart.ie (Cloudflare Pages config,
       outside repo). Confirmed by user.
@@ -68,23 +75,33 @@
 
 ## Booking & Payment
 
-- [ ] [booking] C1 — guard contre Stripe key em falta antes de montar Payment Element
+- [x] [booking] C1 — guard contre Stripe key em falta antes de montar Payment Element
       (artist.js). — severity: high — effort: S
-- [ ] [booking] C2 — destroy()/remount do Payment Element ao reabrir modal (artist.js).
+      — RESOLVED in `aab5606` (2026-07-21): config promise awaited e Stripe inicializado
+      ANTES do POST do payment-intent, com toast + erro inline se indisponível.
+- [x] [booking] C2 — destroy()/remount do Payment Element ao reabrir modal (artist.js).
       — severity: med — effort: S
-- [ ] [booking] A1 — erro de setup movido para nó visível (#bmSetupErr em artist.html;
+      — RESOLVED in `aab5606` (2026-07-21): `payEl.destroy()` em js/artist.js:393.
+- [x] [booking] A1 — erro de setup movido para nó visível (#bmSetupErr em artist.html;
       #setupError em bookings.html). — severity: med — effort: S
-- [ ] [booking] A2 — €100 hardcoded trocado por placeholder "—"; reset do deposit ao trocar
+      — RESOLVED in `79f3a3e` (2026-07-25).
+- [x] [booking] A2 — €100 hardcoded trocado por placeholder "—"; reset do deposit ao trocar
       de artista. — severity: med — effort: S
-- [ ] [booking] A3 — invalidação do clientSecret obsoleto ao editar passo 3
+      — RESOLVED in `79f3a3e` (2026-07-25).
+- [x] [booking] A3 — invalidação do clientSecret obsoleto ao editar passo 3
       (invalidateClientSecret). — severity: high — effort: S
-      — PARTIALLY MITIGATED in `6155810`: softened false payment confirmation claim
-      (h1/title/meta/body), but full A3 guard pending.
-- [ ] [booking] A4 — diferenciação succeeded/processing/absent no redirect status +
+      — RESOLVED in `f390126` (2026-07-25): `invalidateClientSecret()` em js/bookings.js:458,
+      ligado aos inputs do passo 3 — previne PaymentIntent duplicado / booking órfão.
+      (A nota anterior "PARTIALLY MITIGATED in `6155810`" referia-se ao A3 da gallery-success,
+      não a este item — foi arquivada no item errado.)
+- [x] [booking] A4 — diferenciação succeeded/processing/absent no redirect status +
       verificação real contra GET /api/public/bookings/:id antes de confirmar
       (bookings.js + artist.js). — severity: high — effort: M
-- [ ] [booking] M1 — parseYMD() substitui parsing UTC por local em ambos os ficheiros
+      — RESOLVED in `a210e9f` (2026-07-25): redirect_status ausente nunca é tratado como
+      confirmação; 'processing' só é promovido se o backend disser deposit_paid.
+- [x] [booking] M1 — parseYMD() substitui parsing UTC por local em ambos os ficheiros
       (bookings.js e artist.js). — severity: med — effort: S
+      — RESOLVED in `ced0df4` (2026-07-25): js/bookings.js:64 e js/artist.js:51.
 
 ## Gallery & Purchase
 
