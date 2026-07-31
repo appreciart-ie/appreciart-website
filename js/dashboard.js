@@ -1052,6 +1052,7 @@
   let _dayClickId = 0;
 
   async function handleDayClick(el) {
+    if (isFrozen) return;
     const clickId  = ++_dayClickId;
     const date     = el.dataset.date;
     const friendly = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -2345,6 +2346,12 @@ async function loadProfile() {
   function applyFrozenState(a) {
     renderFrozenNotice(a);
 
+    // Onboarding doesn't apply to an already-frozen account — drop it rather
+    // than let it sit on top of the frozen notice inviting the guest to
+    // complete a profile that's about to go read-only.
+    const onboarding = document.getElementById('onboardingModal');
+    if (onboarding) onboarding.remove();
+
     // Profile fields → read-only.
     ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl', 'profileStyleInput']
       .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
@@ -2561,7 +2568,11 @@ async function loadProfile() {
           method: 'POST',
           body:   JSON.stringify({ dateFrom: rangeStart, dateTo: rangeEnd }),
         });
-        if (!res.ok) throw new Error('reapply failed');
+        if (!res.ok) {
+          let msg = 'Something went wrong. Please try again.';
+          try { const data = await res.json(); if (data && data.error) msg = data.error; } catch {}
+          throw new Error(msg);
+        }
         window.toast('Request sent', 'success');
         sendBtn.textContent = 'Request sent';
 
@@ -2583,9 +2594,10 @@ async function loadProfile() {
 
         const noticeLine = document.getElementById('frozenNoticeLine');
         if (noticeLine) noticeLine.textContent = "New dates requested — we'll be in touch.";
-      } catch {
-        window.toast('Could not send request', 'error');
-        errEl.textContent = 'Something went wrong. Please try again.';
+      } catch (e) {
+        const msg = e && e.message ? e.message : 'Something went wrong. Please try again.';
+        window.toast(msg, 'error');
+        errEl.textContent = msg;
         errEl.style.display = 'block';
         sendBtn.disabled = false;
         sendBtn.textContent = 'Send request';
@@ -2704,7 +2716,13 @@ async function loadProfile() {
           method: 'POST',
           body:   JSON.stringify({ old_password: old, password: pw }),
         });
-        if (!res.ok) { err.textContent = 'Failed to save password'; err.style.display = 'block'; return; }
+        if (!res.ok) {
+          let msg = 'Failed to save password';
+          try { const data = await res.json(); if (data && data.error) msg = data.error; } catch {}
+          err.textContent = msg;
+          err.style.display = 'block';
+          return;
+        }
 
         // Update stored artist
         const stored = JSON.parse(localStorage.getItem('art_artist') || '{}');
