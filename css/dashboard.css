@@ -184,6 +184,25 @@
   line-height: 1.6;
 }
 
+/* Load failure — must read as "it broke", not as "there's nothing here". */
+.dash-empty--error {
+  color: var(--black);
+  border: 1px solid var(--light);
+  border-left: 2px solid #B00020;
+  padding: 16px 18px;
+  text-align: left;
+}
+
+.cal-load-error {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--black);
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-left: 2px solid #B00020;
+  background: var(--off-white);
+}
+
 .dash-empty-icon {
   display: block;
   margin: 0 auto 12px;
@@ -604,6 +623,24 @@
   color: #e53935;
   opacity: 0.8;
   font-weight: 700;
+}
+
+/* Studio capacity failed to load — deliberately not styled as an invitation.
+   Distinct from --full (we are not claiming the day is booked out). */
+.cal-day--unknown {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.03) 4px,
+    rgba(0, 0, 0, 0.03) 8px
+  );
+}
+
+.cal-guest-empty--unknown {
+  color: var(--mid);
+  opacity: 0.55;
+  font-style: italic;
 }
 /* ── CONFIRM MODAL ── */
 .cal-modal-overlay {

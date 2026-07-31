@@ -292,9 +292,12 @@
         try {
           const res = await refreshAccessToken();
           if (res.ok) {
+            // Refresh the token so the reconnect carries a valid one, but do NOT
+            // reset _sseRetries here — a working refresh cookie says nothing
+            // about /api/events being reachable. Only es.onopen (a real
+            // connection) may reset the backoff.
             _token = res.token;
             localStorage.setItem('art_token', _token);
-            _sseRetries = 0;
           }
         } catch {}
         initSSE();
@@ -316,10 +319,17 @@
 
   function stageLabel(s) { return STAGE_LABELS[s] || s; }
 
+  // Parse a date as a LOCAL calendar day. `new Date('2026-07-31')` is parsed as
+  // UTC midnight, which lands on the previous day in negative-offset timezones.
+  // Accepts both 'YYYY-MM-DD' and full ISO timestamps.
+  function localDay(dateStr) {
+    return new Date(String(dateStr).slice(0, 10) + 'T00:00:00');
+  }
+
   function relativeDate(dateStr) {
     if (!dateStr) return 'TBD';
     const today = new Date(); today.setHours(0,0,0,0);
-    const d     = new Date(dateStr); d.setHours(0,0,0,0);
+    const d     = localDay(dateStr); d.setHours(0,0,0,0);
     const diff  = Math.round((d - today) / 86400000);
     if (diff === 0)  return 'Today';
     if (diff === 1)  return 'Tomorrow';
@@ -329,7 +339,7 @@
 
   function renderCards(list) {
     return list.map(b => `
-      <div class="booking-card booking-card--clickable" data-id="${b.id}" data-source="${b.source_type}">
+      <div class="booking-card booking-card--clickable" data-id="${esc(String(b.id))}" data-source="${esc(String(b.source_type))}">
         <span class="booking-client">${esc(b.client_name)}</span>
         <span class="booking-meta">${esc(relativeDate(b.date))}</span>
         <span class="booking-badge${b.deposit_paid ? ' paid' : ''}">${b.deposit_paid ? 'Deposit paid' : stageLabel(b.stage)}</span>
@@ -337,14 +347,20 @@
     `).join('');
   }
 
+  let _bookingsRequestId = 0;
+
   async function loadBookings() {
+    const requestId = ++_bookingsRequestId;
+
     // First load only — SSE/edit refreshes keep the current list until data arrives.
     if (!bookingsList.innerHTML.trim()) {
       bookingsList.innerHTML = '<p class="dash-empty">Loading sessions…</p>';
     }
     try {
       const res  = await authFetch('/api/artist/sessions');
+      if (!res.ok) throw new Error('sessions fetch failed: ' + res.status);
       const data = await res.json();
+      if (requestId !== _bookingsRequestId) return;
 
       const data_sessions = data.sessions || data.bookings || [];
       if (!data_sessions.length) {
@@ -353,8 +369,8 @@
       }
 
       const now      = new Date(); now.setHours(0,0,0,0);
-      const upcoming = data_sessions.filter(b => !b.date || new Date(b.date) >= now);
-      const past     = data_sessions.filter(b => b.date && new Date(b.date) < now);
+      const upcoming = data_sessions.filter(b => !b.date || localDay(b.date) >= now);
+      const past     = data_sessions.filter(b => b.date && localDay(b.date) < now);
 
       
 
@@ -380,10 +396,21 @@
       }
 
     } catch {
+      if (requestId !== _bookingsRequestId) return;
       window.toast('Could not load sessions', 'error');
-      bookingsList.innerHTML = '<p class="dash-empty">Could not load sessions. Please refresh.</p>';
+      bookingsList.innerHTML = '<p class="dash-empty dash-empty--error">Could not load sessions — try refreshing.</p>';
     }
   }
+
+  // Module-level close/esc pair — mirrors removeModal()/onEsc() for the calendar
+  // modals. A per-invocation closure would leak: replacing the modal node does
+  // not detach the document-level keydown listener that closure registered.
+  function removeBookingModal() {
+    const m = document.getElementById('bookingModal');
+    if (m) { m.classList.remove('open'); setTimeout(() => m.remove(), 250); }
+    document.removeEventListener('keydown', onBookingEsc);
+  }
+  function onBookingEsc(e) { if (e.key === 'Escape') removeBookingModal(); }
 
   function showBookingModal(b) {
     const existing = document.getElementById('bookingModal');
@@ -436,17 +463,10 @@
       }
     });
 
-    function closeModal() {
-      modal.classList.remove('open');
-      setTimeout(() => modal.remove(), 250);
-      document.removeEventListener('keydown', escHandler);
-    }
+    document.addEventListener('keydown', onBookingEsc);
 
-    function escHandler(e) { if (e.key === 'Escape') closeModal(); }
-    document.addEventListener('keydown', escHandler);
-
-    document.getElementById('bmClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.getElementById('bmClose').addEventListener('click', removeBookingModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeBookingModal(); });
 
     document.getElementById('bmSave').addEventListener('click', async () => {
       const saveBtn = document.getElementById('bmSave');
@@ -477,7 +497,7 @@
         });
         if (res.ok) {
           window.toast('Session updated', 'success');
-          closeModal();
+          removeBookingModal();
           loadBookings();
         } else {
           let msg = 'Failed to update booking';
@@ -554,6 +574,13 @@
     }
   }
 
+  function removeConsentModal() {
+    const m = document.getElementById('consentModal');
+    if (m) { m.classList.remove('open'); setTimeout(() => m.remove(), 250); }
+    document.removeEventListener('keydown', onConsentEsc);
+  }
+  function onConsentEsc(e) { if (e.key === 'Escape') removeConsentModal(); }
+
   function showConsentModal(f) {
     const existing = document.getElementById('consentModal');
     if (existing) existing.remove();
@@ -600,15 +627,9 @@
     document.body.appendChild(modal);
     requestAnimationFrame(() => modal.classList.add('open'));
 
-    function closeModal() {
-      modal.classList.remove('open');
-      setTimeout(() => modal.remove(), 250);
-      document.removeEventListener('keydown', escHandler);
-    }
-    function escHandler(e) { if (e.key === 'Escape') closeModal(); }
-    document.addEventListener('keydown', escHandler);
-    document.getElementById('consentClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', onConsentEsc);
+    document.getElementById('consentClose').addEventListener('click', removeConsentModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeConsentModal(); });
   }
 
   // ── Calendar ──
@@ -626,18 +647,36 @@
   }
 
   let studioAvailability = [];
-  let guestSlotMap       = {};
+  // null = studio slot counts are UNKNOWN (never loaded, or the fetch failed).
+  // An empty object would mean "loaded, and no day has any slot" — the opposite
+  // reading. Never conflate the two: unknown must not render as available.
+  let guestSlotMap       = null;
+
+  // Sequence token — SSE can fire availability_update twice in quick succession,
+  // and the older GET may resolve last. Only the newest run may write state.
+  let _availabilityRequestId = 0;
 
   async function loadAvailability(showToast = true) {
+    const requestId = ++_availabilityRequestId;
+
     if (!calGrid.innerHTML.trim()) {
       calGrid.innerHTML = '<p class="dash-empty">Loading calendar…</p>';
     }
     try {
       const endpoint = isGuest ? '/api/artist/my-availability' : '/api/artist/studio-availability';
       const res  = await authFetch(endpoint);
+      if (!res.ok) throw new Error('availability fetch failed: ' + res.status);
       const data = await res.json();
-      studioAvailability = data.availability || [];
+      if (requestId !== _availabilityRequestId) return;
 
+      const availability = data.availability || [];
+
+      // Guests need a second, dependent fetch. Collect into locals and commit
+      // both together at the end, so an interleaved run can never pair one
+      // run's availability with another run's slot map.
+      // undefined = this run has no slot map to commit (resident, or no dates);
+      // null = tried and failed (unknown); object = loaded.
+      let slotMap;
       if (isGuest && artist.guest_start_date && artist.guest_end_date) {
         try {
           const from = artist.guest_start_date.slice(0, 10);
@@ -646,27 +685,60 @@
             `${INTERNAL}/api/public/slots/range?from=${from}&to=${to}`,
             { signal: AbortSignal.timeout(8000) }
           );
-          guestSlotMap = {};
-          if (slotsRes.ok) {
-            const slotsData = await slotsRes.json();
-            if (slotsData.days && Array.isArray(slotsData.days)) {
-              slotsData.days.forEach(d => { guestSlotMap[d.date] = d.available; });
-            }
-          } else {
-            if (showToast) window.toast('Could not load slot availability', 'error');
+          if (!slotsRes.ok) throw new Error('slots range failed: ' + slotsRes.status);
+          const slotsData = await slotsRes.json();
+          if (!slotsData.days || !Array.isArray(slotsData.days)) {
+            throw new Error('slots range: malformed payload');
           }
+          slotMap = {};
+          slotsData.days.forEach(d => { slotMap[d.date] = d.available; });
         } catch {
-          guestSlotMap = {};
+          // HTTP error, network failure and malformed payload are the same
+          // outcome for the artist: we don't know the studio's capacity.
+          slotMap = null;
+          if (showToast) window.toast('Could not load slot availability', 'error');
         }
       }
 
+      if (requestId !== _availabilityRequestId) return;
+
+      studioAvailability = availability;
+      if (slotMap !== undefined) guestSlotMap = slotMap;
+
+      if (guestSlotMap === null && isGuest) {
+        showCalendarError('Could not check studio availability — your sessions are shown, but new ones can’t be logged until this loads. Try refreshing.');
+      } else {
+        hideCalendarError();
+      }
       renderCalendar();
     } catch {
+      if (requestId !== _availabilityRequestId) return;
       if (showToast) window.toast('Could not load availability dates', 'error');
-      studioAvailability = [];
-      guestSlotMap = {};
+      // Never fall back to a silent empty calendar: an empty grid reads as
+      // "nothing booked". Keep whatever was last known good and say so.
+      showCalendarError();
       renderCalendar();
     }
+  }
+
+  // Persistent banner above the grid — the calendar's equivalent of the
+  // "Could not load X" empty-state the list views render inline.
+  function showCalendarError(message) {
+    if (document.getElementById('calLoadError')) return;
+    const anchor = document.querySelector('.cal-header') || calGrid;
+    if (!anchor || !anchor.parentNode) return;
+    const note = document.createElement('p');
+    note.id = 'calLoadError';
+    note.className = 'cal-load-error';
+    note.textContent = message || (studioAvailability.length
+      ? 'Could not refresh the calendar — showing the last loaded version. Try refreshing.'
+      : 'Could not load the calendar — try refreshing.');
+    anchor.parentNode.insertBefore(note, anchor.nextSibling);
+  }
+
+  function hideCalendarError() {
+    const note = document.getElementById('calLoadError');
+    if (note) note.remove();
   }
 
   function getDayEntries(dateStr) {
@@ -708,23 +780,35 @@
         const guestStart  = artist.guest_start_date ? artist.guest_start_date.slice(0, 10) : null;
         const guestEnd    = artist.guest_end_date   ? artist.guest_end_date.slice(0, 10)   : null;
         const inPeriod    = guestStart && guestEnd && dateStr >= guestStart && dateStr <= guestEnd;
-        const available   = guestSlotMap[dateStr] ?? null;
+        const slotsKnown  = guestSlotMap !== null;
+        const available   = slotsKnown ? (guestSlotMap[dateStr] ?? null) : null;
         const myEntry     = studioAvailability.find(e => e.date.slice(0, 10) === dateStr && e.artist_slug === artist.slug);
 
         if (!inPeriod) {
           cls += ' cal-day--blocked';
-        } else if (available === 0 && !myEntry) {
+        } else if (myEntry && myEntry.client_name) {
+          // Own sessions are local state — always shown, even when the studio
+          // slot counts failed to load.
+          bars = `<span class="cal-bar cal-bar--guest">${esc(myEntry.client_name)}${myEntry.session_time ? ' · ' + myEntry.session_time : ''}</span>`;
+        } else if (!slotsKnown) {
+          // Capacity unknown — must not read as "free to book".
+          cls += ' cal-day--unknown';
+          bars = `<span class="cal-guest-empty cal-guest-empty--unknown">Availability unknown</span>`;
+        } else if (available === 0) {
           cls += ' cal-day--full';
           bars = `<span class="cal-guest-empty cal-guest-empty--full">Full</span>`;
-        } else if (myEntry && myEntry.client_name) {
-          bars = `<span class="cal-bar cal-bar--guest">${esc(myEntry.client_name)}${myEntry.session_time ? ' · ' + myEntry.session_time : ''}</span>`;
-        } else if (inPeriod) {
+        } else {
           bars = `<span class="cal-guest-empty">Tap to log a session</span>`;
         }
       } else {
 
       const MAX_BARS = 3;
-      const allEntries = getDayEntries(dateStr).sort((a, b) => {
+      // Filter BEFORE slicing: three sessions from other artists would otherwise
+      // fill the 3-bar budget and hide your own session on that day.
+      const dayEntries = filterMineSessions
+        ? getDayEntries(dateStr).filter(e => e.artist_slug === artist.slug)
+        : getDayEntries(dateStr);
+      const allEntries = dayEntries.sort((a, b) => {
         if (!a.session_time && !b.session_time) return 0;
         if (!a.session_time) return 1;
         if (!b.session_time) return -1;
@@ -807,12 +891,8 @@
       bar.style.color      = '#ffffff';
     });
 
-    // Apply filter "only my sessions" if active (residents only)
-    if (filterMineSessions && !isGuest) {
-      calGrid.querySelectorAll('.cal-bar[data-mine="false"]').forEach(bar => {
-        bar.style.display = 'none';
-      });
-    }
+    // (The "only my sessions" filter is applied when building `bars` above —
+    // hiding bars post-render would leave the +N overflow count wrong.)
 
     // Tooltip
     calGrid.querySelectorAll('.cal-bar[data-tooltip]').forEach(bar => {
@@ -966,19 +1046,26 @@
   }
 
   // ── Day click ──
+  // Sequence token — the slots fetch below is the only async step between the
+  // tap and the modal. Tapping a second day while the first is in flight must
+  // not let the older response open its modal over the newer one.
+  let _dayClickId = 0;
+
   async function handleDayClick(el) {
+    const clickId  = ++_dayClickId;
     const date     = el.dataset.date;
     const friendly = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
 
     if (isGuest) {
       // Guests: skip intermediate modal, go straight to booking
-      const available = guestSlotMap[date] ?? null;
-      if (available === 0) return; // Full — do nothing
+      const slotsKnown = guestSlotMap !== null;
+      const available  = slotsKnown ? (guestSlotMap[date] ?? null) : null;
+      if (slotsKnown && available === 0) return; // Full — do nothing
       const myEntry = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
       if (myEntry && myEntry.client_name) {
         showViewModal(date, friendly, myEntry);
       } else {
-        showGuestBookModal(date, friendly);
+        showGuestBookModal(date, friendly, slotsKnown);
       }
       return;
     }
@@ -995,16 +1082,21 @@
     } else {
       try {
         const res  = await authFetch(`/api/artist/slots/${date}`);
+        if (!res.ok) throw new Error('slots fetch failed: ' + res.status);
         const data = await res.json();
+        if (clickId !== _dayClickId) return;
         showNewModal(date, friendly, data.available || 0, data.total || 4, data.available_reservations || 0);
       } catch {
-        showNewModal(date, friendly, 4, 4, 0);
+        if (clickId !== _dayClickId) return;
+        // Capacity unknown — never fabricate "4 of 4 free", that just moves the
+        // rejection to a 409 after the artist has already committed.
+        showNewModal(date, friendly, null, null, 0);
       }
     }
   }
 
   // ── Modal: guest booking ──
-  function showGuestBookModal(date, friendly) {
+  function showGuestBookModal(date, friendly, slotsKnown = true) {
     removeModal();
     const modal = document.createElement('div');
     modal.id = 'calModal';
@@ -1013,6 +1105,7 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">Add client</p>
+        ${slotsKnown ? '' : `<p class="cal-modal-slots cal-modal-slots--full">Couldn’t check availability — try again</p>`}
         <div class="form-field">
           <label class="form-label" for="calClientName">Client name</label>
           <input class="form-input" id="calClientName" type="text" placeholder="Client name" autocomplete="off">
@@ -1030,8 +1123,8 @@
           </select>
         </div>
         <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="calModalConfirm">Confirm</button>
-          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="calModalConfirm" ${slotsKnown ? '' : 'disabled'}>Confirm</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">${slotsKnown ? 'Cancel' : 'Close'}</button>
         </div>
       </div>
     `;
@@ -1040,7 +1133,7 @@
 
     const nameInput = document.getElementById('calClientName');
     const timeInput = document.getElementById('calSessionTime');
-    setTimeout(() => nameInput.focus(), 200);
+    if (slotsKnown) setTimeout(() => nameInput.focus(), 200);
 
     document.getElementById('calModalConfirm').addEventListener('click', async (e) => {
       const name = nameInput.value.trim();
@@ -1060,8 +1153,10 @@
   // ── Modal: empty day ──
   function showNewModal(date, friendly, slotsAvailable, slotsTotal, availReservations = 0) {
     removeModal();
+    // slotsAvailable === null means the capacity check failed — distinct from 0.
+    const unknown      = slotsAvailable === null;
     const noSlots      = slotsAvailable === 0;
-    const canReserve   = availReservations < 2;
+    const canReserve   = !unknown && availReservations < 2;
     const modal = document.createElement('div');
     modal.id = 'calModal';
     modal.className = 'cal-modal-overlay';
@@ -1069,13 +1164,15 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">Add to calendar</p>
-        <p class="cal-modal-slots ${noSlots ? 'cal-modal-slots--full' : ''}">
-          ${noSlots ? 'No slots available' : `${slotsAvailable} of ${slotsTotal} slots available`}
+        <p class="cal-modal-slots ${noSlots || unknown ? 'cal-modal-slots--full' : ''}">
+          ${unknown ? 'Couldn’t check availability — try again'
+                    : noSlots ? 'No slots available'
+                              : `${slotsAvailable} of ${slotsTotal} slots available`}
         </p>
         <div class="cal-modal-actions">
           ${canReserve ? `<button class="btn btn-primary btn-sm" id="calModalMarkAvail">Mark available</button>` : ''}
-          <button class="btn btn-secondary btn-sm" id="calModalBookClient" ${noSlots ? 'disabled' : ''}>Book client</button>
-          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
+          <button class="btn btn-secondary btn-sm" id="calModalBookClient" ${noSlots || unknown ? 'disabled' : ''}>Book client</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">${unknown ? 'Close' : 'Cancel'}</button>
         </div>
       </div>
     `;
@@ -1122,10 +1219,11 @@
       removeModal();
       try {
         const res  = await authFetch(`/api/artist/slots/${date}`);
+        if (!res.ok) throw new Error('slots fetch failed: ' + res.status);
         const data = await res.json();
         showBookModal(date, friendly, data.available || 0, data.total || 4);
       } catch {
-        showBookModal(date, friendly, 4, 4);
+        showBookModal(date, friendly, null, null);
       }
     });
     document.getElementById('calModalRemove').addEventListener('click', async () => {
@@ -1141,6 +1239,8 @@
   // ── Modal: book client ──
   function showBookModal(date, friendly, slotsAvailable, slotsTotal) {
     removeModal();
+    // slotsAvailable === null means the capacity check failed — distinct from 0.
+    const unknown = slotsAvailable === null;
     const noSlots = slotsAvailable === 0;
     const modal = document.createElement('div');
     modal.id = 'calModal';
@@ -1149,8 +1249,10 @@
       <div class="cal-modal-box">
         <p class="cal-modal-date">${esc(friendly)}</p>
         <p class="cal-modal-title">New session</p>
-        <p class="cal-modal-slots ${noSlots ? 'cal-modal-slots--full' : ''}">
-          ${noSlots ? 'No slots available' : `${slotsAvailable} of ${slotsTotal} slots available`}
+        <p class="cal-modal-slots ${noSlots || unknown ? 'cal-modal-slots--full' : ''}">
+          ${unknown ? 'Couldn’t check availability — try again'
+                    : noSlots ? 'No slots available'
+                              : `${slotsAvailable} of ${slotsTotal} slots available`}
         </p>
         <div class="cal-modal-type">
           <button class="cal-type-btn active" data-type="booking">Booking</button>
@@ -1173,8 +1275,8 @@
           </select>
         </div>
         <div class="cal-modal-actions">
-          <button class="btn btn-primary btn-sm" id="calModalConfirm" ${noSlots ? 'disabled' : ''}>Confirm</button>
-          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="calModalConfirm" ${noSlots || unknown ? 'disabled' : ''}>Confirm</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">${unknown ? 'Close' : 'Cancel'}</button>
         </div>
       </div>
     `;
@@ -1187,7 +1289,7 @@
         modal.querySelectorAll('.cal-type-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedType = btn.dataset.type;
-        document.getElementById('calModalConfirm').disabled = selectedType === 'booking' && noSlots;
+        document.getElementById('calModalConfirm').disabled = unknown || (selectedType === 'booking' && noSlots);
       });
     });
 
@@ -1299,21 +1401,37 @@
     else      { btn.textContent = idleLabel; }
   }
 
+  // Prefer the backend's explanation over a generic string — a 409 that says
+  // "daily reservation limit reached" is far more useful than "Failed to mark date".
+  async function errorMessage(res, fallback) {
+    try {
+      const data = await res.json();
+      if (data && data.error) return String(data.error);
+    } catch { /* non-JSON error page — fall through */ }
+    return fallback;
+  }
+
   async function markAvailable(date) {
     try {
       const res = await authFetch('/api/artist/availability', {
         method: 'POST',
         body:   JSON.stringify({ date, is_available: true, client_name: null, session_time: null, type: 'booking' }),
       });
+      if (res.status === 409) {
+        window.toast(await errorMessage(res, 'No slots available for this date'), 'error');
+        loadAvailability(false);   // our view of this day is out of date
+        return false;
+      }
       if (res.ok) {
         window.toast('Date marked as available', 'success');
         const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
         const entry = { date, is_available: true, client_name: null, session_time: null, type: 'booking', artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
         if (idx >= 0) { studioAvailability[idx] = entry; } else { studioAvailability.push(entry); }
+        _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
         renderCalendar();
         return true;
       } else {
-        window.toast('Failed to mark date', 'error');
+        window.toast(await errorMessage(res, 'Failed to mark date'), 'error');
       }
     } catch {
       window.toast('Error marking date', 'error');
@@ -1327,17 +1445,21 @@
         method: 'POST',
         body:   JSON.stringify({ date, is_available: true, client_name: clientName, session_time: sessionTime || null, type }),
       });
-      if (res.status === 409) { window.toast('No slots available for this date', 'error'); return false; }
+      if (res.status === 409) {
+        window.toast(await errorMessage(res, 'No slots available for this date'), 'error');
+        return false;
+      }
       if (res.ok) {
         window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} saved — ${clientName}`, 'success');
         const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
         const entry = { date, is_available: true, client_name: clientName, session_time: sessionTime || null, type, artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
         if (idx >= 0) { studioAvailability[idx] = { ...studioAvailability[idx], ...entry }; }
         else { studioAvailability.push(entry); }
+        _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
         renderCalendar();
         return true;
       } else {
-        window.toast('Failed to save session', 'error');
+        window.toast(await errorMessage(res, 'Failed to save session'), 'error');
       }
     } catch {
       window.toast('Error saving session', 'error');
@@ -1351,9 +1473,10 @@
       if (res.ok) {
         window.toast('Session deleted', 'info');
         studioAvailability = studioAvailability.filter(a => !(a.date.slice(0,10) === date && a.artist_slug === artist.slug));
+        _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
         renderCalendar();
       } else {
-        window.toast('Failed to delete session', 'error');
+        window.toast(await errorMessage(res, 'Failed to delete session'), 'error');
       }
     } catch {
       window.toast('Error deleting session', 'error');
@@ -1496,8 +1619,10 @@
 async function loadProfile() {
     try {
       const res  = await authFetch('/api/artist/me');
+      if (!res.ok) throw new Error('profile fetch failed: ' + res.status);
       const data = await res.json();
       const a    = data.artist;
+      if (!a) throw new Error('profile response missing artist');
       isFrozen   = isGuest && a.active === false;
       document.getElementById('profileBio').value       = a.bio || '';
       const _bioCounter = document.getElementById('bioCounter');
@@ -1524,9 +1649,28 @@ async function loadProfile() {
       updateCompleteness();
       snapshotProfile();
       if (isFrozen) applyFrozenState(a);
+      const _perr = document.getElementById('profileLoadError');
+      if (_perr) _perr.remove();
     } catch {
       window.toast('Could not load profile', 'error');
+      // The fields are still blank at this point — without a banner that reads
+      // as "my profile is empty" rather than "it didn't load".
+      showProfileLoadError();
     }
+  }
+
+  // Banner at the top of the Profile tab. Saving is already blocked while this
+  // shows: snapshotProfile() never ran, so checkDirty() bails and the save
+  // button stays disabled — no risk of overwriting the real profile with blanks.
+  function showProfileLoadError() {
+    if (document.getElementById('profileLoadError')) return;
+    const form = document.getElementById('profileForm');
+    if (!form || !form.parentNode) return;
+    const note = document.createElement('p');
+    note.id = 'profileLoadError';
+    note.className = 'dash-empty dash-empty--error';
+    note.textContent = 'Could not load your profile — try refreshing. Editing is disabled until it loads.';
+    form.parentNode.insertBefore(note, form);
   }
 
   function renderProfileStyles() {
@@ -1838,7 +1982,11 @@ async function loadProfile() {
       : url;
   }
 
+  let _photosRequestId = 0;
+
   async function loadPhotos(bustCache = false) {
+    const requestId = ++_photosRequestId;
+
     const preview  = document.getElementById('profilePhotoPreview');
     const grid     = document.getElementById('portfolioGrid');
     const countEl  = document.getElementById('portfolioCount');
@@ -1848,7 +1996,12 @@ async function loadProfile() {
 
     try {
       const res  = await authFetch('/api/artist/photos');
+      if (!res.ok) throw new Error('photos fetch failed: ' + res.status);
       const data = await res.json();
+      // A later upload already re-rendered the grid — this older response would
+      // drop the freshly-added thumbnail and re-bind stale delete handlers.
+      if (requestId !== _photosRequestId) return;
+
       _completenessPhotos = { profileUrl: data.profileUrl || null, portfolio: data.portfolio || [] };
       updateCompleteness();
       syncVisibility();
@@ -1966,8 +2119,14 @@ async function loadProfile() {
       if (addBtn)  addBtn.disabled = isFrozen || data.count >= 16;
 
     } catch {
+      if (requestId !== _photosRequestId) return;
       window.toast('Could not load photos', 'error');
-      if (grid) grid.innerHTML = '<span class="profile-photo-empty">Could not load images</span>';
+      if (grid) grid.innerHTML = '<p class="dash-empty dash-empty--error">Could not load images — try refreshing.</p>';
+      // Don't leave a stale "Loading…" placeholder where the photo should be.
+      const _preview = document.getElementById('profilePhotoPreview');
+      if (_preview && !_preview.querySelector('img')) {
+        _preview.innerHTML = '<span class="profile-photo-empty">Could not load photo</span>';
+      }
     }
   }
 
@@ -2151,6 +2310,13 @@ async function loadProfile() {
     dashTabs.parentNode.insertBefore(notice, dashTabs);
   }
 
+  function removeReapplyModal() {
+    const m = document.getElementById('reapplyModal');
+    if (m) { m.classList.remove('open'); setTimeout(() => m.remove(), 250); }
+    document.removeEventListener('keydown', onReapplyEsc);
+  }
+  function onReapplyEsc(e) { if (e.key === 'Escape') removeReapplyModal(); }
+
   // Reapply modal — month-grid range picker ported from js/guest-artist.js.
   function showReapplyModal() {
     const existing = document.getElementById('reapplyModal');
@@ -2288,15 +2454,9 @@ async function loadProfile() {
       renderCal();
     });
 
-    function closeModal() {
-      modal.classList.remove('open');
-      setTimeout(() => modal.remove(), 250);
-      document.removeEventListener('keydown', escHandler);
-    }
-    function escHandler(e) { if (e.key === 'Escape') closeModal(); }
-    document.addEventListener('keydown', escHandler);
-    document.getElementById('raCancel').addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', onReapplyEsc);
+    document.getElementById('raCancel').addEventListener('click', removeReapplyModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeReapplyModal(); });
 
     sendBtn.addEventListener('click', async () => {
       if (!rangeStart || !rangeEnd) {
@@ -2329,7 +2489,7 @@ async function loadProfile() {
             </div>
           `;
           const done = document.getElementById('raDone');
-          if (done) done.addEventListener('click', closeModal);
+          if (done) done.addEventListener('click', removeReapplyModal);
         }
 
         const noticeLine = document.getElementById('frozenNoticeLine');
