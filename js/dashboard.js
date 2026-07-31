@@ -1533,22 +1533,34 @@
   let _liveModalSeen       = localStorage.getItem('art_profile_live_seen') === '1';
   let _wasPublic           = null;
 
-  function profileChecks() {
+  // Two views of the same five checks. 'draft' reads what the user is typing
+  // right now (so the bar reacts immediately); 'server' reads the last state the
+  // backend confirmed. Photos are server-truth in both — they upload on their
+  // own, without going through the save bar.
+  function profileChecks(source) {
+    const draft  = source === 'draft';
+    const val    = id => (document.getElementById(id)?.value || '').trim();
+    const bio    = draft ? val('profileBio')          : (_completenessProfile && _completenessProfile.bio || '');
+    const wa     = draft ? val('profileWhatsapp')     : (_completenessProfile && _completenessProfile.whatsapp_url || '');
+    const book   = draft ? val('profileBookingUrl')   : (_completenessProfile && _completenessProfile.booking_url  || '');
+    const styles = draft ? profileStyles              : (_completenessProfile && _completenessProfile.styles || []);
     return {
-      bio:       !!((_completenessProfile && _completenessProfile.bio || '').trim()),
+      bio:       !!bio.trim(),
       photo:     !!(_completenessPhotos && _completenessPhotos.profileUrl),
       portfolio: !!(_completenessPhotos && (_completenessPhotos.portfolio || []).length > 0),
-      styles:    profileStyles.length > 0,
-      contact:   !!(_completenessProfile && (_completenessProfile.whatsapp_url || _completenessProfile.booking_url)),
+      styles:    styles.length > 0,
+      contact:   !!(wa || book),
     };
   }
 
   function updateCompleteness() {
     if (!isGuest) return;
     if (!_completenessProfile || !_completenessPhotos) return;
-    const checks = profileChecks();
+    const checks = profileChecks('draft');
     const keys   = Object.keys(checks);
     const done   = keys.filter(k => checks[k]).length;
+    const serverChecks   = profileChecks('server');
+    const serverComplete = keys.every(k => serverChecks[k]);
     const pct    = Math.round((done / keys.length) * 100);
     const fill   = document.getElementById('completenessFill');
     const label  = document.getElementById('completenessLabel');
@@ -1562,7 +1574,11 @@
       if (el) el.classList.toggle('completeness-step--done', checks[k]);
     });
     if (done === keys.length) {
-      label.textContent = isGuest ? '✓ Profile complete — your profile is live' : '✓ Profile complete';
+      // Only claim "live" once the backend actually has these values — otherwise
+      // the label would contradict the save bar reading "Unsaved changes".
+      label.textContent = !isGuest         ? '✓ Profile complete'
+                        : serverComplete   ? '✓ Profile complete — your profile is live'
+                                           : '✓ Profile complete — save to go live';
       bar.classList.add('completeness-bar--ready');
     } else {
       const labels = { bio: 'Bio', photo: 'Photo', portfolio: 'Portfolio', styles: 'Styles', contact: 'Contact' };
@@ -1578,8 +1594,8 @@
     if (!isGuest) return;
     try {
       const res  = await authFetch('/api/artist/sync-visibility', { method: 'POST' });
-      const data = await res.json();
       if (!res.ok) return;
+      const data = await res.json().catch(() => ({}));
       if (data.is_public && !_liveModalSeen) {
         _liveModalSeen = true;
         localStorage.setItem('art_profile_live_seen', '1');
@@ -1644,6 +1660,7 @@ async function loadProfile() {
         bio:          a.bio          || '',
         whatsapp_url: a.whatsapp_url || '',
         booking_url:  a.booking_url  || '',
+        styles:       a.styles       || [],
       };
       _wasPublic = !!a.is_public;
       updateCompleteness();
@@ -1807,14 +1824,8 @@ async function loadProfile() {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener('input', () => {
-      if (_completenessProfile) {
-        const waEl   = document.getElementById('profileWhatsapp');
-        const bookEl = document.getElementById('profileBookingUrl');
-        const waNum  = waEl ? waEl.value.trim() : '';
-        _completenessProfile.bio          = (document.getElementById('profileBio')?.value || '').trim();
-        _completenessProfile.whatsapp_url = waNum ? 'https://wa.me/' + waNum : '';
-        _completenessProfile.booking_url  = bookEl ? bookEl.value.trim() : '';
-      }
+      // _completenessProfile is the server mirror and is deliberately NOT touched
+      // here — updateCompleteness() reads the live fields as the draft itself.
       updateCompleteness();
       updateContactEmptyHint();
       checkDirty();
@@ -1902,6 +1913,15 @@ async function loadProfile() {
         if (res.ok) {
           window.toast('Profile updated', 'success');
           _saving = false;
+          // The backend now holds these values — advance the mirror so the
+          // completeness label can stop saying "save to go live".
+          _completenessProfile = {
+            bio:          bio,
+            whatsapp_url: whatsapp_url || '',
+            booking_url:  booking_url  || '',
+            styles:       profileStyles.slice(),
+          };
+          updateCompleteness();
           snapshotProfile();
           syncVisibility();
           setSaveState('saved');
@@ -1984,6 +2004,25 @@ async function loadProfile() {
 
   let _photosRequestId = 0;
 
+  // Only one photo operation (upload / replace / delete) may run at a time.
+  // Concurrent ops race on the same public_id — e.g. a replace that resolves
+  // after a delete re-creates the asset in Cloudinary, resurrecting it for good.
+  let _photoOpInFlight = false;
+  // Deletes confirmed by the backend this session. loadPhotos() is backed by the
+  // Cloudinary Search API, which is eventually consistent, so a refresh right
+  // after a delete often still lists the removed image — filtering it here keeps
+  // it gone. Symmetric to _pendingProfileUrl, which covers the same lag on add.
+  const _deletedThisSession = new Set();
+  let _portfolioFull   = false;  // last known count >= 16, so the add button is restored correctly
+
+  function setPhotoOpInFlight(v) {
+    _photoOpInFlight = v;
+    document.querySelectorAll('.portfolio-replace-btn, .portfolio-delete-btn')
+      .forEach(b => { b.disabled = v || isFrozen; });
+    if (profilePhotoBtn)   profilePhotoBtn.disabled   = v || isFrozen;
+    if (portfolioPhotoBtn) portfolioPhotoBtn.disabled = v || isFrozen || _portfolioFull;
+  }
+
   async function loadPhotos(bustCache = false) {
     const requestId = ++_photosRequestId;
 
@@ -2001,6 +2040,19 @@ async function loadProfile() {
       // A later upload already re-rendered the grid — this older response would
       // drop the freshly-added thumbnail and re-bind stale delete handlers.
       if (requestId !== _photosRequestId) return;
+
+      // Drop images the backend already confirmed deleted but the Search API
+      // hasn't caught up on yet, and keep the count consistent with the grid.
+      if (_deletedThisSession.size && Array.isArray(data.portfolio)) {
+        const kept = data.portfolio.filter(p =>
+          !_deletedThisSession.has(p.publicId) && !_deletedThisSession.has(p.publicIdBare));
+        if (kept.length !== data.portfolio.length) {
+          data.count = typeof data.count === 'number'
+            ? Math.max(0, data.count - (data.portfolio.length - kept.length))
+            : kept.length;
+        }
+        data.portfolio = kept;
+      }
 
       _completenessPhotos = { profileUrl: data.profileUrl || null, portfolio: data.portfolio || [] };
       updateCompleteness();
@@ -2042,15 +2094,19 @@ async function loadProfile() {
           `).join('');
 
           // Frozen guests: portfolio is read-only — no replace/delete affordances.
-          if (isFrozen) {
+          // Same while a photo op is in flight, though the finally releases the
+          // flag before refreshing, so that case is only a belt-and-braces guard.
+          if (isFrozen || _photoOpInFlight) {
             grid.querySelectorAll('.portfolio-replace-btn, .portfolio-delete-btn').forEach(b => { b.disabled = true; });
-          } else {
+          }
+          if (!isFrozen) {
           grid.querySelectorAll('.portfolio-replace-btn').forEach(btn => {
             btn.addEventListener('click', () => {
               const thumb    = btn.closest('.portfolio-thumb');
               const publicId     = thumb.dataset.publicId;
               const publicIdBare = thumb.dataset.publicIdBare || '';
               if (!publicId) return;
+              if (_photoOpInFlight) return;
 
               const input = document.createElement('input');
               input.type   = 'file';
@@ -2059,7 +2115,10 @@ async function loadProfile() {
                 const file = input.files[0];
                 if (!file) return;
                 if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
-                btn.disabled = true;
+                // Claimed here, not on click: the file dialog can be cancelled,
+                // which fires no event and would strand the flag.
+                if (_photoOpInFlight) return;
+                setPhotoOpInFlight(true);
                 try {
                   const sig = await getUploadSignature('portfolio', publicIdBare || publicId);
                   const uploaded = await uploadToCloudinary(file, sig);
@@ -2070,10 +2129,15 @@ async function loadProfile() {
                     thumbImg.src = withCloudinaryTransform(uploaded.secure_url, 'q_auto,f_auto,w_800');
                   }
                   window.toast('Image replaced', 'success');
-                  loadPhotos(true);
                 } catch (err) {
                   window.toast(err.message || 'Replace failed', 'error');
-                  btn.disabled = false;
+                } finally {
+                  // Released before the refresh so the re-rendered buttons come
+                  // back enabled. Server is the source of truth after any
+                  // attempt; this re-renders the grid (and its handlers), so no
+                  // manual rollback of the optimistic thumbnail swap is needed.
+                  setPhotoOpInFlight(false);
+                  await loadPhotos(true);
                 }
               });
               input.click();
@@ -2086,26 +2150,38 @@ async function loadProfile() {
               const publicId = thumb.dataset.publicId;
               if (!publicId) return;
 
-              const confirmed = await showConfirmModal('Remove this image from your portfolio?', 'Remove', 'Cancel');
-              if (!confirmed) return;
-
-              btn.disabled = true;
+              if (_photoOpInFlight) return;
+              // Claimed before the modal: the confirmation window is part of the
+              // operation, so a replace can't start against this same public_id
+              // while the user is still deciding.
+              setPhotoOpInFlight(true);
+              let issued = false;
               try {
+                const confirmed = await showConfirmModal('Remove this image from your portfolio?', 'Remove', 'Cancel');
+                if (!confirmed) return;
+
+                issued = true;
                 const res = await authFetch('/api/artist/photos/portfolio', {
                   method:  'DELETE',
                   body:    JSON.stringify({ publicId, publicIdBare: thumb.dataset.publicIdBare || '' }),
                 });
                 if (res.ok) {
+                  // Recorded before the refresh below, so the stale Search API
+                  // listing can't bring this image back.
+                  _deletedThisSession.add(publicId);
+                  const bare = thumb.dataset.publicIdBare;
+                  if (bare) _deletedThisSession.add(bare);
                   thumb.remove();
                   window.toast('Image removed', 'info');
-                  loadPhotos();
                 } else {
                   window.toast('Failed to remove image', 'error');
-                  btn.disabled = false;
                 }
               } catch {
                 window.toast('Error removing image', 'error');
-                btn.disabled = false;
+              } finally {
+                setPhotoOpInFlight(false);
+                // Cancelling changed nothing on the server — no refresh needed.
+                if (issued) await loadPhotos(true);
               }
             });
           });
@@ -2116,7 +2192,8 @@ async function loadProfile() {
       }
 
       if (countEl) countEl.textContent = `(${data.count}/16)`;
-      if (addBtn)  addBtn.disabled = isFrozen || data.count >= 16;
+      _portfolioFull = data.count >= 16;
+      if (addBtn)  addBtn.disabled = isFrozen || _portfolioFull || _photoOpInFlight;
 
     } catch {
       if (requestId !== _photosRequestId) return;
@@ -2141,10 +2218,10 @@ async function loadProfile() {
       const file = profilePhotoInput.files[0];
       if (!file) return;
       if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
-      profilePhotoBtn.disabled  = true;
+      if (_photoOpInFlight) { profilePhotoInput.value = ''; return; }
+      setPhotoOpInFlight(true);
       profilePhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       const preview     = document.getElementById('profilePhotoPreview');
-      const prevContent = preview ? preview.innerHTML : null;
       // CSP img-src forbids blob: URLs, so a local object-URL preview can't render.
       // Show a text placeholder while uploading, then swap in the real https CDN URL.
       if (preview) preview.innerHTML = '<span class="profile-photo-empty">Uploading…</span>';
@@ -2165,14 +2242,16 @@ async function loadProfile() {
           }
         }
         window.toast('Profile photo updated', 'success');
-        await loadPhotos(true);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
-        if (preview && prevContent !== null) preview.innerHTML = prevContent;
       } finally {
-        profilePhotoBtn.disabled    = false;
         profilePhotoBtn.textContent = 'Upload profile photo';
         profilePhotoInput.value     = '';
+        setPhotoOpInFlight(false);
+        // Re-renders the preview from the server (falling back to
+        // _pendingProfileUrl), so the "Uploading…" placeholder is always
+        // replaced — no manual restore of the previous markup needed.
+        await loadPhotos(true);
       }
     });
   }
@@ -2180,19 +2259,26 @@ async function loadProfile() {
   if (portfolioPhotoBtn) {
     portfolioPhotoBtn.addEventListener('click', () => portfolioPhotoInput.click());
     portfolioPhotoInput.addEventListener('change', async () => {
-      const file = portfolioPhotoInput.files[0];
-      if (!file) return;
-      if (file.size > 10 * 1024 * 1024) { window.toast('File too large (max 10MB)', 'error'); return; }
+      const files = Array.from(portfolioPhotoInput.files);
+      if (!files.length) return;
+      // Check every file before uploading any of them — a batch that would fail
+      // halfway is aborted whole, so no bandwidth is spent on a doomed upload.
+      const tooBig = files.find(f => f.size > 10 * 1024 * 1024);
+      if (tooBig) {
+        window.toast(`"${tooBig.name}" is too large (max 10MB) — nothing was uploaded`, 'error');
+        portfolioPhotoInput.value = '';
+        return;
+      }
       const currentCount = (_completenessPhotos && _completenessPhotos.portfolio ? _completenessPhotos.portfolio.length : 0);
-      if (currentCount + portfolioPhotoInput.files.length > 16) {
+      if (currentCount + files.length > 16) {
         window.toast('You can only have 16 portfolio images — remove some first', 'error');
         portfolioPhotoInput.value = '';
         return;
       }
-      portfolioPhotoBtn.disabled  = true;
+      if (_photoOpInFlight) { portfolioPhotoInput.value = ''; return; }
+      setPhotoOpInFlight(true);
       portfolioPhotoBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Uploading…';
       try {
-        const files = Array.from(portfolioPhotoInput.files);
         const grid  = document.getElementById('portfolioGrid');
         for (const f of files) {
           const sig = await getUploadSignature('portfolio');
@@ -2214,13 +2300,16 @@ async function loadProfile() {
           }
         }
         window.toast(`${files.length} image${files.length > 1 ? 's' : ''} added`, 'success');
-        await loadPhotos(true);
       } catch (err) {
         window.toast(err.message || 'Upload failed', 'error');
       } finally {
-        portfolioPhotoBtn.disabled    = false;
         portfolioPhotoBtn.textContent = 'Add portfolio image';
         portfolioPhotoInput.value     = '';
+        setPhotoOpInFlight(false);
+        // Always reconcile against the server, success or failure. On a partial
+        // batch this keeps the images that did upload (a manual rollback would
+        // wrongly remove them) and drops the optimistic thumbs that didn't.
+        await loadPhotos(true);
       }
     });
   }
