@@ -1145,8 +1145,8 @@
           <label class="form-label" for="calSessionTime">Time</label>
           <select class="form-input form-select" id="calSessionTime">
             <option value="">— Select time —</option>
-            ${Array.from({length: 28}, (_, i) => {
-              const h = Math.floor(i / 2) + 9;
+            ${Array.from({length: 24}, (_, i) => {
+              const h = Math.floor(i / 2) + 11;
               const m = i % 2 === 0 ? '00' : '30';
               const val = `${String(h).padStart(2,'0')}:${m}`;
               return `<option value="${val}">${val}</option>`;
@@ -1346,8 +1346,8 @@
           <label class="form-label" for="calSessionTime">Time</label>
           <select class="form-input form-select" id="calSessionTime">
             <option value="">— Select time —</option>
-            ${Array.from({length: 28}, (_, i) => {
-              const h = Math.floor(i / 2) + 9;
+            ${Array.from({length: 24}, (_, i) => {
+              const h = Math.floor(i / 2) + 11;
               const m = i % 2 === 0 ? '00' : '30';
               const val = `${String(h).padStart(2,'0')}:${m}`;
               return `<option value="${val}">${val}</option>`;
@@ -1410,8 +1410,8 @@
           <label class="form-label" for="calEditTime">Time</label>
           <select class="form-input form-select" id="calEditTime">
             <option value="">— Select time —</option>
-            ${Array.from({length: 28}, (_, i) => {
-              const h = Math.floor(i / 2) + 9;
+            ${Array.from({length: 24}, (_, i) => {
+              const h = Math.floor(i / 2) + 11;
               const m = i % 2 === 0 ? '00' : '30';
               const val = `${String(h).padStart(2,'0')}:${m}`;
               return `<option value="${val}"${entry.session_time === val ? ' selected' : ''}>${val}</option>`;
