@@ -220,8 +220,13 @@
               <span class="artist-profile-caption-type">${artist.is_resident ? 'Resident Artist' : 'Guest Artist'}</span>
               <a class="artist-profile-caption-location" href="https://maps.google.com/maps/search/Ballsbridge+Dublin" target="_blank" rel="noopener noreferrer" aria-label="View studio location on Google Maps">
                 <svg class="artist-location-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>Ballsbridge · Dublin</span>
+                <span>${artist.is_resident ? '' : 'At '}Ballsbridge · Dublin</span>
               </a>
+              ${(!artist.is_resident && artist.country) ? `
+              <span class="artist-profile-caption-from">
+                <svg class="artist-location-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></svg>
+                <span>From ${esc(artist.country)}</span>
+              </span>` : ''}
             </div>
           </div>
 

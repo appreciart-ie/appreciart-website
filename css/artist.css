@@ -94,6 +94,18 @@
       opacity: 0.8;
     }
 
+    /* Sits directly under the location line and must read as its sibling —
+       same scale, weight and icon treatment, no hover (it isn't a link). */
+    .artist-profile-caption-from {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+    }
+
     /* RIGHT — info */
     .artist-info { padding-top: 8px; }
 

@@ -73,6 +73,16 @@
   if (whatsappField) whatsappField.style.display = isGuest ? 'block' : 'none';
   const bookingUrlField = document.getElementById('bookingUrlField');
   if (bookingUrlField) bookingUrlField.style.display = isGuest ? 'block' : 'none';
+  const countryField = document.getElementById('countryField');
+  if (countryField) countryField.style.display = isGuest ? 'block' : 'none';
+
+  // Options are built once here; loadProfile() only sets .value afterwards.
+  const _countrySelect = document.getElementById('profileCountry');
+  if (_countrySelect && Array.isArray(window.COUNTRIES)) {
+    _countrySelect.innerHTML = ['<option value="">— Select country —</option>']
+      .concat(window.COUNTRIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`))
+      .join('');
+  }
 
   // "View public profile" link in the Profile tab header — same URL as the live modal.
   const profileViewLink = document.getElementById('profileViewLink');
@@ -1781,6 +1791,8 @@ async function loadProfile() {
       }
       const bookingField = document.getElementById('profileBookingUrl');
       if (bookingField) bookingField.value = a.booking_url || '';
+      const countrySelect = document.getElementById('profileCountry');
+      if (countrySelect) countrySelect.value = a.country || '';
       updateContactEmptyHint();
       profileStyles = a.styles || [];
       renderProfileStyles();
@@ -1892,11 +1904,13 @@ async function loadProfile() {
     const igEl      = document.getElementById('profileInstagram');
     const waEl      = document.getElementById('profileWhatsapp');
     const bookEl    = document.getElementById('profileBookingUrl');
+    const cntEl     = document.getElementById('profileCountry');
     _profileSnapshot = {
       bio:         bioEl    ? bioEl.value.trim()  : '',
       instagram:   igEl     ? igEl.value.trim()   : '',
       whatsapp:    waEl     ? waEl.value.trim()   : '',
       booking_url: bookEl   ? bookEl.value.trim() : '',
+      country:     cntEl    ? cntEl.value         : '',
       styles:      JSON.stringify(profileStyles),
     };
     _profileDirty = false;
@@ -1910,11 +1924,13 @@ async function loadProfile() {
     const igEl   = document.getElementById('profileInstagram');
     const waEl   = document.getElementById('profileWhatsapp');
     const bookEl = document.getElementById('profileBookingUrl');
+    const cntEl  = document.getElementById('profileCountry');
     const current = {
       bio:         bioEl    ? bioEl.value.trim()  : '',
       instagram:   igEl     ? igEl.value.trim()   : '',
       whatsapp:    waEl     ? waEl.value.trim()   : '',
       booking_url: bookEl   ? bookEl.value.trim() : '',
+      country:     cntEl    ? cntEl.value         : '',
       styles:      JSON.stringify(profileStyles),
     };
     _profileDirty = Object.keys(current).some(k => current[k] !== _profileSnapshot[k]);
@@ -1959,6 +1975,10 @@ async function loadProfile() {
       checkDirty();
     });
   });
+
+  // A <select> fires 'change', not 'input', so it can't ride along in _profileFields.
+  const _countryDirtyEl = document.getElementById('profileCountry');
+  if (_countryDirtyEl) _countryDirtyEl.addEventListener('change', checkDirty);
 
   function igHandle() {
     const el = document.getElementById('profileInstagram');
@@ -2042,9 +2062,13 @@ async function loadProfile() {
       profileSaveBtn.disabled  = true;
       profileSaveBtn.innerHTML = '<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>';
       try {
+        // Country is guest-only (the backend ignores it for residents anyway).
+        const countryEl = document.getElementById('profileCountry');
+        const payload = { bio, instagram, styles: profileStyles, whatsapp_url, booking_url };
+        if (isGuest && countryEl) payload.country = countryEl.value;
         const res = await authFetch('/api/artist/profile', {
           method: 'PATCH',
-          body:   JSON.stringify({ bio, instagram, styles: profileStyles, whatsapp_url, booking_url }),
+          body:   JSON.stringify(payload),
         });
         if (res.ok) {
           window.toast('Profile updated', 'success');
@@ -2488,7 +2512,7 @@ async function loadProfile() {
     if (onboarding) onboarding.remove();
 
     // Profile fields → read-only.
-    ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl', 'profileStyleInput']
+    ['profileBio', 'profileInstagram', 'profileWhatsapp', 'profileBookingUrl', 'profileCountry', 'profileStyleInput']
       .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
     if (profileStyleBtn) profileStyleBtn.disabled = true;
 
