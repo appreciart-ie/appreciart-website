@@ -668,6 +668,11 @@
   padding: 40px;
   max-width: 460px;
   width: 100%;
+  /* O overlay é fixed e centra verticalmente: sem este cap, uma caixa mais alta
+     que a viewport transborda em cima e em baixo e as acções (Confirm/Cancel)
+     ficam fora do ecrã, inalcançáveis. */
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   transform: translateY(12px) scale(0.97);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 20px 60px rgba(0,0,0,0.12);
