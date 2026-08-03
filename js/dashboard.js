@@ -5,6 +5,12 @@
 
   let _token = localStorage.getItem('art_token');
   let _refreshPromise = null;
+  // Background refreshes (13-min timer, visibilitychange) can get a 401 that is
+  // NOT a dead session: on iOS the ITP may withhold the sameSite:none refresh
+  // cookie, and the backend then answers 401 for a session that is still valid.
+  // The two cases are indistinguishable from here, so background handlers only
+  // flag; only an authFetch driven by a real user action may end the session.
+  let _sessionSuspect = false;
   function refreshAccessToken() {
     if (_refreshPromise) return _refreshPromise;
     _refreshPromise = fetch(`${INTERNAL}/api/auth/refresh`, {
@@ -283,6 +289,29 @@
 
   function hideSseStaleNotice() {
     const note = document.getElementById('sseStaleNotice');
+    if (note) note.remove();
+  }
+
+  // Discreet, non-blocking. Mirrors showSseStaleNotice(): CSSOM only, no inline
+  // style attributes (CSP style-src 'self').
+  function markSessionSuspect() {
+    if (_sessionSuspect) return;
+    _sessionSuspect = true;
+    const dashTabs = document.getElementById('dashTabs');
+    if (!dashTabs || !dashTabs.parentNode) return;
+    if (document.getElementById('sessionSuspectNotice')) return;
+    const note = document.createElement('p');
+    note.id = 'sessionSuspectNotice';
+    note.textContent = 'Connection issue — try refreshing if you get logged out unexpectedly.';
+    note.style.fontSize = '11px';
+    note.style.color    = '#636363';
+    note.style.margin   = '0 0 12px';
+    dashTabs.parentNode.insertBefore(note, dashTabs);
+  }
+
+  function clearSessionSuspect() {
+    _sessionSuspect = false;
+    const note = document.getElementById('sessionSuspectNotice');
     if (note) note.remove();
   }
 
@@ -2742,12 +2771,12 @@ async function loadProfile() {
       if (res.ok) {
         _token = res.token;
         localStorage.setItem('art_token', _token);
-      } else if (res.status === 401) {
-        localStorage.removeItem('art_token');
-        localStorage.removeItem('art_artist');
-        window.location.href = 'login.html';
+        clearSessionSuspect();
+      } else {
+        // Includes a 401: a background refresh may not end the session on its
+        // own. The next user-driven authFetch decides.
+        markSessionSuspect();
       }
-      // network errors and other non-401 failures are silently ignored
     } catch {}
   }, 13 * 60 * 1000);
 
@@ -2759,12 +2788,10 @@ async function loadProfile() {
       if (res.ok) {
         _token = res.token;
         localStorage.setItem('art_token', _token);
-      } else if (res.status === 401) {
-        localStorage.removeItem('art_token');
-        localStorage.removeItem('art_artist');
-        window.location.href = 'login.html';
+        clearSessionSuspect();
+      } else {
+        markSessionSuspect();
       }
-      // network errors and other non-401 failures are silently ignored
     } catch {}
   });
 
