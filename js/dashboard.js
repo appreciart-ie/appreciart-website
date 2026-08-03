@@ -1463,6 +1463,15 @@
             }).join('')}
           </select>
         </div>
+        <div class="form-field">
+          <label class="form-label" id="calVideoLabel" for="calWantsVideo">
+            <input id="calWantsVideo" type="checkbox"> Film this session?
+          </label>
+        </div>
+        <div class="form-field" id="tattooValueField">
+          <label class="form-label" for="calTattooValue">Tattoo value (€)</label>
+          <input class="form-input" id="calTattooValue" type="number" min="0" step="0.01" placeholder="0.00" autocomplete="off">
+        </div>
         <div class="cal-modal-actions">
           <button class="btn btn-primary btn-sm" id="calModalConfirm" ${noSlots || unknown ? 'disabled' : ''}>Confirm</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">${unknown ? 'Close' : 'Cancel'}</button>
@@ -1473,12 +1482,49 @@
     requestAnimationFrame(() => modal.classList.add('open'));
 
     let selectedType = 'booking';
+
+    // Só quem tem rate definida regista valor. Sem rate (ex. Moreirart) o
+    // checkbox continua a aparecer, mas é registo puro — sem campo de valor,
+    // e o backend deixa video_commission_amount a null.
+    const hasVideoRate = !!artist && artist.video_commission_rate != null;
+    const videoCheck   = document.getElementById('calWantsVideo');
+    const videoLabel   = document.getElementById('calVideoLabel');
+    const valueField   = document.getElementById('tattooValueField');
+    const valueInput   = document.getElementById('calTattooValue');
+    const confirmBtn   = document.getElementById('calModalConfirm');
+
+    // CSSOM — atributos style= inline são bloqueados pela CSP.
+    videoLabel.style.display    = 'flex';
+    videoLabel.style.alignItems = 'center';
+    videoLabel.style.gap        = '8px';
+    videoLabel.style.cursor     = 'pointer';
+    valueField.style.display    = 'none';
+
+    function videoValueOk() {
+      return !(videoCheck.checked && hasVideoRate) || Number(valueInput.value) > 0;
+    }
+    function syncConfirmState() {
+      confirmBtn.disabled = unknown || (selectedType === 'booking' && noSlots) || !videoValueOk();
+    }
+
+    videoCheck.addEventListener('change', () => {
+      const show = videoCheck.checked && hasVideoRate;
+      valueField.style.display = show ? 'block' : 'none';
+      if (!show) valueInput.classList.remove('form-input--error');
+      syncConfirmState();
+      if (show) valueInput.focus();
+    });
+    valueInput.addEventListener('input', () => {
+      valueInput.classList.remove('form-input--error');
+      syncConfirmState();
+    });
+
     modal.querySelectorAll('.cal-type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         modal.querySelectorAll('.cal-type-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedType = btn.dataset.type;
-        document.getElementById('calModalConfirm').disabled = unknown || (selectedType === 'booking' && noSlots);
+        syncConfirmState();
       });
     });
 
@@ -1489,8 +1535,12 @@
     document.getElementById('calModalConfirm').addEventListener('click', async (e) => {
       const name = nameInput.value.trim();
       if (!name) { nameInput.classList.add('form-input--error'); return; }
+      if (!videoValueOk()) { valueInput.classList.add('form-input--error'); return; }
       setBtnBusy(e.currentTarget, true);
-      const ok = await bookDate(date, name, timeInput.value, selectedType);
+      const wantsVideo  = videoCheck.checked;
+      const tattooValue = (wantsVideo && hasVideoRate && Number(valueInput.value) > 0)
+        ? Number(valueInput.value) : null;
+      const ok = await bookDate(date, name, timeInput.value, selectedType, null, tattooValue, wantsVideo);
       if (ok) removeModal();
       else setBtnBusy(document.getElementById('calModalConfirm'), false, 'Confirm');
     });
@@ -1649,7 +1699,7 @@
     return false;
   }
 
-  async function bookDate(date, clientName, sessionTime, type, paymentType, tattooValue) {
+  async function bookDate(date, clientName, sessionTime, type, paymentType, tattooValue, wantsVideo) {
     try {
       const res = await authFetch('/api/artist/availability', {
         method: 'POST',
@@ -1661,6 +1711,7 @@
           // whatever payment fields the row already had.
           ...(paymentType ? { payment_type: paymentType } : {}),
           ...(tattooValue != null ? { tattoo_value: tattooValue } : {}),
+          ...(wantsVideo != null ? { wants_video: wantsVideo } : {}),
         }),
       });
       if (res.status === 409) {
