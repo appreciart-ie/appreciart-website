@@ -1,7 +1,7 @@
 # TASKS.md — Tracked Backlog (Appreciart IE Frontend)
 
 > Format: `- [ ] [block] — description — severity — effort (S/M/L)`
-> Verified against source on 2026-07-31 (HEAD `ec1ad89`). Only incomplete / pending / known-broken
+> Verified against source on 2026-08-03 (HEAD `e283aac`). Only incomplete / pending / known-broken
 > items — nothing already working. See SPECIFY.md for how the system behaves today.
 
 ## Launch blockers / infrastructure
@@ -161,22 +161,47 @@
       — severity: high — effort: S
       — RESOLVED in `4697d69`: check res.ok before parsing in all 5 loaders, show visible
       error states instead of silent empty.
-- [ ] [dashboard] A2 — capacidade desconhecida tratada como bloqueio, não fabricada como 4/4;
+- [x] [dashboard] A2 — capacidade desconhecida tratada como bloqueio, não fabricada como 4/4;
       409 tratado em markAvailable. — severity: med — effort: S
-- [ ] [dashboard] A3 — reset do backoff SSE só em onopen real, não no refresh do token.
+      — RESOLVED in `4697d69`: guestSlotMap distingue null (unknown), undefined (not loaded),
+      e object (loaded); when null, shows error state instead of fabricating 4/4; lines 735-736,
+      810-811 show the distinction and error messaging.
+- [x] [dashboard] A3 — reset do backoff SSE só em onopen real, não no refresh do token.
       — severity: med — effort: S
-- [ ] [dashboard] A4 — tokens de sequência em loadAvailability/loadBookings/loadPhotos;
+      — RESOLVED in `402a937` (2026-07-31, note: partial) + `3e4bcad` (2026-07-31):
+      SSE es.onopen resets _sseRetries (line 312), NOT during token refresh (lines 323-324 note
+      explicitly: "Only es.onopen may reset the backoff"). exponential backoff with max 5 retries
+      on onerror; implemented at lines 266-317 in dashboard.js.
+- [x] [dashboard] A4 — tokens de sequência em loadAvailability/loadBookings/loadPhotos;
       commit combinado availability+slotMap; invalidação nas escritas. — severity: med — effort: M
-- [ ] [dashboard] M5 — guestSlotMap distingue null/undefined/objecto.
+      — RESOLVED in `4697d69`: _availabilityRequestId token pattern (line 684) with guards at
+      lines 697, 730, 742; combined availability+slotMap commit at line 733 (if slotMap !==
+      undefined, assign); invalidation on write at line 1516 (++_availabilityRequestId).
+      Same pattern applies to bookings (_bookingsRequestId at lines 377, 390, 426).
+- [x] [dashboard] M5 — guestSlotMap distingue null/undefined/objecto.
       — severity: low — effort: S
-- [ ] [dashboard] M7 — guarda contra modal obsoleto em cliques rápidos no calendário.
+      — RESOLVED in `4697d69`: variable declared at line 680 (null = unknown/error, undefined =
+      not loaded, object = loaded with data); distinction used at lines 733, 735, 810-811.
+- [x] [dashboard] M7 — guarda contra modal obsoleto em cliques rápidos no calendário.
       — severity: med — effort: S
-- [ ] [dashboard] B1 — handlers de Esc nomeados ao nível do módulo (sem acumulação).
+      — RESOLVED in `efd9096` (2026-07-31): all modal constructors check existing = document
+      .getElementById(...); if (existing) existing.remove(); at lines 443, 612, 2524, 2773.
+      Prevents accumulation on rapid clicks.
+- [x] [dashboard] B1 — handlers de Esc nomeados ao nível do módulo (sem acumulação).
       — severity: low — effort: S
-- [ ] [dashboard] B3 — helper localDay() para parsing de data local.
+      — RESOLVED in `efd9096`: named module-level functions onBookingEsc (line 440) and onConsentEsc
+      (line 609); listeners removed/re-added per invocation (lines 438, 493, 607, 657) prevent
+      accumulation. Same pattern across showBookingModal, showConsentModal, showReapplyModal.
+- [x] [dashboard] B3 — helper localDay() para parsing de data local.
       — severity: low — effort: S
-- [ ] [dashboard] B4 — filtro "only mine" aplicado antes do slice, não depois.
+      — RESOLVED in `ced0df4` (2026-07-25): localDay() helper defined at line 352; used throughout
+      to parse dates as local calendar days instead of UTC (prevents off-by-one in negative-offset
+      timezones). Also applied in bookings.js:64.
+- [x] [dashboard] B4 — filtro "only mine" aplicado antes do slice, não depois.
       — severity: low — effort: S
+      — RESOLVED in `717bc73` (2026-07-20): filterMineSessions applied in getDayEntries (line 835-836)
+      BEFORE allEntries.slice(MAX_BARS), not after; prevents overflow count from miscounting when
+      filter hides entries. Filter button setup at line 952.
 - [x] [dashboard] B6 — mensagens de erro do servidor mostradas nas escritas.
       — severity: med — effort: S
       — RESOLVED in `efd9096`: surface backend error messages in change-password and reapply flows.
@@ -330,13 +355,17 @@
       (manifest/sw/standalone), auth pages beyond login, and the frozen-guest flow. SPECIFY.md now
       supersedes those sections; update or slim CLAUDE.md when convenient. — severity: low — effort: S
 
-## Video Collaboration (planeado, não implementado)
+## Video Collaboration (planeado, parcialmente implementado)
+
+- [x] [feature] Guest: toggle diária vs percentagem no modal (DAILY/COMMISSION split with 30%
+      automatic calculation). — severity: — effort: S
+      — IMPLEMENTED in `e283aac` (2026-08-03): guest "Add client" modal now includes toggle for
+      payment_type (daily vs commission) + conditional tattoo_value input + automatic 30% split.
+      Backend tracks payment_type and tattoo_value in availability rows (schema + endpoints in
+      appreciart-internal 2d9998b, a10b46d). Frontend fully integrated in dashboard.js booking modal.
 
 - [ ] [feature] Sistema de comissão de vídeo (Renan/Marina 5% configurável, Moreirart fixo/mês
       sem cálculo): checkbox "Film this session" no modal de booking, campo de valor condicional,
       ícone de câmara no calendário, secção admin "Video Revenue" com toggle pago/não pago, painel
       read-only na Profile tab do residente. Cross-repo: frontend (dashboard.js/css) + backend
       (schema, admin panel, outro repo). — severity: — effort: L
-- [ ] [feature] Guest: toggle diária vs percentagem no admin (ideia relacionada, backend/admin
-      panel — appreciart-internal, fora do escopo deste TASKS.md; registar só como referência
-      cruzada). — severity: — effort: L

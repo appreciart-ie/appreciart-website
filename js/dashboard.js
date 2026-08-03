@@ -869,7 +869,10 @@
       }
       } // end isGuest else
 
-      if (past)    cls += ' past';
+      // Guests may log sessions on days already past, as long as the day falls
+      // inside their residency — the backend allows it, so the calendar must too.
+      // Residents keep the past-day block.
+      if (past && !isGuest) cls += ' past';
       if (isToday) cls += ' cal-day--today';
       if (isWeekend) cls += ' cal-day--weekend';
 
