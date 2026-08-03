@@ -243,6 +243,12 @@
 - [ ] [calendar-ux] Copy cleanup across calendar modals — inconsistent verbs for the same actions:
       "Add to calendar" / "Mark available" / "Book client" / "Book a client" / "New session" /
       "Add client" (guest). Pick one vocabulary. — severity: low — effort: S
+- [ ] [calendar-ux] `showBookingModal` (Sessions list, not the calendar) labels its dismiss button
+      "Close" while offering a Save. The calendar modals established the opposite rule — `Close`
+      only when nothing is actionable (`unknown` / `!slotsKnown`), `Cancel` otherwise — so this one
+      should read "Cancel". Deliberately left out of the 2026-08-03 modal-cohesion fix (which added
+      the missing Cancel to `showViewModal` and moved the delete confirmation before `removeModal()`)
+      to keep that commit scoped to the calendar. — severity: low — effort: S
 
 ## Block 7 — PWA (audited 2026-07-31, pending implementation)
 

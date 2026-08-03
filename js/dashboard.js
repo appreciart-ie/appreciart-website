@@ -1150,6 +1150,16 @@
             }).join('')}
           </select>
         </div>
+        <p class="form-label">Payment type</p>
+        <div class="cal-modal-type" id="paymentTypeToggle">
+          <button class="cal-type-btn active" data-payment-type="daily">Daily</button>
+          <button class="cal-type-btn" data-payment-type="commission">Commission</button>
+        </div>
+        <div class="form-field" id="tattooValueField">
+          <label class="form-label" for="calTattooValue">Full tattoo value (€)</label>
+          <input class="form-input" id="calTattooValue" type="number" min="0" step="0.01" placeholder="0.00" autocomplete="off">
+          <p class="profile-hint">We keep 30%, you keep 70% — calculated automatically.</p>
+        </div>
         <div class="cal-modal-actions">
           <button class="btn btn-primary btn-sm" id="calModalConfirm" ${slotsKnown ? '' : 'disabled'}>Confirm</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">${slotsKnown ? 'Cancel' : 'Close'}</button>
@@ -1163,11 +1173,50 @@
     const timeInput = document.getElementById('calSessionTime');
     if (slotsKnown) setTimeout(() => nameInput.focus(), 200);
 
+    // Payment type — Daily by default. The value field is hidden via CSSOM
+    // (inline style attributes are blocked by the CSP).
+    const paymentToggle   = document.getElementById('paymentTypeToggle');
+    const valueField      = document.getElementById('tattooValueField');
+    const valueInput      = document.getElementById('calTattooValue');
+    const confirmBtn      = document.getElementById('calModalConfirm');
+    let   selectedPayment = 'daily';
+
+    valueField.style.display = 'none';
+
+    // Mirrors the backend's 400 (`tattoo_value must be greater than 0 for
+    // commission`) so the guest is stopped before committing, not after.
+    function commissionValueOk() {
+      return selectedPayment !== 'commission' || Number(valueInput.value) > 0;
+    }
+    function syncConfirmState() {
+      confirmBtn.disabled = !slotsKnown || !commissionValueOk();
+    }
+
+    paymentToggle.querySelectorAll('.cal-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        paymentToggle.querySelectorAll('.cal-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedPayment = btn.dataset.paymentType;
+        const isCommission = selectedPayment === 'commission';
+        valueField.style.display = isCommission ? 'block' : 'none';
+        if (!isCommission) valueInput.classList.remove('form-input--error');
+        syncConfirmState();
+        if (isCommission) valueInput.focus();
+      });
+    });
+
+    valueInput.addEventListener('input', () => {
+      valueInput.classList.remove('form-input--error');
+      syncConfirmState();
+    });
+
     document.getElementById('calModalConfirm').addEventListener('click', async (e) => {
       const name = nameInput.value.trim();
       if (!name) { nameInput.classList.add('form-input--error'); return; }
+      if (!commissionValueOk()) { valueInput.classList.add('form-input--error'); return; }
       setBtnBusy(e.currentTarget, true);
-      const ok = await bookDate(date, name, timeInput.value, 'booking');
+      const tattooValue = selectedPayment === 'commission' ? Number(valueInput.value) : null;
+      const ok = await bookDate(date, name, timeInput.value, 'booking', selectedPayment, tattooValue);
       if (ok) removeModal();
       else setBtnBusy(document.getElementById('calModalConfirm'), false, 'Confirm');
     });
@@ -1255,8 +1304,8 @@
       }
     });
     document.getElementById('calModalRemove').addEventListener('click', async () => {
-      removeModal();
       if (!await showConfirmModal('Delete this session?')) return;
+      removeModal();
       deleteDate(date);
     });
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
@@ -1373,6 +1422,7 @@
         <div class="cal-modal-actions" id="calViewActions">
           <button class="btn btn-primary btn-sm" id="calModalSave">Save</button>
           <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalDelete">Delete</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
       </div>
     `;
@@ -1400,11 +1450,16 @@
       else setBtnBusy(document.getElementById('calModalSave'), false, 'Save');
     });
 
+    // Confirm BEFORE closing: a declined delete must leave the modal open with
+    // any unsaved edits intact. showConfirmModal renders at z-index 500, above
+    // this modal's 400, so it is visible while this one stays on screen.
     document.getElementById('calModalDelete').addEventListener('click', async () => {
-      removeModal();
       if (!await showConfirmModal('Delete this session?')) return;
+      removeModal();
       deleteDate(date);
     });
+
+    document.getElementById('calModalCancel').addEventListener('click', removeModal);
 
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
   }
@@ -1467,11 +1522,19 @@
     return false;
   }
 
-  async function bookDate(date, clientName, sessionTime, type) {
+  async function bookDate(date, clientName, sessionTime, type, paymentType, tattooValue) {
     try {
       const res = await authFetch('/api/artist/availability', {
         method: 'POST',
-        body:   JSON.stringify({ date, is_available: true, client_name: clientName, session_time: sessionTime || null, type }),
+        body:   JSON.stringify({
+          date, is_available: true, client_name: clientName,
+          session_time: sessionTime || null, type,
+          // Omitted entirely when absent — the other two call sites pass neither,
+          // so their payload is unchanged and the backend's COALESCE preserves
+          // whatever payment fields the row already had.
+          ...(paymentType ? { payment_type: paymentType } : {}),
+          ...(tattooValue != null ? { tattoo_value: tattooValue } : {}),
+        }),
       });
       if (res.status === 409) {
         window.toast(await errorMessage(res, 'No slots available for this date'), 'error');
