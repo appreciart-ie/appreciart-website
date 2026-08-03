@@ -811,6 +811,19 @@
     return studioAvailability.filter(a => a.date.slice(0, 10) === dateStr);
   }
 
+  // As minhas sessões nesse dia, por ordem de hora (sem hora → fim, depois id).
+  // Espelha a ordenação do backend, para a lista e a grelha coincidirem.
+  function getMyDayEntries(dateStr) {
+    return getDayEntries(dateStr)
+      .filter(e => e.artist_slug === artist.slug)
+      .sort((a, b) => {
+        if (!a.session_time && !b.session_time) return (a.id || 0) - (b.id || 0);
+        if (!a.session_time) return 1;
+        if (!b.session_time) return -1;
+        return a.session_time.localeCompare(b.session_time);
+      });
+  }
+
   function clearCalendarSelection() {
     calGrid.querySelectorAll('.cal-day--selected').forEach(day => {
       day.classList.remove('cal-day--selected');
@@ -848,14 +861,17 @@
         const inPeriod    = guestStart && guestEnd && dateStr >= guestStart && dateStr <= guestEnd;
         const slotsKnown  = guestSlotMap !== null;
         const available   = slotsKnown ? (guestSlotMap[dateStr] ?? null) : null;
-        const myEntry     = studioAvailability.find(e => e.date.slice(0, 10) === dateStr && e.artist_slug === artist.slug);
+        const myEntries   = getMyDayEntries(dateStr);
+        const mySessions  = myEntries.filter(e => e.client_name);
 
         if (!inPeriod) {
           cls += ' cal-day--blocked';
-        } else if (myEntry && myEntry.client_name) {
+        } else if (mySessions.length) {
           // Own sessions are local state — always shown, even when the studio
           // slot counts failed to load.
-          bars = `<span class="cal-bar cal-bar--guest">${esc(myEntry.client_name)}${myEntry.session_time ? ' · ' + myEntry.session_time : ''}</span>`;
+          bars = mySessions.map(e =>
+            `<span class="cal-bar cal-bar--guest">${esc(e.client_name)}${e.session_time ? ' · ' + esc(e.session_time) : ''}</span>`
+          ).join('');
         } else if (!slotsKnown) {
           // Capacity unknown — must not read as "free to book".
           cls += ' cal-day--unknown';
@@ -1125,27 +1141,27 @@
     const clickId  = ++_dayClickId;
     const date     = el.dataset.date;
     const friendly = new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+    const mine     = getMyDayEntries(date);
 
     if (isGuest) {
       // Guests: skip intermediate modal, go straight to booking
       const slotsKnown = guestSlotMap !== null;
       const available  = slotsKnown ? (guestSlotMap[date] ?? null) : null;
-      if (slotsKnown && available === 0) return; // Full — do nothing
-      const myEntry = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
-      if (myEntry && myEntry.client_name) {
-        showViewModal(date, friendly, myEntry);
-      } else {
-        showGuestBookModal(date, friendly, slotsKnown);
-      }
+      if (mine.length > 1) { showDayModal(date, friendly, mine); return; }
+      if (mine.length === 1 && mine[0].client_name) { showViewModal(date, friendly, mine[0]); return; }
+      // Dia cheio só bloqueia a criação — sessões próprias abrem sempre.
+      if (slotsKnown && available === 0) return;
+      showGuestBookModal(date, friendly, slotsKnown);
       return;
     }
 
-    const myEntry  = studioAvailability.find(e => e.date.slice(0,10) === date && e.artist_slug === artist.slug);
-
-    if (myEntry) {
+    if (mine.length > 1) {
+      showDayModal(date, friendly, mine);
+    } else if (mine.length === 1) {
+      const myEntry = mine[0];
       const isAvailableOnly = myEntry.is_available && !myEntry.client_name;
       if (isAvailableOnly) {
-        showAvailableModal(date, friendly);
+        showAvailableModal(date, friendly, myEntry);
       } else {
         showViewModal(date, friendly, myEntry);
       }
@@ -1314,8 +1330,72 @@
     document.addEventListener('keydown', onEsc);
   }
 
+  // ── Modal: dia com várias sessões ──
+  function showDayModal(date, friendly, entries) {
+    removeModal();
+    const modal = document.createElement('div');
+    modal.id = 'calModal';
+    modal.className = 'cal-modal-overlay';
+    modal.innerHTML = `
+      <div class="cal-modal-box">
+        <p class="cal-modal-date">${esc(friendly)}</p>
+        <p class="cal-modal-title">${entries.length} sessions</p>
+        <div class="cal-session-list">
+          ${entries.map((e, i) => {
+            const free  = e.is_available && !e.client_name;
+            const title = free ? 'Available' : esc(e.client_name || 'Session');
+            const meta  = free
+              ? 'No client'
+              : [e.session_time ? esc(e.session_time) : null,
+                 e.type === 'consultation' ? 'Consultation' : 'Booking'].filter(Boolean).join(' · ');
+            return `<button class="cal-session-row" data-idx="${i}">
+              <span>${title}</span>
+              <span class="cal-session-row-meta">${meta}</span>
+            </button>`;
+          }).join('')}
+        </div>
+        <div class="cal-modal-actions" id="calDayActions">
+          <button class="btn btn-primary btn-sm" id="calModalAdd">Add another session</button>
+          <button class="btn btn-secondary btn-sm" id="calModalCancel">Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('calDayActions').style.marginTop = '24px';
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    modal.querySelectorAll('.cal-session-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const entry = entries[parseInt(row.dataset.idx, 10)];
+        removeModal();
+        if (entry.is_available && !entry.client_name) showAvailableModal(date, friendly, entry);
+        else showViewModal(date, friendly, entry);
+      });
+    });
+
+    document.getElementById('calModalAdd').addEventListener('click', () => startNewSession(date, friendly));
+    document.getElementById('calModalCancel').addEventListener('click', removeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
+    document.addEventListener('keydown', onEsc);
+  }
+
+  // Abre o fluxo de criação, venha de onde vier (dia vazio, lista, ou um modal
+  // de sessão existente). Centralizado para os chamadores não divergirem.
+  async function startNewSession(date, friendly) {
+    removeModal();
+    if (isGuest) { showGuestBookModal(date, friendly, guestSlotMap !== null); return; }
+    try {
+      const res  = await authFetch(`/api/artist/slots/${date}`);
+      if (!res.ok) throw new Error('slots fetch failed: ' + res.status);
+      const data = await res.json();
+      showBookModal(date, friendly, data.available || 0, data.total || 4);
+    } catch {
+      showBookModal(date, friendly, null, null);
+    }
+  }
+
   // ── Modal: available day (no client) ──
-  function showAvailableModal(date, friendly) {
+  function showAvailableModal(date, friendly, entry) {
     removeModal();
     const modal = document.createElement('div');
     modal.id = 'calModal';
@@ -1334,21 +1414,11 @@
     document.body.appendChild(modal);
     requestAnimationFrame(() => modal.classList.add('open'));
 
-    document.getElementById('calModalBookClient').addEventListener('click', async () => {
-      removeModal();
-      try {
-        const res  = await authFetch(`/api/artist/slots/${date}`);
-        if (!res.ok) throw new Error('slots fetch failed: ' + res.status);
-        const data = await res.json();
-        showBookModal(date, friendly, data.available || 0, data.total || 4);
-      } catch {
-        showBookModal(date, friendly, null, null);
-      }
-    });
+    document.getElementById('calModalBookClient').addEventListener('click', () => startNewSession(date, friendly));
     document.getElementById('calModalRemove').addEventListener('click', async () => {
       if (!await showConfirmModal('Delete this session?')) return;
       removeModal();
-      deleteDate(date);
+      deleteSession(entry.id);
     });
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
     modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
@@ -1466,10 +1536,14 @@
           <button class="btn btn-secondary btn-sm cal-btn-delete" id="calModalDelete">Delete</button>
           <button class="btn btn-secondary btn-sm" id="calModalCancel">Cancel</button>
         </div>
+        <div class="cal-modal-actions" id="calViewAdd">
+          <button class="btn btn-secondary btn-sm" id="calModalAdd">Add another session</button>
+        </div>
       </div>
     `;
     document.body.appendChild(modal);
     document.getElementById('calViewActions').style.marginTop = '24px';
+    document.getElementById('calViewAdd').style.marginTop = '8px';
     requestAnimationFrame(() => modal.classList.add('open'));
     document.addEventListener('keydown', onEsc);
 
@@ -1486,11 +1560,18 @@
       const name = document.getElementById('calEditName').value.trim();
       const time = document.getElementById('calEditTime').value;
       if (!name) { document.getElementById('calEditName').classList.add('form-input--error'); return; }
+      if (!entry.id) {
+        // Sem id não há forma segura de editar — um POST criaria um duplicado.
+        window.toast('Session out of sync — refresh the page', 'error');
+        return;
+      }
       setBtnBusy(e.currentTarget, true);
-      const ok = await bookDate(date, name, time, selectedType);
+      const ok = await updateSession(entry, name, time, selectedType);
       if (ok) removeModal();
       else setBtnBusy(document.getElementById('calModalSave'), false, 'Save');
     });
+
+    document.getElementById('calModalAdd').addEventListener('click', () => startNewSession(date, friendly));
 
     // Confirm BEFORE closing: a declined delete must leave the modal open with
     // any unsaved edits intact. showConfirmModal renders at z-index 500, above
@@ -1498,7 +1579,7 @@
     document.getElementById('calModalDelete').addEventListener('click', async () => {
       if (!await showConfirmModal('Delete this session?')) return;
       removeModal();
-      deleteDate(date);
+      deleteSession(entry.id);
     });
 
     document.getElementById('calModalCancel').addEventListener('click', removeModal);
@@ -1549,9 +1630,13 @@
       }
       if (res.ok) {
         window.toast('Date marked as available', 'success');
-        const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
-        const entry = { date, is_available: true, client_name: null, session_time: null, type: 'booking', artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
-        if (idx >= 0) { studioAvailability[idx] = entry; } else { studioAvailability.push(entry); }
+        // Cada POST cria uma linha nova — nunca substitui uma existente.
+        const created = await res.json().catch(() => ({}));
+        studioAvailability.push({
+          id: created.availability && created.availability.id,
+          date, is_available: true, client_name: null, session_time: null, type: 'booking',
+          artist_slug: artist.slug, artist_name: artist.name, has_booking: false,
+        });
         _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
         renderCalendar();
         return true;
@@ -1584,10 +1669,12 @@
       }
       if (res.ok) {
         window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} saved — ${clientName}`, 'success');
-        const idx = studioAvailability.findIndex(a => a.date.slice(0,10) === date && a.artist_slug === artist.slug);
-        const entry = { date, is_available: true, client_name: clientName, session_time: sessionTime || null, type, artist_slug: artist.slug, artist_name: artist.name, has_booking: false };
-        if (idx >= 0) { studioAvailability[idx] = { ...studioAvailability[idx], ...entry }; }
-        else { studioAvailability.push(entry); }
+        const created = await res.json().catch(() => ({}));
+        studioAvailability.push({
+          id: created.availability && created.availability.id,
+          date, is_available: true, client_name: clientName, session_time: sessionTime || null, type,
+          artist_slug: artist.slug, artist_name: artist.name, has_booking: false,
+        });
         _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
         renderCalendar();
         return true;
@@ -1600,12 +1687,39 @@
     return false;
   }
 
-  async function deleteDate(date) {
+  // Edição de uma sessão existente. Distinto do POST, que cria sempre.
+  // session_time vai como '' quando limpo — o backend lê a string vazia como
+  // "apagar a hora"; um campo ausente seria "preservar".
+  async function updateSession(entry, clientName, sessionTime, type) {
     try {
-      const res = await authFetch(`/api/artist/availability/${date}`, { method: 'DELETE' });
+      const res = await authFetch(`/api/artist/availability/${entry.id}`, {
+        method: 'PATCH',
+        body:   JSON.stringify({ client_name: clientName, session_time: sessionTime || '', type }),
+      });
+      if (res.ok) {
+        window.toast(`${type === 'consultation' ? 'Consultation' : 'Booking'} saved — ${clientName}`, 'success');
+        const idx = studioAvailability.findIndex(a => a.id === entry.id);
+        if (idx >= 0) {
+          studioAvailability[idx] = { ...studioAvailability[idx],
+            client_name: clientName, session_time: sessionTime || null, type };
+        }
+        _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
+        renderCalendar();
+        return true;
+      }
+      window.toast(await errorMessage(res, 'Failed to save session'), 'error');
+    } catch {
+      window.toast('Error saving session', 'error');
+    }
+    return false;
+  }
+
+  async function deleteSession(id) {
+    try {
+      const res = await authFetch(`/api/artist/availability/${id}`, { method: 'DELETE' });
       if (res.ok) {
         window.toast('Session deleted', 'info');
-        studioAvailability = studioAvailability.filter(a => !(a.date.slice(0,10) === date && a.artist_slug === artist.slug));
+        studioAvailability = studioAvailability.filter(a => a.id !== id);
         _availabilityRequestId++;   // invalidate any load still in flight — it predates this write
         renderCalendar();
       } else {
