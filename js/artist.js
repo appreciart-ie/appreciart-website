@@ -102,18 +102,29 @@
         && gStartD.getFullYear() === gEndD.getFullYear()
         && gStartD.getMonth() === gEndD.getMonth();
 
-      // Badge: days remaining until end of guest residency (subtle, below dates)
+      // Badge: urgency countdown, below dates. Two phases — arrival countdown
+      // before the visit starts, then "book before they leave" once it's on.
       let badgeHtml = '';
       if (gStartD && gEndD) {
         const now = new Date(); now.setHours(0,0,0,0);
-        const daysLeft = Math.ceil((gEndD - now) / 86400000);
         const calendarIcon = '<svg class="guest-visit-badge-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="0"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
-        if (daysLeft > 1) {
-          badgeHtml = `<div class="guest-visit-badge-subtle">${calendarIcon}<span>${daysLeft} days left</span></div>`;
-        } else if (daysLeft === 1) {
-          badgeHtml = `<div class="guest-visit-badge-subtle">${calendarIcon}<span>Last day</span></div>`;
-        } else if (daysLeft === 0) {
-          badgeHtml = `<div class="guest-visit-badge-subtle">${calendarIcon}<span>Today only</span></div>`;
+        if (now < gStartD) {
+          const daysUntilStart = Math.ceil((gStartD - now) / 86400000);
+          badgeHtml = `<div class="guest-visit-badge-subtle">${calendarIcon}<span>Arrives in ${daysUntilStart} day${daysUntilStart === 1 ? '' : 's'}</span></div>`;
+        } else {
+          // Visit is on — show remaining open spots instead of a day count.
+          // "Spot" = a date she opened that's today-or-later and not booked.
+          const openFuture = availability.filter(a => parseYMD(a.date) >= now);
+          if (openFuture.length > 0) {
+            const spotsLeft = openFuture.filter(a => !a.booked).length;
+            const urgent = spotsLeft > 0 && spotsLeft <= 3;
+            const badgeClass = `guest-visit-badge-subtle${urgent ? ' guest-visit-badge-subtle--urgent' : ''}`;
+            if (spotsLeft > 0) {
+              badgeHtml = `<div class="${badgeClass}">${calendarIcon}<span>${urgent ? 'Only ' : ''}${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left</span></div>`;
+            } else {
+              badgeHtml = `<div class="guest-visit-badge-subtle">${calendarIcon}<span>Fully booked</span></div>`;
+            }
+          }
         }
       }
 

@@ -348,6 +348,15 @@
       opacity: 0.6;
     }
 
+    .guest-visit-badge-subtle--urgent {
+      color: var(--black);
+      font-weight: 600;
+    }
+
+    .guest-visit-badge-subtle--urgent .guest-visit-badge-icon {
+      opacity: 1;
+    }
+
     .guest-visit-mon {
       font-size: 9px;
       font-weight: 700;
