@@ -249,9 +249,10 @@
       — RESOLVED in `0786cc6` (2026-07-20): `touchstart`/`touchend` handlers on `calGrid`
       (dashboard.js ~1364-1386), 50px threshold, ignores vertical-dominant swipes, delegates to the
       shared `changeMonth()` so it inherits the same transition as calPrev/calNext.
-- [ ] [pwa] iOS session persistence — frontend dependency (api.appreciart.ie migration) now DONE
-      as of 2026-07-17; remaining blocker is the backend cookie-domain change (other repo) so the
-      refresh cookie becomes same-site. No frontend work left here. — severity: high — effort: M (backend dep)
+- [x] [pwa] iOS session persistence — RESOLVED. Confirmed live: the domain co-location
+      (appreciart.ie + api.appreciart.ie sharing the same registrable domain) was sufficient
+      on its own — no cookie sameSite/domain change was needed after all. Verified working
+      on iOS PWA. — severity: high — effort: M
 
 ## Calendar UX (queued from earlier full audit — none built)
 
