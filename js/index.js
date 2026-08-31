@@ -68,6 +68,20 @@
               else hidePhoto();
             }
           });
+
+          // Touch devices have no hover: the card most in view is the "active" one
+          // and stays in colour while the rest hold grayscale (see @media (hover: none)).
+          if (window.matchMedia('(hover: none)').matches && 'IntersectionObserver' in window) {
+            const cards  = Array.from(track.querySelectorAll('.guest-card'));
+            const ratios = new Map(cards.map(c => [c, 0]));
+            const io = new IntersectionObserver(entries => {
+              entries.forEach(e => ratios.set(e.target, e.intersectionRatio));
+              let best = null, bestRatio = 0;
+              ratios.forEach((ratio, card) => { if (ratio > bestRatio) { bestRatio = ratio; best = card; } });
+              cards.forEach(c => c.classList.toggle('is-active', c === best));
+            }, { root: track, threshold: [0, 0.25, 0.5, 0.75, 1] });
+            cards.forEach(c => io.observe(c));
+          }
         })
         .catch(() => {
           if (empty) {
