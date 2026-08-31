@@ -69,17 +69,19 @@
             }
           });
 
-          // Touch devices have no hover: the card most in view is the "active" one
-          // and stays in colour while the rest hold grayscale (see @media (hover: none)).
-          if (window.matchMedia('(hover: none)').matches && 'IntersectionObserver' in window) {
-            const cards  = Array.from(track.querySelectorAll('.guest-card'));
+          // No hover on touch: the card most in view is the "active" one and keeps
+          // its colour while the rest stay grayscale (CSS decides where this applies).
+          const cards = Array.from(track.querySelectorAll('.guest-card'));
+          if (cards.length && 'IntersectionObserver' in window) {
+            cards[0].classList.add('is-active');
             const ratios = new Map(cards.map(c => [c, 0]));
             const io = new IntersectionObserver(entries => {
               entries.forEach(e => ratios.set(e.target, e.intersectionRatio));
-              let best = null, bestRatio = 0;
-              ratios.forEach((ratio, card) => { if (ratio > bestRatio) { bestRatio = ratio; best = card; } });
+              // Ties go to the leftmost card, so paging 1-by-1 always lights the leading one.
+              let best = cards[0], bestRatio = -1;
+              cards.forEach(c => { const r = ratios.get(c); if (r > bestRatio + 0.01) { bestRatio = r; best = c; } });
               cards.forEach(c => c.classList.toggle('is-active', c === best));
-            }, { root: track, threshold: [0, 0.25, 0.5, 0.75, 1] });
+            }, { root: track, threshold: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1] });
             cards.forEach(c => io.observe(c));
           }
         })

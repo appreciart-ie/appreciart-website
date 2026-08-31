@@ -690,10 +690,11 @@ a   { color: inherit; text-decoration: none; }
 
 .guest-card:hover .guest-photo-wrap img { filter: grayscale(0%); transform: scale(1.04); }
 
-/* No hover on touch: only the card in view (set by js/index.js) keeps its colour. */
-@media (hover: none) {
+/* No hover (touch devices) or narrow viewports: only the card in view keeps its
+   colour — .is-active is set by the IntersectionObserver in js/index.js. */
+@media (hover: none), (max-width: 768px) {
   .guest-card:hover .guest-photo-wrap img { filter: grayscale(100%); transform: none; }
-  .guest-card.is-active .guest-photo-wrap img { filter: grayscale(0%); }
+  .guest-card.is-active .guest-photo-wrap img { filter: grayscale(0%); transform: none; }
 }
 
 .guest-dates-badge {
