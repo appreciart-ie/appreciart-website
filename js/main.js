@@ -32,18 +32,39 @@ const revealObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 document.querySelectorAll('[data-drag]').forEach(el => {
-  let isDown = false, startX, scrollLeft;
-  const onMouseUp = () => { isDown = false; el.classList.remove('grabbing'); };
-  el.addEventListener('mousedown', e => {
-    isDown = true;
+  // Touch is handled natively by the browser (momentum + scroll-snap) — never hijack it.
+  // Pointer drag is mouse-only, and snapping is suspended mid-drag so it doesn't fight the cursor.
+  let dragging = false, startX = 0, startScroll = 0, moved = 0;
+
+  const stop = () => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('grabbing');
+    el.style.scrollSnapType = '';
+  };
+
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    dragging = true;
+    moved = 0;
+    startX = e.clientX;
+    startScroll = el.scrollLeft;
     el.classList.add('grabbing');
-    startX = e.pageX - el.offsetLeft;
-    scrollLeft = el.scrollLeft;
-    document.addEventListener('mouseup', onMouseUp, { once: true });
+    el.style.scrollSnapType = 'none';
   });
-  el.addEventListener('mousemove', e => { if (!isDown) return; e.preventDefault(); el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX) * 1.4; });
-  el.addEventListener('touchstart', e => { startX = e.touches[0].pageX - el.offsetLeft; scrollLeft = el.scrollLeft; }, { passive: true });
-  el.addEventListener('touchmove',  e => { el.scrollLeft = scrollLeft - (e.touches[0].pageX - el.offsetLeft - startX); }, { passive: true });
+
+  el.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > moved) moved = Math.abs(dx);
+    if (moved > 3) el.setPointerCapture(e.pointerId);
+    el.scrollLeft = startScroll - dx;
+  });
+
+  el.addEventListener('pointerup', stop);
+  el.addEventListener('pointercancel', stop);
+  // Swallow the click that ends a real drag so cards don't navigate.
+  el.addEventListener('click', e => { if (moved > 5) { e.preventDefault(); e.stopPropagation(); moved = 0; } }, true);
 });
 
 // Reviews nav arrows
