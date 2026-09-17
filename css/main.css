@@ -562,6 +562,14 @@ a   { color: inherit; text-decoration: none; }
   cursor: pointer;
 }
 
+.resident-card > a {
+  display: block;
+  background: var(--off-white);
+  border: 1px solid var(--black);
+  padding: 14px;
+  overflow: hidden;
+}
+
 .resident-photo {
   width: 100%;
   aspect-ratio: 3/4;
@@ -1092,6 +1100,10 @@ a   { color: inherit; text-decoration: none; }
     cursor: default;
   }
   .resident-card:first-child { border-top: 1px solid var(--light); }
+  .resident-card > a {
+    padding: 5px;
+    flex-shrink: 0;
+  }
   .resident-photo {
     width: 88px;
     height: 110px;
