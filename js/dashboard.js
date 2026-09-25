@@ -110,6 +110,7 @@
   });
 
   const tabs         = document.querySelectorAll('.dash-tab');
+  const bottomTabs   = document.querySelectorAll('.dash-bottom-tab');
   const panels       = document.querySelectorAll('.dash-panel');
   const bookingsList = document.getElementById('bookingsList');
   const calGrid      = document.getElementById('calGrid');
@@ -125,10 +126,19 @@
     panels.forEach(p => p.classList.remove('active'));
     tab.classList.add('active');
     panel.classList.add('active');
+    bottomTabs.forEach(b => {
+      const on = b.dataset.tab === name;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
     if (persist) localStorage.setItem('art_active_tab', name);
   }
 
   tabs.forEach(tab => {
+    tab.addEventListener('click', () => activateTab(tab.dataset.tab));
+  });
+
+  bottomTabs.forEach(tab => {
     tab.addEventListener('click', () => activateTab(tab.dataset.tab));
   });
 
