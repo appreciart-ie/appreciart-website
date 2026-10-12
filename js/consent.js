@@ -20,7 +20,19 @@
           const res = await fetch(`${INTERNAL_API_URL}/api/public/artists`, { signal: AbortSignal.timeout(10000) });
           if (!res.ok) throw new Error(`Artists endpoint returned ${res.status}`);
           const data = await res.json();
-          const all  = [...(data.residents || []), ...(data.guests || [])];
+          // Only list guests whose period includes today (YYYY-MM-DD string compare,
+          // local date — avoids UTC shifts). Residents are always listed.
+          const todayStr = (() => {
+            const n = new Date();
+            return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+          })();
+          const currentGuests = (data.guests || []).filter(g => {
+            if (!g) return false;
+            const s = g.guest_start_date ? String(g.guest_start_date).slice(0, 10) : null;
+            const e = g.guest_end_date   ? String(g.guest_end_date).slice(0, 10)   : null;
+            return (!s || s <= todayStr) && (!e || e >= todayStr);
+          });
+          const all = [...(data.residents || []), ...currentGuests];
           if (!all.length) throw new Error('No artists returned');
           all.forEach(a => {
             if (!a || !a.name) return;
