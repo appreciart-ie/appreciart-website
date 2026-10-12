@@ -83,18 +83,18 @@
 
       // Guest visit period — same formatting as homepage guest cards (js/index.js)
       const guestStart = artist.guest_start_date
-        ? new Date(artist.guest_start_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
+        ? parseYMD(artist.guest_start_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
         : '';
       const guestEnd = artist.guest_end_date
-        ? new Date(artist.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
+        ? parseYMD(artist.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
         : '';
       const guestDateRange = guestStart && guestEnd ? `${guestStart} – ${guestEnd}` : '';
 
       // Editorial guest visit block — month sits above the day numerals.
       // Same-month visits (the common case) show the month once; visits that
       // span two months show each month above its own date. No year.
-      const gStartD = artist.guest_start_date ? new Date(artist.guest_start_date) : null;
-      const gEndD   = artist.guest_end_date   ? new Date(artist.guest_end_date)   : null;
+      const gStartD = artist.guest_start_date ? parseYMD(artist.guest_start_date) : null;
+      const gEndD   = artist.guest_end_date   ? parseYMD(artist.guest_end_date)   : null;
       const gDay      = d => String(d.getDate()).padStart(2, '0');
       const gMonShort = d => d.toLocaleDateString('en-IE', { month: 'short' }).toUpperCase();
       const gMonLong  = d => d.toLocaleDateString('en-IE', { month: 'long'  }).toUpperCase();

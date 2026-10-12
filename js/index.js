@@ -7,6 +7,14 @@
     const empty   = document.getElementById('guestsEmpty');
     const section = document.querySelector('.guests-section');
 
+    // Parse "YYYY-MM-DD" (or an ISO string) as *local* midnight — new Date(str)
+    // treats it as UTC, so local getters slip a day in negative-offset zones.
+    // Duplicated from js/artist.js:51 — no shared date module in this project.
+    function parseYMD(s) {
+      const [y, m, d] = String(s).slice(0, 10).split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
     fetch(`${INTERNAL_API}/api/public/artists`, { signal: AbortSignal.timeout(8000) })
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
@@ -29,14 +37,14 @@
 
           guests.forEach(guest => {
             const startDate = guest.guest_start_date
-              ? new Date(guest.guest_start_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
+              ? parseYMD(guest.guest_start_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
               : '';
             const endDate = guest.guest_end_date
-              ? new Date(guest.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
+              ? parseYMD(guest.guest_end_date).toLocaleDateString('en-IE', { day: '2-digit', month: 'short' })
               : '';
             const dateRange = startDate && endDate ? `${startDate} – ${endDate}` : '';
             const month = guest.guest_start_date
-              ? new Date(guest.guest_start_date).toLocaleDateString('en-IE', { month: 'long' })
+              ? parseYMD(guest.guest_start_date).toLocaleDateString('en-IE', { month: 'long' })
               : '';
             const styles = Array.isArray(guest.styles) ? guest.styles.join(' · ') : '';
             const ctaHref = `artist.html?slug=${encodeURIComponent(guest.slug)}`;
