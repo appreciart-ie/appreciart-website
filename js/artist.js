@@ -111,7 +111,17 @@
         const calendarIcon = '<svg class="guest-visit-badge-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="0"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
         const openFuture = availability.filter(a => parseYMD(a.date) >= now);
         if (openFuture.length > 0) {
-          const spotsLeft = openFuture.filter(a => !a.booked).length;
+          const dKey = v => String(v).slice(0, 10);
+          const startKey = dKey(artist.guest_start_date);
+          const endKey   = dKey(artist.guest_end_date);
+          const n = new Date();
+          const todayKey = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+          const bookedDates = new Set(availability.filter(a => a.booked).map(a => dKey(a.date)));
+          const openDates = new Set(
+            availability.filter(a => !a.booked).map(a => dKey(a.date))
+              .filter(k => k >= todayKey && k >= startKey && k <= endKey && !bookedDates.has(k))
+          );
+          const spotsLeft = openDates.size;
           const urgent = spotsLeft > 0 && spotsLeft <= 3;
           const badgeClass = `guest-visit-badge-subtle${urgent ? ' guest-visit-badge-subtle--urgent' : ''}`;
           if (spotsLeft > 0) {
