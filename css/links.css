@@ -43,7 +43,7 @@
 }
 
 .lk-head,
-.lk-feat,
+.lk-feat-body,
 .lk-feat-next,
 .lk-act {
   padding-left:  max(var(--lk-gutter), env(safe-area-inset-left));
@@ -83,7 +83,7 @@
 .lk-place {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   height: 48px;
   padding: 0 12px;
   font-size: 11px;
@@ -106,12 +106,25 @@
 
 .lk-hero {
   flex: none;
+  position: relative;
   height: var(--lk-hero-h);
   background: var(--off-white);
   overflow: hidden;
+}
+
+/* Two stacked slides: the guest panel pushes in from the right while the
+   photo drifts left underneath it. Transform only, 400ms. */
+.lk-slide {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
+
+.lk-slide--guest { background: var(--off-white); transform: translateX(100%); }
+.lk-hero.is-guest .lk-slide--guest { transform: none; }
+.lk-hero.is-guest .lk-slide--studio { transform: translateX(-30%); }
 
 .lk-band {
   width: 100%;
@@ -121,49 +134,17 @@
 
 .lk-band.lk-img-failed { visibility: hidden; }
 
-/* Guest state */
+/* Guest state: full-height portrait | label · dates · name → ; NEXT strip */
 .lk-feat {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 16px;
-  align-content: start;
-  padding-top: 16px;
-}
-
-.lk-feat-body { min-width: 0; }
-
-/* Date numerals — same language as artist.css .guest-visit-* */
-.lk-days {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 10px;
-}
-
-.lk-day {
-  font-size: 56px;
-  font-weight: 300;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.lk-sep { width: 24px; height: 1px; background: var(--mid); }
-
-.lk-feat-name {
-  margin-top: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .lk-feat-photo {
-  width: 60px;
-  height: 75px;
+  flex: none;
+  width: 34%;
+  max-width: 136px;
   background: var(--light);
   overflow: hidden;
 }
@@ -175,21 +156,75 @@
   filter: grayscale(1);
 }
 
+.lk-feat-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Date numerals — same language as artist.css .guest-visit-* */
+.lk-days {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.lk-day {
+  font-size: clamp(38px, 11.5vw, 48px);
+  font-weight: 300;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.lk-sep { width: 20px; height: 1px; background: var(--mid); }
+
+.lk-feat-foot {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.lk-feat-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.lk-feat-foot .lk-arr { margin-bottom: 2px; transition: transform 0.12s; }
+.lk-feat:active .lk-arr { transform: translateX(3px); }
+
 .lk-feat-next {
   flex: none;
-  padding-top: 6px;
-  padding-bottom: 14px;
+  height: 36px;
+  line-height: 35px;
+  border-top: 1px solid var(--light);
   font-size: 11px;
-  font-weight: 400;
   color: var(--mid);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.lk-feat-next b { font-weight: 700; color: var(--black); }
-
-.lk-feat:active .lk-feat-name { text-decoration: underline; text-underline-offset: 3px; }
+.lk-feat-next-k {
+  margin-right: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--black);
+}
 
 /* ACTION ROWS — fill whatever height is left, never below 48px */
 .lk-nav { flex: 1; display: flex; }
@@ -271,13 +306,7 @@
 .lk-legal a:active,
 .lk-legal-btn:active { color: var(--black); }
 
-/* Guest content arrives after the fetch: a short fade, opacity only */
-@media (prefers-reduced-motion: no-preference) {
-  .lk-hero.is-guest > * { animation: lk-in 0.18s ease both; }
-}
-
-@keyframes lk-in { from { opacity: 0; } to { opacity: 1; } }
-
 @media (prefers-reduced-motion: reduce) {
-  .lk-act { transition: none; }
+  .lk-act,
+  .lk-slide { transition: none; }
 }

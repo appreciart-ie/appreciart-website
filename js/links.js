@@ -29,7 +29,9 @@
   if (!hero) return;
 
   const NEXT_COUNT = 2;
+  const STUDIO_DWELL = 2200; // ms after navigation start the studio photo holds
   const YMD = /^\d{4}-\d{2}-\d{2}$/;
+  const wait = ms => new Promise(r => setTimeout(r, Math.max(0, ms)));
 
   // Parse "YYYY-MM-DD" (or an ISO string) as *local* midnight — new Date(str)
   // treats it as UTC, so local getters slip a day in negative-offset zones.
@@ -64,8 +66,11 @@
   const CLD = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:[a-z]{1,3}_[^/]+\/)?(v\d+\/.+)$/;
   function thumbUrl(url) {
     const m = CLD.exec(url);
-    return m ? m[1] + 'c_fill,g_face,w_120,h_150,q_auto,f_auto/' + m[2] : url;
+    return m ? m[1] + 'c_fill,g_face,w_272,h_304,q_auto,f_auto/' + m[2] : url;
   }
+
+  // Static markup (no API data) — same arrow as the action rows
+  const ARROW = '<svg class="lk-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>';
 
   function el(tag, className, text) {
     const node = document.createElement(tag);
@@ -94,26 +99,29 @@
       days.appendChild(el('span', 'lk-day', day(g.end)));
     }
     body.appendChild(days);
-    body.appendChild(el('p', 'lk-feat-name', g.name));
-    a.appendChild(body);
+    const foot = el('div', 'lk-feat-foot');
+    foot.appendChild(el('p', 'lk-feat-name', g.name));
+    foot.insertAdjacentHTML('beforeend', ARROW);
+    body.appendChild(foot);
 
     if (isSafeUrl(g.profile_url)) {
       const frame = el('span', 'lk-feat-photo');
       const img = el('img');
       img.alt = '';
-      img.width = 120;
-      img.height = 150;
+      img.width = 272;
+      img.height = 304;
       img.decoding = 'async';
       img.addEventListener('error', () => frame.remove(), { once: true });
       img.src = thumbUrl(g.profile_url);
       frame.appendChild(img);
       a.appendChild(frame);
     }
+    a.appendChild(body);
 
     const nodes = [a];
     if (next.length) {
       const line = el('p', 'lk-feat-next');
-      line.appendChild(el('b', null, 'Next: '));
+      line.appendChild(el('span', 'lk-feat-next-k', 'Next'));
       line.appendChild(document.createTextNode(
         next.map(n => n.name + ' ' + shortRange(n.start, n.end)).join(' · ')
       ));
@@ -148,11 +156,29 @@
       .sort((a, b) => (a.startKey < b.startKey ? -1 : a.startKey > b.startKey ? 1 : 0))
       .slice(0, NEXT_COUNT);
 
-    // Build first, then swap in one step: a render error leaves the studio state.
-    const nodes = guestHero(now[0], next);
-    hero.replaceChildren(...nodes);
-    hero.setAttribute('aria-label', 'Guest artist');
-    hero.classList.add('is-guest');
+    // Build the guest slide off-screen (inert), let the studio photo hold for a
+    // moment, then slide it in — CSS does the motion, reduced motion swaps
+    // instantly. A render error before this point leaves the studio photo.
+    const slide = el('div', 'lk-slide lk-slide--guest');
+    slide.append(...guestHero(now[0], next));
+    slide.setAttribute('aria-hidden', 'true');
+    slide.inert = true;
+    hero.appendChild(slide);
+
+    // Wait for the portrait (max 1.5s) so it never pops in after the slide.
+    const img = slide.querySelector('img');
+    const ready = Promise.race([
+      img && img.decode ? img.decode().catch(() => {}) : Promise.resolve(),
+      wait(1500),
+    ]);
+    Promise.all([wait(STUDIO_DWELL - performance.now()), ready]).then(() => {
+      slide.removeAttribute('aria-hidden');
+      slide.inert = false;
+      hero.setAttribute('aria-label', 'Guest artist');
+      hero.classList.add('is-guest');
+      const studio = document.getElementById('lkStudio');
+      if (studio) setTimeout(() => studio.remove(), 500);
+    });
   }
 
   // AbortSignal.timeout is missing on iOS < 16 WebViews; without this guard
