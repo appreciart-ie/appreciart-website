@@ -30,6 +30,8 @@
 
   const NEXT_COUNT = 2;
   const STUDIO_DWELL = 2200; // ms after navigation start the studio photo holds
+  const GUEST_HOLD   = 7000; // then guest and studio alternate
+  const STUDIO_HOLD  = 3500;
   const YMD = /^\d{4}-\d{2}-\d{2}$/;
   const wait = ms => new Promise(r => setTimeout(r, Math.max(0, ms)));
 
@@ -171,13 +173,45 @@
       img && img.decode ? img.decode().catch(() => {}) : Promise.resolve(),
       wait(1500),
     ]);
+    // Then loop studio ↔ guest, the guest holding longer. No loop under
+    // reduced motion (stays on the guest); focus inside the hero stops it on
+    // the guest; a hidden tab pauses it.
+    const studio = document.getElementById('lkStudio');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer = 0;
+    let stopped = false;
+
+    function show(guestOn) {
+      hero.classList.toggle('is-guest', guestOn);
+      slide.inert = !guestOn;
+      if (guestOn) slide.removeAttribute('aria-hidden');
+      else slide.setAttribute('aria-hidden', 'true');
+      if (studio) studio.setAttribute('aria-hidden', String(guestOn));
+    }
+
+    function schedule(ms) {
+      clearTimeout(timer);
+      if (stopped || reduce || !studio) return;
+      timer = setTimeout(() => {
+        const guestOn = !hero.classList.contains('is-guest');
+        show(guestOn);
+        schedule(guestOn ? GUEST_HOLD : STUDIO_HOLD);
+      }, ms);
+    }
+
     Promise.all([wait(STUDIO_DWELL - performance.now()), ready]).then(() => {
-      slide.removeAttribute('aria-hidden');
-      slide.inert = false;
       hero.setAttribute('aria-label', 'Guest artist');
-      hero.classList.add('is-guest');
-      const studio = document.getElementById('lkStudio');
-      if (studio) setTimeout(() => studio.remove(), 500);
+      show(true);
+      schedule(GUEST_HOLD);
+      hero.addEventListener('focusin', () => {
+        stopped = true;
+        clearTimeout(timer);
+        show(true);
+      }, { once: true });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) clearTimeout(timer);
+        else schedule(hero.classList.contains('is-guest') ? GUEST_HOLD : STUDIO_HOLD);
+      });
     });
   }
 
