@@ -359,6 +359,48 @@
   max-width: 560px;
 }
 
+/* ROLES — who handles what */
+.ga-roles {
+  padding: var(--sv) 0;
+  border-bottom: 1px solid var(--light);
+  overflow-x: hidden;
+}
+
+.ga-roles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--light);
+  border-left: 1px solid var(--light);
+}
+
+.ga-role {
+  padding: 36px 32px;
+  border-right: 1px solid var(--light);
+  border-bottom: 1px solid var(--light);
+}
+
+.ga-role-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 10px;
+}
+
+.ga-role-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  line-height: 1.75;
+  max-width: 480px;
+}
+
+@media (max-width: 600px) {
+  .ga-roles-grid { grid-template-columns: 1fr; }
+  .ga-role { padding: 24px 20px; }
+}
+
 /* TESTIMONIALS */
 .ga-testimonials {
   padding: var(--sv) 0;
